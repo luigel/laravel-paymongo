@@ -1,0 +1,1 @@
+C:37:"PHPUnit\Runner\DefaultTestResultCache":258:{a:2:{s:7:"defects";a:1:{s:59:"Luigel\LaravelPaymongo\Tests\TokenTest::it_can_create_token";i:4;}s:5:"times";a:2:{s:52:"Luigel\LaravelPaymongo\Tests\TokenTest::true_is_true";d:0.101;s:59:"Luigel\LaravelPaymongo\Tests\TokenTest::it_can_create_token";d:1.205;}}}

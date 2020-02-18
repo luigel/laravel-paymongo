@@ -1,6 +1,6 @@
 {
     "name": "luigel/laravel-paymongo",
-    "description": "A",
+    "description": "A laravel wrapper for Paymongo API",
     "keywords": [
         "luigel",
         "laravel-paymongo"
@@ -17,6 +17,7 @@
     ],
     "require": {
         "php": "^7.1",
+        "guzzlehttp/guzzle": "^6.5",
         "illuminate/support": "^6.0"
     },
     "require-dev": {

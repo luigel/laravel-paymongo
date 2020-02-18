@@ -16,6 +16,6 @@ class LaravelPaymongoFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'laravel-paymongo';
+        return 'paymongo';
     }
 }

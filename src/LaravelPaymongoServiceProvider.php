@@ -21,7 +21,7 @@ class LaravelPaymongoServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('laravel-paymongo.php'),
+                __DIR__.'/../config/config.php' => config_path('paymongo.php'),
             ], 'config');
 
             // Publishing the views.
@@ -50,11 +50,11 @@ class LaravelPaymongoServiceProvider extends ServiceProvider
     public function register()
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'laravel-paymongo');
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'paymongo');
 
         // Register the main class to use with the facade
-        $this->app->singleton('laravel-paymongo', function () {
-            return new LaravelPaymongo;
+        $this->app->singleton('paymongo', function () {
+            return new Paymongo;
         });
     }
 }
