@@ -36,6 +36,14 @@ You can install the package via composer:
 ```bash
 composer require luigel/laravel-paymongo
 ```
+**Laravel 6** uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
+
+Put your `Secret Key` and  `Public Key` in you `.env` file.
+
+```
+PAYMONGO_SECRET_KEY=
+PAYMONGO_PUBLIC_KEY=
+```
 
 > ## Usage
 
