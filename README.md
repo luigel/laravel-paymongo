@@ -39,7 +39,7 @@ composer require luigel/laravel-paymongo
 
 > ## Usage
 
-> ## Tokens
+> ### Tokens
 > ### Create Token 
 
 Creates a one-time use token representing your customer's credit card details. NOTE: This token can only be used once to create a Payment. You must create separate tokens for every payment attempt.
@@ -67,7 +67,7 @@ use Paymongo;
 $token = Paymongo::token()->find($tokenId);
 ```
 
-> ## Payments
+> ### Payments
 > ### Create Payment 
 
 To charge a payment source, you must create a Payment object. When in test mode, your payment sources won't actually be charged. You can select specific payment sources for different success and failure scenarios.
@@ -114,7 +114,7 @@ use Paymongo;
 $payments = Paymongo::payment()->all();
 ```
 
-## Sources
+> ### Sources
 > ### Create Source 
 Creates a source to let the user pay using their [Gcash Accounts](https://www.gcash.com).
 
@@ -137,7 +137,7 @@ $source = Paymongo::source()->create([
 ]);
 ```
 
-## Webhooks
+> ### Webhooks
 > ### Create Webhook 
 Creates a webhook.
 
