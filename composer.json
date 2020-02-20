@@ -8,6 +8,7 @@
     "homepage": "https://github.com/luigel/laravel-paymongo",
     "license": "MIT",
     "type": "library",
+    "version": "1.0.1",
     "authors": [
         {
             "name": "Rigel Kent Carbonel",

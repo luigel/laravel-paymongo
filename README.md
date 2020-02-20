@@ -1,9 +1,10 @@
-# Very short description of the package
+# PHP Library for Paymongo, by Luigel
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/luigel/laravel-paymongo.svg?style=flat-square)](https://packagist.org/packages/luigel/laravel-paymongo)
 [![Build Status](https://img.shields.io/travis/luigel/laravel-paymongo/master.svg?style=flat-square)](https://travis-ci.org/luigel/laravel-paymongo)
 [![Quality Score](https://img.shields.io/scrutinizer/g/luigel/laravel-paymongo.svg?style=flat-square)](https://scrutinizer-ci.com/g/luigel/laravel-paymongo)
 [![Total Downloads](https://img.shields.io/packagist/dt/luigel/laravel-paymongo.svg?style=flat-square)](https://packagist.org/packages/luigel/laravel-paymongo)
+[![License](https://img.shields.io/github/license/luigel/laravel-paymongo.svg?style=flat-square)](https://github.com/luigel/laravel-paymongo/blob/master/LICENSE.md)
 
 This is a Laravel wrapper for Paymongo API https://paymongo.com
 
