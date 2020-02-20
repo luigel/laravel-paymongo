@@ -222,6 +222,6 @@ If you discover any security related issues, please email rigel20.kent@gmail.com
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
-## Laravel Package Boilerplate
 
-This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).
+
+Made with :heart: by Rigel Kent Carbonel
