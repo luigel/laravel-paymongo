@@ -88,8 +88,10 @@ class WebhookTest extends TestCase
         $webhooks = PaymongoFacade::webhook()->all();
 
         $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
-        if ($webhook->url === 'http://localhost/updated-webhook')
+
+        if ($webhook->url === 'http://localhost/updated-webhook-test')
         {
+            $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
             $webhook = $webhook->update([
                 'url' => 'http://localhost/webhook'
             ]);
@@ -98,10 +100,12 @@ class WebhookTest extends TestCase
         }
         else
         {
+            $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
+
             $webhook = $webhook->update([
-                'url' => 'http://localhost/updated-webhook'
+                'url' => 'http://localhost/updated-webhook-test'
             ]);
-            $this->assertEquals('http://localhost/updated-webhook', $webhook->url);
+            $this->assertEquals('http://localhost/updated-webhook-test', $webhook->url);
         }
         
         
