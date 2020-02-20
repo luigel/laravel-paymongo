@@ -49,7 +49,7 @@
                 "Luigel\\LaravelPaymongo\\LaravelPaymongoServiceProvider"
             ],
             "aliases": {
-                "LaravelPaymongo": "Luigel\\LaravelPaymongo\\Facades\\PaymongoFacade"
+                "Paymongo": "Luigel\\LaravelPaymongo\\Facades\\PaymongoFacade"
             }
         }
     }
