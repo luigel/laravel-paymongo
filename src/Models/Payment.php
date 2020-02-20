@@ -2,33 +2,6 @@
 
 namespace Luigel\LaravelPaymongo\Models;
 
-// {
-//     "data":{
-//         "id":"pay_2fY7akPexFaBSYwRiL4HdjuH"
-//         "type":"payment"
-//         "attributes":{
-//             "amount":10000
-//             "currency":"PHP"
-//             "description":"Test Payment"
-//             "external_reference_number":NULL
-//             "fee":1850
-//             "livemode":false
-//             "net_amount":8150
-//             "statement_descriptor":"Test Paymongo"
-//             "status":"paid"
-//             "source":{
-//                 "id":"tok_yzpg6SvJXN58pL7UHhtiANYG"
-//                 "type":"token"
-//             }
-//             "created":1582157728
-//             "updated":1582157728
-//             "paid":1582157728
-//             "payout":NULL
-//             "access_url":NULL
-//             "billing":NULL
-//         }
-//     }
-// }
 class Payment
 {
     public $id;
@@ -77,7 +50,7 @@ class Payment
         $this->net_amount = $data['attributes']['net_amount'];
         $this->statement_descriptor = $data['attributes']['statement_descriptor'];
         $this->status = $data['attributes']['status'];
-        $this->source = new Source($data['attributes']['source']);
+        $this->source = new PaymentSource($data['attributes']['source']);
         $this->created = $data['attributes']['created'];
         $this->updated = $data['attributes']['updated'];
         $this->paid = $data['attributes']['paid'];

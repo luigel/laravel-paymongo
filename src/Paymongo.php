@@ -3,6 +3,7 @@
 namespace Luigel\LaravelPaymongo;
 
 use Luigel\LaravelPaymongo\Models\Payment;
+use Luigel\LaravelPaymongo\Models\Source;
 use Luigel\LaravelPaymongo\Models\Token;
 use Luigel\LaravelPaymongo\Traits\Request;
 
@@ -33,6 +34,13 @@ class Paymongo
     {
         $this->apiUrl = self::BASE_API . self::ENDPOINT_PAYMENTS;
         $this->returnModel = Payment::class;
+        return $this;
+    }
+
+    public function source()
+    {
+        $this->apiUrl = self::BASE_API . self::ENPDPOINT_SOURCES;
+        $this->returnModel = Source::class;
         return $this;
     }
 }

@@ -7,7 +7,7 @@ use Luigel\LaravelPaymongo\Facades\PaymongoFacade;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
 use Luigel\LaravelPaymongo\Models\Payment;
-use Luigel\LaravelPaymongo\Models\Source;
+use Luigel\LaravelPaymongo\Models\PaymentSource;
 
 class PaymentTest extends TestCase
 {
@@ -44,7 +44,7 @@ class PaymentTest extends TestCase
         $this->assertTrue($payment->status === 'paid');
         
         $this->assertInstanceOf(Payment::class, $payment);
-        $this->assertInstanceOf(Source::class, $payment->source);
+        $this->assertInstanceOf(PaymentSource::class, $payment->source);
     }
 
     /** @test */
