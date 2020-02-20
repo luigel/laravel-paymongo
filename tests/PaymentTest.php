@@ -3,7 +3,7 @@
 namespace Luigel\LaravelPaymongo\Tests;
 
 use Illuminate\Support\Collection;
-use Luigel\LaravelPaymongo\Facades\PaymongoFacade;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
 use Luigel\LaravelPaymongo\Models\Payment;
@@ -19,14 +19,14 @@ class PaymentTest extends TestCase
     /** @test */
     public function it_can_create_payment()
     {
-        $token = PaymongoFacade::token()->create([
+        $token = Paymongo::token()->create([
             'number' => '4242424242424242',
             'exp_month' => 12,
             'exp_year' => 25,
             'cvc' => "123",
         ]);
 
-        $payment = PaymongoFacade::payment()
+        $payment = Paymongo::payment()
                     ->create([
                         'amount' => '100.00',
                         'currency' => 'PHP',
@@ -50,14 +50,14 @@ class PaymentTest extends TestCase
     /** @test */
     public function it_cannot_create_payment_when_token_is_used_more_than_once()
     {
-        $token = PaymongoFacade::token()->create([
+        $token = Paymongo::token()->create([
             'number' => '4242424242424242',
             'exp_month' => 12,
             'exp_year' => 25,
             'cvc' => "123",
         ]);
 
-        $payment = PaymongoFacade::payment()
+        $payment = Paymongo::payment()
                     ->create([
                         'amount' => '100.00',
                         'currency' => 'PHP',
@@ -73,7 +73,7 @@ class PaymentTest extends TestCase
         $this->assertTrue($payment->statement_descriptor === 'Test Paymongo');
         $this->assertTrue($payment->status === 'paid');
 
-        $payment = PaymongoFacade::payment()
+        $payment = Paymongo::payment()
                     ->create([
                         'amount' => '100.00',
                         'currency' => 'PHP',
@@ -91,14 +91,14 @@ class PaymentTest extends TestCase
     /** @test */
     public function it_cannot_create_payment_when_token_is_not_valid()
     {
-        $token = PaymongoFacade::token()->create([
+        $token = Paymongo::token()->create([
             'number' => '4444333322221111',
             'exp_month' => 12,
             'exp_year' => 25,
             'cvc' => "123",
         ]);
 
-        $payment = PaymongoFacade::payment()
+        $payment = Paymongo::payment()
             ->create([
                 'amount' => '100.00',
                 'currency' => 'PHP',
@@ -116,14 +116,14 @@ class PaymentTest extends TestCase
     /** @test */
     public function it_can_retrieve_a_payment()
     {
-        $token = PaymongoFacade::token()->create([
+        $token = Paymongo::token()->create([
             'number' => '4242424242424242',
             'exp_month' => 12,
             'exp_year' => 25,
             'cvc' => "123",
         ]);
 
-        $createdPayment = PaymongoFacade::payment()
+        $createdPayment = Paymongo::payment()
             ->create([
                 'amount' => '100.00',
                 'currency' => 'PHP',
@@ -135,7 +135,7 @@ class PaymentTest extends TestCase
                 ]
             ]);
 
-        $payment = PaymongoFacade::payment()
+        $payment = Paymongo::payment()
             ->find($createdPayment->id);
 
         $this->assertEquals($createdPayment, $payment);
@@ -144,14 +144,14 @@ class PaymentTest extends TestCase
         /** @test */
         public function it_can_not_retrieve_a_payment_with_invalid_id()
         {
-            $token = PaymongoFacade::token()->create([
+            $token = Paymongo::token()->create([
                 'number' => '4242424242424242',
                 'exp_month' => 12,
                 'exp_year' => 25,
                 'cvc' => "123",
             ]);
     
-            PaymongoFacade::payment()
+            Paymongo::payment()
                 ->create([
                     'amount' => '100.00',
                     'currency' => 'PHP',
@@ -163,7 +163,7 @@ class PaymentTest extends TestCase
                     ]
                 ]);
     
-            $payment = PaymongoFacade::payment()
+            $payment = Paymongo::payment()
                 ->find('test');
     
             $this->assertEquals('No such payment.', $payment);
@@ -172,7 +172,7 @@ class PaymentTest extends TestCase
         /** @test */
         public function it_can_get_all_payments()
         {
-            $payments = PaymongoFacade::payment()->all();
+            $payments = Paymongo::payment()->all();
 
             $this->assertInstanceOf(Collection::class, $payments);
         }

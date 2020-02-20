@@ -3,7 +3,7 @@
 namespace Luigel\LaravelPaymongo\Tests;
 
 use Illuminate\Support\Collection;
-use Luigel\LaravelPaymongo\Facades\PaymongoFacade;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 use Luigel\LaravelPaymongo\Models\Webhook;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
@@ -18,7 +18,7 @@ class WebhookTest extends TestCase
     /** @test */
     public function it_can_list_all_webhooks()
     {
-        $webhooks = PaymongoFacade::webhook()->all();
+        $webhooks = Paymongo::webhook()->all();
 
         $this->assertInstanceOf(Collection::class, $webhooks);
 
@@ -28,9 +28,9 @@ class WebhookTest extends TestCase
     /** @test */
     public function it_can_retrieve_webhook()
     {
-        $webhooks = PaymongoFacade::webhook()->all();
+        $webhooks = Paymongo::webhook()->all();
 
-        $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
+        $webhook = Paymongo::webhook()->find($webhooks[0]->id);
 
         $this->assertInstanceOf(Webhook::class, $webhook);
 
@@ -40,7 +40,7 @@ class WebhookTest extends TestCase
     /** @test */
     public function it_can_create_a_webhook()
     {
-        $webhook = PaymongoFacade::webhook()->create([
+        $webhook = Paymongo::webhook()->create([
             'url' => 'http://localhost/webhook',
             'events' => [
                 Webhook::SOURCE_CHARGEABLE
@@ -64,20 +64,20 @@ class WebhookTest extends TestCase
     /** @test */
     public function it_can_disable_and_enable_webhook()
     {
-        $webhooks = PaymongoFacade::webhook()->all();
+        $webhooks = Paymongo::webhook()->all();
 
-        $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
+        $webhook = Paymongo::webhook()->find($webhooks[0]->id);
 
         if ($webhook->status === 'enabled')
         {
             $webhook->disable();
-            $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
+            $webhook = Paymongo::webhook()->find($webhooks[0]->id);
             $this->assertEquals('disabled', $webhook->status);
         }
         else
         {
             $webhook->enable();
-            $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
+            $webhook = Paymongo::webhook()->find($webhooks[0]->id);
             $this->assertEquals('enabled', $webhook->status);
         }
     }
@@ -86,13 +86,13 @@ class WebhookTest extends TestCase
     public function it_can_update_webhook()
     {
         $this->assertTrue(true);
-        // $webhooks = PaymongoFacade::webhook()->all();
+        // $webhooks = Paymongo::webhook()->all();
 
-        // $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
+        // $webhook = Paymongo::webhook()->find($webhooks[0]->id);
 
         // if ($webhook->url === 'http://localhost/updated-webhook-test-1')
         // {
-        //     $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
+        //     $webhook = Paymongo::webhook()->find($webhooks[0]->id);
         //     $webhook = $webhook->update([
         //         'url' => 'http://localhost/updated-webhook-test-2'
         //     ]);
@@ -101,7 +101,7 @@ class WebhookTest extends TestCase
         // }
         // else
         // {
-        //     $webhook = PaymongoFacade::webhook()->find($webhooks[0]->id);
+        //     $webhook = Paymongo::webhook()->find($webhooks[0]->id);
 
         //     $webhook = $webhook->update([
         //         'url' => 'http://localhost/updated-webhook-test-1'

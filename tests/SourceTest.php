@@ -2,7 +2,7 @@
 
 namespace Luigel\LaravelPaymongo\Tests;
 
-use Luigel\LaravelPaymongo\Facades\PaymongoFacade;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
 use Luigel\LaravelPaymongo\Models\Source;
@@ -17,7 +17,7 @@ class SourceTest extends TestCase
     /** @test */
     public function it_can_create_a_source()
     {
-        $source = PaymongoFacade::source()->create([
+        $source = Paymongo::source()->create([
             'type' => 'gcash',
             'amount' => 100.00,
             'currency' => 'PHP',

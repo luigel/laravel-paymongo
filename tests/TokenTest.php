@@ -2,7 +2,7 @@
 
 namespace Luigel\LaravelPaymongo\Tests;
 
-use Luigel\LaravelPaymongo\Facades\PaymongoFacade;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
 use Luigel\LaravelPaymongo\Models\Card;
@@ -18,7 +18,7 @@ class TokenTest extends TestCase
     /** @test */
     public function it_can_create_token()
     {
-        $token = PaymongoFacade::token()
+        $token = Paymongo::token()
                     ->create([
                         'number' => '4242424242424242',
                         'exp_month' => 12,
@@ -35,7 +35,7 @@ class TokenTest extends TestCase
     /** @test */
     public function it_cannot_create_token_with_invalid_data()
     {
-        $token = PaymongoFacade::token()
+        $token = Paymongo::token()
                     ->create([
                         'number' => '424242424242424222',
                         'exp_month' => 12,
@@ -50,7 +50,7 @@ class TokenTest extends TestCase
     /** @test */
     public function it_can_retrieve_token()
     {
-        $createdToken = PaymongoFacade::token()
+        $createdToken = Paymongo::token()
                     ->create([
                         'number' => '4242424242424242',
                         'exp_month' => 12,
@@ -58,7 +58,7 @@ class TokenTest extends TestCase
                         'cvc' => "123",
         ]);
 
-        $token = PaymongoFacade::token()->find($createdToken->id);
+        $token = Paymongo::token()->find($createdToken->id);
 
         $this->assertEquals($createdToken, $token);
     }

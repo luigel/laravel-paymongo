@@ -54,7 +54,7 @@ Creates a one-time use token representing your customer's credit card details. N
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $token = Paymongo::token()->create([
     'number' => '4242424242424242',
@@ -70,7 +70,7 @@ Retrieve a token given an ID. The prefix for the id is `tok_` followed by a uniq
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $token = Paymongo::token()->find($tokenId);
 ```
@@ -86,7 +86,7 @@ Refer to [Paymongo documentation](https://developers.paymongo.com/reference#crea
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $payment = Paymongo::payment()->create([
     'amount' => 100.00,
@@ -106,7 +106,7 @@ You can retrieve a Payment by providing a payment ID. The prefix for the id is `
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $payment = Paymongo::payment()->find('pay_i35wBzLNdX8i9nKEPaSKWGib');
 ```
@@ -117,7 +117,7 @@ Returns all the payments you previously created, with the most recent payments r
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $payments = Paymongo::payment()->all();
 ```
@@ -132,7 +132,7 @@ Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $source = Paymongo::source()->create([
     'type' => 'gcash',
@@ -155,7 +155,7 @@ Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $webhook = Paymongo::webhook()->create([
     'url' => 'http://your-domain/webhook/source-chargeable',
@@ -171,7 +171,7 @@ Returns all the webhooks you previously created, with the most recent webhooks r
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $webhook = Paymongo::webhook()->all();
 ```
@@ -182,7 +182,7 @@ Set the webhook enable or disable.
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 // Enable webhook
 $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->enable();
 
@@ -196,7 +196,7 @@ Updates a specific webhook
 
 **Sample**
 ``` php
-use Paymongo;
+use Luigel\LaravelPaymongo\Facades\Paymongo;
 
 $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
     'url' => 'https://update-domain.com/webhook'
