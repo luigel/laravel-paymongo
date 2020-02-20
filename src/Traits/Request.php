@@ -4,8 +4,8 @@ namespace Luigel\LaravelPaymongo\Traits;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Database\Eloquent\Model;
+use Luigel\LaravelPaymongo\Models\Webhook;
 
 trait Request
 {
@@ -70,7 +70,55 @@ trait Request
             ],
             'auth' => [config('paymongo.secret_key'), ''],
         ]);
-        
+
+        return $this->request();
+    }
+
+    public function enable(Webhook $webhook)
+    {
+        $this->method = 'POST';
+        $this->apiUrl = $this->apiUrl . "$webhook->id/enable";
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    public function disable(Webhook $webhook)
+    {
+        $this->method = 'POST';
+        $this->apiUrl = $this->apiUrl . "$webhook->id/disable";
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    public function update(Webhook $webhook, $payload)
+    {
+        $this->method = 'PUT';
+        $this->payload = $this->convertPayloadAmountsToInteger($payload);
+        $this->apiUrl = $this->apiUrl . $webhook->id;
+
+        $this->formRequestData();
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+            'json' => $this->data,
+        ]);
+
         return $this->request();
     }
 

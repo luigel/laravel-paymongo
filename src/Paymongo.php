@@ -5,6 +5,7 @@ namespace Luigel\LaravelPaymongo;
 use Luigel\LaravelPaymongo\Models\Payment;
 use Luigel\LaravelPaymongo\Models\Source;
 use Luigel\LaravelPaymongo\Models\Token;
+use Luigel\LaravelPaymongo\Models\Webhook;
 use Luigel\LaravelPaymongo\Traits\Request;
 
 class Paymongo
@@ -41,6 +42,13 @@ class Paymongo
     {
         $this->apiUrl = self::BASE_API . self::ENPDPOINT_SOURCES;
         $this->returnModel = Source::class;
+        return $this;
+    }
+
+    public function webhook()
+    {
+        $this->apiUrl = self::BASE_API . self::ENDPOINT_WEBHOOKS;
+        $this->returnModel = Webhook::class;
         return $this;
     }
 }
