@@ -5,6 +5,9 @@ namespace Luigel\LaravelPaymongo\Traits;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Database\Eloquent\Model;
+use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
+use Luigel\LaravelPaymongo\Exceptions\NotFoundException;
+use Luigel\LaravelPaymongo\Exceptions\PaymentErrorException;
 use Luigel\LaravelPaymongo\Models\Webhook;
 
 trait Request
@@ -125,7 +128,7 @@ trait Request
     /** 
      * Send request to API 
      * 
-     * @return mixed
+     * @return mixed|Throwable
      */
     protected function request()
     {
@@ -141,7 +144,18 @@ trait Request
         catch (ClientException $e)
         {
             $response = json_decode($e->getResponse()->getBody()->getContents(), true);
-            return $response['errors'][0]['detail'];
+            if ($e->getCode() === 400)
+            {
+                throw new BadRequestException($response['errors'][0]['detail']);
+            }
+            else if ($e->getCode() === 402)
+            {
+                throw new PaymentErrorException($response['errors'][0]['detail']);
+            }
+            else if ($e->getCode() === 404)
+            {
+                throw new NotFoundException($response['errors'][0]['detail']);
+            }
         }
 
         

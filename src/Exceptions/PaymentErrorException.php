@@ -5,11 +5,11 @@ namespace Luigel\LaravelPaymongo\Exceptions;
 use Exception;
 use Throwable;
 
-class BadRequestException extends Exception
+class PaymentErrorException extends Exception
 {
     public function __construct(
-        $message = 'The request was not understood, often caused by missing parameters.',
-        $code = 400,
+        $message = 'There is an error during payment',
+        $code = 402,
         Throwable $previous = null
     )
     {

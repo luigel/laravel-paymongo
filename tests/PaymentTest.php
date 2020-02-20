@@ -3,6 +3,9 @@
 namespace Luigel\LaravelPaymongo\Tests;
 
 use Illuminate\Support\Collection;
+use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
+use Luigel\LaravelPaymongo\Exceptions\NotFoundException;
+use Luigel\LaravelPaymongo\Exceptions\PaymentErrorException;
 use Luigel\LaravelPaymongo\Facades\Paymongo;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
@@ -50,6 +53,8 @@ class PaymentTest extends TestCase
     /** @test */
     public function it_cannot_create_payment_when_token_is_used_more_than_once()
     {
+        $this->expectException(BadRequestException::class);
+
         $token = Paymongo::token()->create([
             'number' => '4242424242424242',
             'exp_month' => 12,
@@ -84,13 +89,13 @@ class PaymentTest extends TestCase
                             'type' => $token->type
                         ]
                     ]);
-
-        $this->assertEquals('Token provided has already been used.', $payment);
     }
 
     /** @test */
     public function it_cannot_create_payment_when_token_is_not_valid()
     {
+        $this->expectException(PaymentErrorException::class);
+
         $token = Paymongo::token()->create([
             'number' => '4444333322221111',
             'exp_month' => 12,
@@ -110,7 +115,6 @@ class PaymentTest extends TestCase
                 ]
             ]);
 
-        $this->assertEquals('Your card has been declined due to insufficient funds.', $payment);
     }
 
     /** @test */
@@ -144,6 +148,8 @@ class PaymentTest extends TestCase
         /** @test */
         public function it_can_not_retrieve_a_payment_with_invalid_id()
         {
+            $this->expectException(NotFoundException::class);
+            
             $token = Paymongo::token()->create([
                 'number' => '4242424242424242',
                 'exp_month' => 12,
@@ -163,10 +169,8 @@ class PaymentTest extends TestCase
                     ]
                 ]);
     
-            $payment = Paymongo::payment()
+            Paymongo::payment()
                 ->find('test');
-    
-            $this->assertEquals('No such payment.', $payment);
         }
 
         /** @test */

@@ -3,6 +3,7 @@
 namespace Luigel\LaravelPaymongo\Tests;
 
 use Illuminate\Support\Collection;
+use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
 use Luigel\LaravelPaymongo\Facades\Paymongo;
 use Luigel\LaravelPaymongo\Models\Webhook;
 use Orchestra\Testbench\TestCase;
@@ -40,25 +41,23 @@ class WebhookTest extends TestCase
     /** @test */
     public function it_can_create_a_webhook()
     {
+        $webhooks = Paymongo::webhook()->all();
         $webhook = Paymongo::webhook()->create([
-            'url' => 'http://localhost/webhook',
+            'url' => 'http://localhost/webhook/' . $webhooks->count(),
             'events' => [
                 Webhook::SOURCE_CHARGEABLE
             ]
         ]);
-        if ($webhook !== 'URL already exists.')
-        {
-            $this->assertInstanceOf(Webhook::class, $webhook);
 
-            $this->assertEquals('enabled', $webhook->status);
-    
-            $this->assertEquals('http://localhost/webhook', $webhook->url);
-            
-            $this->assertInstanceOf(Collection::class, $webhook->event);
-    
-            $this->assertEquals('source.chargeable', $webhook->events[0]);
-        }
-        $this->assertTrue(true);
+        $this->assertInstanceOf(Webhook::class, $webhook);
+
+        $this->assertEquals('enabled', $webhook->status);
+
+        $this->assertEquals('http://localhost/webhook/' . $webhooks->count(), $webhook->url);
+        
+        $this->assertInstanceOf(Collection::class, $webhook->events);
+
+        $this->assertEquals('source.chargeable', $webhook->events[0]);
     }
 
     /** @test */

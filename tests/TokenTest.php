@@ -2,6 +2,7 @@
 
 namespace Luigel\LaravelPaymongo\Tests;
 
+use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
 use Luigel\LaravelPaymongo\Facades\Paymongo;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
@@ -10,6 +11,7 @@ use Luigel\LaravelPaymongo\Models\Token;
 
 class TokenTest extends TestCase
 {
+
     protected function getPackageProviders($app)
     {
         return [LaravelPaymongoServiceProvider::class];
@@ -35,6 +37,8 @@ class TokenTest extends TestCase
     /** @test */
     public function it_cannot_create_token_with_invalid_data()
     {
+        $this->expectException(BadRequestException::class);
+
         $token = Paymongo::token()
                     ->create([
                         'number' => '424242424242424222',
@@ -42,8 +46,8 @@ class TokenTest extends TestCase
                         'exp_year' => 25,
                         'cvc' => "123",
         ]);
+
         
-        $this->assertEquals('Your card number is invalid.', $token);
 
     }
 
