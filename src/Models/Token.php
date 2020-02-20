@@ -14,7 +14,7 @@ class Token
     {
         $this->id = $data['id'];
         $this->type = $data['type'];
-        $this->card = $data['attributes']['card'];
+        $this->card = new Card($data['attributes']['card']);
         $this->kind = $data['attributes']['kind'];
         $this->used = $data['attributes']['used'];
 

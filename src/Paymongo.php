@@ -12,14 +12,14 @@ class Paymongo
 
     protected $method;
     protected $apiUrl = '';
-    protected $payload = [];
+    protected $payload;
     protected $returnModel = '';
 
     protected const BASE_API = 'https://api.paymongo.com/v1/';
-    protected const ENPOINT_TOKEN = 'tokens';
-    protected const ENDPOINT_PAYMENTS = 'payments';
-    protected const ENPDPOINT_SOURCES = 'sources';
-    protected const ENDPOINT_WEBHOOKS = 'webhooks';
+    protected const ENPOINT_TOKEN = 'tokens/';
+    protected const ENDPOINT_PAYMENTS = 'payments/';
+    protected const ENPDPOINT_SOURCES = 'sources/';
+    protected const ENDPOINT_WEBHOOKS = 'webhooks/';
     protected const SOURCE_GCASH = 'gcash';
 
     public function token()

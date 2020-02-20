@@ -3,12 +3,14 @@
 namespace Luigel\LaravelPaymongo\Traits;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Database\Eloquent\Model;
 
 trait Request
 {
     protected $data;
+    protected $options;
 
     /**
      * Request a create to API
@@ -19,8 +21,56 @@ trait Request
     public function create($payload)
     {
         $this->method = 'POST';
-        $this->payload = $payload;
+        $this->payload = $this->convertPayloadAmountsToInteger($payload);
         $this->formRequestData();
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json', 
+                'Content-type' => 'application/json'
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+            'json' => $this->data,
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Request a create to API
+     * 
+     * @param array $payload
+     * @return Model
+     */
+    public function find($payload)
+    {
+        $this->method = 'GET';
+        $this->payload = $payload;
+        $this->apiUrl = $this->apiUrl . $payload;
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-type' => 'application/json'
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    public function all()
+    {
+        $this->method = 'GET';
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-type' => 'application/json'
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+        
         return $this->request();
     }
 
@@ -35,21 +85,15 @@ trait Request
 
         try 
         {
-            $response = $client->request($this->method, $this->apiUrl, [
-                'headers' => [
-                    'Accept' => 'application/json', 
-                    'Content-type' => 'application/json'
-                ],
-                'auth' => [config('paymongo.secret_key'), ''],
-                'json' => $this->data,
-            ]);
+            $response = $client->request($this->method, $this->apiUrl, $this->options);
 
             $array = $this->parseToArray((string) $response->getBody());
             return $this->setReturnModel($array);
         }
-        catch (GuzzleException $e)
+        catch (ClientException $e)
         {
-            return 'Bad Request';
+            $response = json_decode($e->getResponse()->getBody()->getContents(), true);
+            return $response['errors'][0]['detail'];
         }
 
         
@@ -73,5 +117,20 @@ trait Request
     protected function setReturnModel($array)
     {
         return (new $this->returnModel)->setData($array['data']);
+    }
+
+    protected function setOptions($options)
+    {
+        $this->options = $options;
+    }
+
+    protected function convertPayloadAmountsToInteger($payload)
+    {
+        if (isset($payload['amount']))
+        {
+            $payload['amount'] *= 100;
+        }
+        return $payload;
+        
     }
 }

@@ -51,11 +51,39 @@ class Payment
     
     public function setData($data)
     {
+        if (is_array($data) && isset($data['id']))
+        {
+            return $this->convertToObject($data);
+        }
+        $payments = collect();
+
+        foreach ($data as $item)
+        {
+            $payments->push($this->convertToObject($item));
+        }
+        return $payments;
+        
+    }
+
+    protected function convertToObject($data)
+    {
         $this->id = $data['id'];
         $this->type = $data['type'];
-        $this->card = $data['attributes']['card'];
-        $this->kind = $data['attributes']['kind'];
-        $this->used = $data['attributes']['used'];
+        $this->amount = number_format($data['attributes']['amount'] / 100, 2);
+        $this->currency = $data['attributes']['currency'] ?? 'PHP';
+        $this->description = $data['attributes']['description'];
+        $this->external_reference_number = $data['attributes']['external_reference_number'];
+        $this->fee = $data['attributes']['fee'];
+        $this->net_amount = $data['attributes']['net_amount'];
+        $this->statement_descriptor = $data['attributes']['statement_descriptor'];
+        $this->status = $data['attributes']['status'];
+        $this->source = new Source($data['attributes']['source']);
+        $this->created = $data['attributes']['created'];
+        $this->updated = $data['attributes']['updated'];
+        $this->paid = $data['attributes']['paid'];
+        $this->payout = $data['attributes']['payout'];
+        $this->access_url = $data['attributes']['access_url'];
+        $this->billing = $data['attributes']['billing'];
 
         return $this;
     }

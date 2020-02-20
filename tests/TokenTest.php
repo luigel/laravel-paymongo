@@ -5,6 +5,8 @@ namespace Luigel\LaravelPaymongo\Tests;
 use Luigel\LaravelPaymongo\Facades\PaymongoFacade;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
+use Luigel\LaravelPaymongo\Models\Card;
+use Luigel\LaravelPaymongo\Models\Token;
 
 class TokenTest extends TestCase
 {
@@ -24,8 +26,10 @@ class TokenTest extends TestCase
                         'cvc' => "123",
                     ]);
 
-        $this->assertTrue($token->card['last4'] === '4242');
-        $this->assertTrue($token->card['exp_month'] === 12);
+        $this->assertInstanceOf(Token::class, $token);
+        $this->assertInstanceOf(Card::class, $token->card);
+        $this->assertEquals($token->card->last4, '4242');
+        $this->assertEquals($token->card->exp_month, 12);
     }
     
     /** @test */
@@ -37,12 +41,25 @@ class TokenTest extends TestCase
                         'exp_month' => 12,
                         'exp_year' => 25,
                         'cvc' => "123",
-                        'name' => 'Rigel Kent Carbonel',
-                        'email' => 'rigel20.kent@gmail.com',
-                        'phone' => 'test'
         ]);
         
-        $this->assertEquals('Bad Request', $token);
+        $this->assertEquals('Your card number is invalid.', $token);
 
+    }
+
+    /** @test */
+    public function it_can_retrieve_token()
+    {
+        $createdToken = PaymongoFacade::token()
+                    ->create([
+                        'number' => '4242424242424242',
+                        'exp_month' => 12,
+                        'exp_year' => 25,
+                        'cvc' => "123",
+        ]);
+
+        $token = PaymongoFacade::token()->find($createdToken->id);
+
+        $this->assertEquals($createdToken, $token);
     }
 }
