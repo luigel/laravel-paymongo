@@ -2,17 +2,12 @@
 
 namespace Luigel\LaravelPaymongo\Tests;
 
-use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Luigel\LaravelPaymongo\Facades\PaymongoFacade;
 use Orchestra\Testbench\TestCase;
 use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
-use Luigel\LaravelPaymongo\Models\Token;
-use Luigel\LaravelPaymongo\Paymongo;
 
 class TokenTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithExceptionHandling;
-
     protected function getPackageProviders($app)
     {
         return [LaravelPaymongoServiceProvider::class];
@@ -21,21 +16,33 @@ class TokenTest extends TestCase
     /** @test */
     public function it_can_create_token()
     {
-        $this->withoutExceptionHandling();
-
-        $token = (new Paymongo())->token()
+        $token = PaymongoFacade::token()
                     ->create([
-                        // 'card' => [
-                            'number' => '4242424242424242',
-                            'exp_month' => 12,
-                            'exp_year' => 25,
-                            'cvc' => "123",
-                        // ],
-                        // 'name' => 'Rigel Kent Carbonel',
-                        // 'email' => 'rigel20.kent@gmail.com',
-                        // 'phone' => 'test'
+                        'number' => '4242424242424242',
+                        'exp_month' => 12,
+                        'exp_year' => 25,
+                        'cvc' => "123",
                     ]);
+
+        $this->assertTrue($token->card['last4'] === '4242');
+        $this->assertTrue($token->card['exp_month'] === 12);
+    }
+    
+    /** @test */
+    public function it_cannot_create_token_with_invalid_data()
+    {
+        $token = PaymongoFacade::token()
+                    ->create([
+                        'number' => '424242424242424222',
+                        'exp_month' => 12,
+                        'exp_year' => 25,
+                        'cvc' => "123",
+                        'name' => 'Rigel Kent Carbonel',
+                        'email' => 'rigel20.kent@gmail.com',
+                        'phone' => 'test'
+        ]);
         
-        // $this->assertInstanceOf(Token::class, get_class($token));
+        $this->assertEquals('Bad Request', $token);
+
     }
 }

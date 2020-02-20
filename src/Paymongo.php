@@ -2,6 +2,8 @@
 
 namespace Luigel\LaravelPaymongo;
 
+use Luigel\LaravelPaymongo\Models\Payment;
+use Luigel\LaravelPaymongo\Models\Token;
 use Luigel\LaravelPaymongo\Traits\Request;
 
 class Paymongo
@@ -11,6 +13,7 @@ class Paymongo
     protected $method;
     protected $apiUrl = '';
     protected $payload = [];
+    protected $returnModel = '';
 
     protected const BASE_API = 'https://api.paymongo.com/v1/';
     protected const ENPOINT_TOKEN = 'tokens';
@@ -22,7 +25,14 @@ class Paymongo
     public function token()
     {
         $this->apiUrl = self::BASE_API . self::ENPOINT_TOKEN;
+        $this->returnModel = Token::class;
+        return $this;
+    }
 
+    public function payment()
+    {
+        $this->apiUrl = self::BASE_API . self::ENDPOINT_PAYMENTS;
+        $this->returnModel = Payment::class;
         return $this;
     }
 }

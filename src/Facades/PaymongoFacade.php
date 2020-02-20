@@ -1,13 +1,14 @@
 <?php
 
-namespace Luigel\LaravelPaymongo;
+namespace Luigel\LaravelPaymongo\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Luigel\LaravelPaymongo\Paymongo;
 
 /**
  * @see \Luigel\LaravelPaymongo\Skeleton\SkeletonClass
  */
-class LaravelPaymongoFacade extends Facade
+class PaymongoFacade extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -16,6 +17,6 @@ class LaravelPaymongoFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'paymongo';
+        return Paymongo::class;
     }
 }

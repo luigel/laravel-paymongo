@@ -2,10 +2,22 @@
 
 namespace Luigel\LaravelPaymongo\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Token extends Model
+class Token
 {
-    protected $guarded = [];
+    public $id;
+    public $type;
+    public $card;
+    public $kind;
+    public $used;
     
+    public function setData($data)
+    {
+        $this->id = $data['id'];
+        $this->type = $data['type'];
+        $this->card = $data['attributes']['card'];
+        $this->kind = $data['attributes']['kind'];
+        $this->used = $data['attributes']['used'];
+
+        return $this;
+    }
 }
