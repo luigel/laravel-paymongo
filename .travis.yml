@@ -6,6 +6,7 @@ php:
   - 7.4
 
 env:
+  - APP_ENV=testing
   matrix:
     - COMPOSER_FLAGS="--prefer-lowest"
     - COMPOSER_FLAGS=""
