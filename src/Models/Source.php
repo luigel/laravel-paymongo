@@ -11,7 +11,7 @@ class Source
     public $amount;
     public $redirect;
     public $source_type;
-    public $created;
+    public $created_at;
 
     public function setData($data)
     {
@@ -22,7 +22,7 @@ class Source
         $this->amount = number_format($data['attributes']['amount'] / 100, 2);
         $this->redirect = $data['attributes']['redirect'];
         $this->source_type = $data['attributes']['type'];
-        $this->created = $data['attributes']['created'];
+        $this->created_at = $data['attributes']['created_at'];
 
         return $this;
     }
