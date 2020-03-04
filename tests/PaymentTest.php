@@ -2,6 +2,7 @@
 
 namespace Luigel\LaravelPaymongo\Tests;
 
+use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
 use Illuminate\Support\Collection;
 use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
 use Luigel\LaravelPaymongo\Exceptions\NotFoundException;
@@ -14,6 +15,8 @@ use Luigel\LaravelPaymongo\Models\PaymentSource;
 
 class PaymentTest extends TestCase
 {
+    use InteractsWithExceptionHandling;
+
     protected function getPackageProviders($app)
     {
         return [LaravelPaymongoServiceProvider::class];
@@ -22,6 +25,8 @@ class PaymentTest extends TestCase
     /** @test */
     public function it_can_create_payment()
     {
+        $this->withoutExceptionHandling();
+
         $token = Paymongo::token()->create([
             'number' => '4242424242424242',
             'exp_month' => 12,

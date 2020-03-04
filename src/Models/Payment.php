@@ -15,9 +15,9 @@ class Payment
     public $statement_descriptor;
     public $status;
     public $source;
-    public $created;
-    public $updated;
-    public $paid;
+    public $created_at;
+    public $updated_at;
+    public $paid_at;
     public $payout;
     public $access_url;
     public $billing;
@@ -51,9 +51,9 @@ class Payment
         $this->statement_descriptor = $data['attributes']['statement_descriptor'];
         $this->status = $data['attributes']['status'];
         $this->source = new PaymentSource($data['attributes']['source']);
-        $this->created = $data['attributes']['created'];
-        $this->updated = $data['attributes']['updated'];
-        $this->paid = $data['attributes']['paid'];
+        $this->created_at = $data['attributes']['created_at'];
+        $this->updated_at = $data['attributes']['updated_at'];
+        $this->paid_at = $data['attributes']['paid_at'];
         $this->payout = $data['attributes']['payout'];
         $this->access_url = $data['attributes']['access_url'];
         $this->billing = $data['attributes']['billing'];
