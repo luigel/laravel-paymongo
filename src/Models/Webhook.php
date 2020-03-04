@@ -14,8 +14,8 @@ class Webhook
     public $status;
     public $url;
     public $events;
-    public $updated;
-    public $created;
+    public $updated_at;
+    public $created_at;
 
     public function setData($data)
     {
@@ -39,8 +39,8 @@ class Webhook
         $this->secret_key = $data['attributes']['secret_key'];
         $this->status = $data['attributes']['status'];
         $this->url = $data['attributes']['url'];
-        $this->updated = $data['attributes']['updated'];
-        $this->created = $data['attributes']['created'];
+        $this->updated_at = $data['attributes']['updated_at'];
+        $this->created_at = $data['attributes']['created_at'];
 
         $events = collect();
         foreach ($data['attributes']['events'] as $event)
