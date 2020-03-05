@@ -1,10 +1,10 @@
 <?php
 
-namespace Luigel\LaravelPaymongo;
+namespace Luigel\Paymongo;
 
 use Illuminate\Support\ServiceProvider;
 
-class LaravelPaymongoServiceProvider extends ServiceProvider
+class PaymongoServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
