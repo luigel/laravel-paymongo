@@ -1,17 +1,17 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Tests;
+namespace Luigel\Paymongo\Tests;
 
-use Luigel\LaravelPaymongo\Facades\Paymongo;
+use Luigel\Paymongo\Facades\Paymongo;
 use Orchestra\Testbench\TestCase;
-use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
-use Luigel\LaravelPaymongo\Models\Source;
+use Luigel\Paymongo\PaymongoServiceProvider;
+use Luigel\Paymongo\Models\Source;
 
 class SourceTest extends TestCase
 {
     protected function getPackageProviders($app)
     {
-        return [LaravelPaymongoServiceProvider::class];
+        return [PaymongoServiceProvider::class];
     }
 
     /** @test */

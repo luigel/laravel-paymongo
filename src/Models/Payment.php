@@ -1,6 +1,6 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Models;
+namespace Luigel\Paymongo\Models;
 
 class Payment
 {
@@ -21,7 +21,7 @@ class Payment
     public $payout;
     public $access_url;
     public $billing;
-    
+
     public function setData($data)
     {
         if (is_array($data) && isset($data['id']))
@@ -35,7 +35,7 @@ class Payment
             $payments->push($this->convertToObject($item));
         }
         return $payments;
-        
+
     }
 
     protected function convertToObject($data)

@@ -26,12 +26,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Luigel\\LaravelPaymongo\\": "src"
+            "Luigel\\Paymongo\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Luigel\\LaravelPaymongo\\Tests\\": "tests"
+            "Luigel\\Paymongo\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -46,10 +46,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Luigel\\LaravelPaymongo\\LaravelPaymongoServiceProvider"
+                "Luigel\\Paymongo\\PaymongoServiceProvider"
             ],
             "aliases": {
-                "Paymongo": "Luigel\\LaravelPaymongo\\Facades\\PaymongoFacade"
+                "Paymongo": "Luigel\\Paymongo\\Facades\\PaymongoFacade"
             }
         }
     }

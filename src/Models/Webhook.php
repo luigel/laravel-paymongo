@@ -1,10 +1,10 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Models;
+namespace Luigel\Paymongo\Models;
 
-use Luigel\LaravelPaymongo\Paymongo;
+use Luigel\Paymongo\Paymongo;
 
-class Webhook 
+class Webhook
 {
     public const SOURCE_CHARGEABLE = 'source.chargeable';
 

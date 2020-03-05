@@ -1,6 +1,6 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Models;
+namespace Luigel\Paymongo\Models;
 
 class PaymentSource {
     public $id;

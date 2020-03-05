@@ -1,22 +1,22 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Tests;
+namespace Luigel\Paymongo\Tests;
 
-use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
-use Luigel\LaravelPaymongo\Facades\Paymongo;
+use Luigel\Paymongo\Exceptions\BadRequestException;
+use Luigel\Paymongo\Facades\Paymongo;
 use Orchestra\Testbench\TestCase;
-use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
-use Luigel\LaravelPaymongo\Models\Card;
-use Luigel\LaravelPaymongo\Models\Token;
+use Luigel\Paymongo\PaymongoServiceProvider;
+use Luigel\Paymongo\Models\Card;
+use Luigel\Paymongo\Models\Token;
 
 class TokenTest extends TestCase
 {
 
     protected function getPackageProviders($app)
     {
-        return [LaravelPaymongoServiceProvider::class];
+        return [PaymongoServiceProvider::class];
     }
-    
+
     /** @test */
     public function it_can_create_token()
     {
@@ -33,7 +33,7 @@ class TokenTest extends TestCase
         $this->assertEquals($token->card->last4, '4242');
         $this->assertEquals($token->card->exp_month, 12);
     }
-    
+
     /** @test */
     public function it_cannot_create_token_with_invalid_data()
     {
@@ -47,7 +47,7 @@ class TokenTest extends TestCase
                         'cvc' => "123",
         ]);
 
-        
+
 
     }
 

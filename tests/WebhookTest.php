@@ -1,19 +1,19 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Tests;
+namespace Luigel\Paymongo\Tests;
 
 use Illuminate\Support\Collection;
-use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
-use Luigel\LaravelPaymongo\Facades\Paymongo;
-use Luigel\LaravelPaymongo\Models\Webhook;
+use Luigel\Paymongo\Exceptions\BadRequestException;
+use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Models\Webhook;
 use Orchestra\Testbench\TestCase;
-use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
+use Luigel\Paymongo\PaymongoServiceProvider;
 
 class WebhookTest extends TestCase
 {
     protected function getPackageProviders($app)
     {
-        return [LaravelPaymongoServiceProvider::class];
+        return [PaymongoServiceProvider::class];
     }
 
     /** @test */
@@ -54,7 +54,7 @@ class WebhookTest extends TestCase
         $this->assertEquals('enabled', $webhook->status);
 
         $this->assertEquals('http://localhost/webhook/' . $webhooks->count(), $webhook->url);
-        
+
         $this->assertInstanceOf(Collection::class, $webhook->events);
 
         $this->assertEquals('source.chargeable', $webhook->events[0]);
@@ -107,7 +107,7 @@ class WebhookTest extends TestCase
         //     ]);
         //     $this->assertEquals('http://localhost/updated-webhook-test-1', $webhook->url);
         // }
-        
-        
+
+
     }
 }

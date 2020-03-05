@@ -1,17 +1,17 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Tests;
+namespace Luigel\Paymongo\Tests;
 
 use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
 use Illuminate\Support\Collection;
-use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
-use Luigel\LaravelPaymongo\Exceptions\NotFoundException;
-use Luigel\LaravelPaymongo\Exceptions\PaymentErrorException;
-use Luigel\LaravelPaymongo\Facades\Paymongo;
+use Luigel\Paymongo\Exceptions\BadRequestException;
+use Luigel\Paymongo\Exceptions\NotFoundException;
+use Luigel\Paymongo\Exceptions\PaymentErrorException;
+use Luigel\Paymongo\Facades\Paymongo;
 use Orchestra\Testbench\TestCase;
-use Luigel\LaravelPaymongo\LaravelPaymongoServiceProvider;
-use Luigel\LaravelPaymongo\Models\Payment;
-use Luigel\LaravelPaymongo\Models\PaymentSource;
+use Luigel\Paymongo\PaymongoServiceProvider;
+use Luigel\Paymongo\Models\Payment;
+use Luigel\Paymongo\Models\PaymentSource;
 
 class PaymentTest extends TestCase
 {
@@ -19,9 +19,9 @@ class PaymentTest extends TestCase
 
     protected function getPackageProviders($app)
     {
-        return [LaravelPaymongoServiceProvider::class];
+        return [PaymongoServiceProvider::class];
     }
-    
+
     /** @test */
     public function it_can_create_payment()
     {
@@ -50,7 +50,7 @@ class PaymentTest extends TestCase
         $this->assertTrue($payment->currency === 'PHP');
         $this->assertTrue($payment->statement_descriptor === 'Test Paymongo');
         $this->assertTrue($payment->status === 'paid');
-        
+
         $this->assertInstanceOf(Payment::class, $payment);
         $this->assertInstanceOf(PaymentSource::class, $payment->source);
     }
@@ -154,14 +154,14 @@ class PaymentTest extends TestCase
         public function it_can_not_retrieve_a_payment_with_invalid_id()
         {
             $this->expectException(NotFoundException::class);
-            
+
             $token = Paymongo::token()->create([
                 'number' => '4242424242424242',
                 'exp_month' => 12,
                 'exp_year' => 25,
                 'cvc' => "123",
             ]);
-    
+
             Paymongo::payment()
                 ->create([
                     'amount' => '100.00',
@@ -173,7 +173,7 @@ class PaymentTest extends TestCase
                         'type' => $token->type
                     ]
                 ]);
-    
+
             Paymongo::payment()
                 ->find('test');
         }

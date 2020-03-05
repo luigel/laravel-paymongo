@@ -1,6 +1,6 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Models;
+namespace Luigel\Paymongo\Models;
 
 class Token
 {
@@ -9,7 +9,7 @@ class Token
     public $card;
     public $kind;
     public $used;
-    
+
     public function setData($data)
     {
         $this->id = $data['id'];

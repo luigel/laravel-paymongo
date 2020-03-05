@@ -1,14 +1,14 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Traits;
+namespace Luigel\Paymongo\Traits;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Database\Eloquent\Model;
-use Luigel\LaravelPaymongo\Exceptions\BadRequestException;
-use Luigel\LaravelPaymongo\Exceptions\NotFoundException;
-use Luigel\LaravelPaymongo\Exceptions\PaymentErrorException;
-use Luigel\LaravelPaymongo\Models\Webhook;
+use Luigel\Paymongo\Exceptions\BadRequestException;
+use Luigel\Paymongo\Exceptions\NotFoundException;
+use Luigel\Paymongo\Exceptions\PaymentErrorException;
+use Luigel\Paymongo\Models\Webhook;
 
 trait Request
 {
@@ -17,7 +17,7 @@ trait Request
 
     /**
      * Request a create to API
-     * 
+     *
      * @param array $payload
      * @return Model
      */
@@ -29,7 +29,7 @@ trait Request
 
         $this->setOptions([
             'headers' => [
-                'Accept' => 'application/json', 
+                'Accept' => 'application/json',
                 'Content-type' => 'application/json'
             ],
             'auth' => [config('paymongo.secret_key'), ''],
@@ -41,7 +41,7 @@ trait Request
 
     /**
      * Request a create to API
-     * 
+     *
      * @param array $payload
      * @return Model
      */
@@ -125,16 +125,16 @@ trait Request
         return $this->request();
     }
 
-    /** 
-     * Send request to API 
-     * 
+    /**
+     * Send request to API
+     *
      * @return mixed|Throwable
      */
     protected function request()
     {
         $client = new Client();
 
-        try 
+        try
         {
             $response = $client->request($this->method, $this->apiUrl, $this->options);
 
@@ -158,8 +158,8 @@ trait Request
             }
         }
 
-        
-        
+
+
     }
 
     protected function formRequestData()
@@ -193,6 +193,6 @@ trait Request
             $payload['amount'] *= 100;
         }
         return $payload;
-        
+
     }
 }

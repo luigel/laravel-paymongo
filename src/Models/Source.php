@@ -1,8 +1,8 @@
 <?php
 
-namespace Luigel\LaravelPaymongo\Models;
+namespace Luigel\Paymongo\Models;
 
-class Source 
+class Source
 {
     public $id;
     public $type;

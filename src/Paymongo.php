@@ -1,12 +1,12 @@
 <?php
 
-namespace Luigel\LaravelPaymongo;
+namespace Luigel\Paymongo;
 
-use Luigel\LaravelPaymongo\Models\Payment;
-use Luigel\LaravelPaymongo\Models\Source;
-use Luigel\LaravelPaymongo\Models\Token;
-use Luigel\LaravelPaymongo\Models\Webhook;
-use Luigel\LaravelPaymongo\Traits\Request;
+use Luigel\Paymongo\Models\Payment;
+use Luigel\Paymongo\Models\Source;
+use Luigel\Paymongo\Models\Token;
+use Luigel\Paymongo\Models\Webhook;
+use Luigel\Paymongo\Traits\Request;
 
 class Paymongo
 {
