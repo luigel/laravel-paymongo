@@ -12,6 +12,7 @@ This package os not affiliated with [Paymongo](https://paymongo.com). The packag
 
 -   [Paymongo for Laravel](#paymongo-for-laravel)
     -   [Installation](#installation)
+    -   [Compatibility and Supported Versions](#compatibility-and-supported-versions)
     -   [Usage](#usage)
     -   [Tokens](#tokens)
         -   [Create Token](#create-token)
