@@ -8,7 +8,7 @@
 
 A PHP Library for [Paymongo](https://paymongo.com).
 
-This package os not affiliated with [Paymongo](https://paymongo.com). The package requires PHP 7.2+
+This package is not affiliated with [Paymongo](https://paymongo.com). The package requires PHP 7.2+
 
 -   [Paymongo for Laravel](#paymongo-for-laravel)
     -   [Installation](#installation)
@@ -47,7 +47,7 @@ PAYMONGO_PUBLIC_KEY=
 ```
 
 > ## Compatibility and Supported Versions
-Paymongo-laravel support Laravel 6.* and 7.*
+Laravel-Paymongo supports Laravel 6.* and 7.*
 
 > ## Usage
 
