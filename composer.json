@@ -3,7 +3,14 @@
     "description": "A laravel wrapper for Paymongo API",
     "keywords": [
         "luigel",
-        "laravel-paymongo"
+        "laravel-paymongo",
+        "laravel",
+        "paymongo",
+        "gcash",
+        "credit-cards",
+        "debit-cards",
+        "grabcar",
+        "payment-gateway"
     ],
     "homepage": "https://github.com/luigel/laravel-paymongo",
     "license": "MIT",
