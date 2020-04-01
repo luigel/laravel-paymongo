@@ -1,7 +1,6 @@
 ---
 name: "\U0001F4A1 Ideas"
-about: "If you have a \U0001F525 idea or proposals. If this doesn’t look right, choose
-  a different type."
+about: "If you have a \U0001F525 idea or proposals."
 title: "[IDEA]"
 labels: ''
 assignees: ''

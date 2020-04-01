@@ -1,7 +1,6 @@
 ---
 name: "\U0001F41B Bug Report"
-about: Report a general package issue. If this doesn’t look right, choose a different
-  type.
+about: Report a general package issue.
 title: "[BUG]"
 labels: ''
 assignees: ''
