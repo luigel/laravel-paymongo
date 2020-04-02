@@ -2,8 +2,8 @@
 name: "\U0001F41B Bug Report"
 about: Report a general package issue.
 title: "[BUG]"
-labels: ''
-assignees: ''
+labels: bug
+assignees: luigel
 
 ---
 
