@@ -146,15 +146,15 @@ trait Request
             $response = json_decode($e->getResponse()->getBody()->getContents(), true);
             if ($e->getCode() === 400)
             {
-                throw new BadRequestException($response['errors'][0]['detail']);
+                throw new BadRequestException($response['errors'][0]['detail'], $e->getCode());
             }
             else if ($e->getCode() === 402)
             {
-                throw new PaymentErrorException($response['errors'][0]['detail']);
+                throw new PaymentErrorException($response['errors'][0]['detail'], $e->getCode());
             }
             else if ($e->getCode() === 404)
             {
-                throw new NotFoundException($response['errors'][0]['detail']);
+                throw new NotFoundException($response['errors'][0]['detail'], $e->getCode());
             }
         }
 
