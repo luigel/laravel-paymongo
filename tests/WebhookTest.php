@@ -9,7 +9,7 @@ use Luigel\Paymongo\Models\Webhook;
 use Orchestra\Testbench\TestCase;
 use Luigel\Paymongo\PaymongoServiceProvider;
 
-class WebhookTest extends TestCase
+class WebhookTest extends BaseTest
 {
     protected function getPackageProviders($app)
     {
@@ -82,9 +82,9 @@ class WebhookTest extends TestCase
     }
 
     /** @test */
-    public function it_can_update_webhook()
-    {
-        $this->assertTrue(true);
+    // public function it_can_update_webhook()
+    // {
+    //     $this->assertTrue(true);
         // $webhooks = Paymongo::webhook()->all();
 
         // $webhook = Paymongo::webhook()->find($webhooks[0]->id);
@@ -109,5 +109,5 @@ class WebhookTest extends TestCase
         // }
 
 
-    }
+    // }
 }

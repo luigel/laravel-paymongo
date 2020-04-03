@@ -3,17 +3,11 @@
 namespace Luigel\Paymongo\Tests;
 
 use Luigel\Paymongo\Facades\Paymongo;
-use Orchestra\Testbench\TestCase;
 use Luigel\Paymongo\PaymongoServiceProvider;
 use Luigel\Paymongo\Models\Source;
 
-class SourceTest extends TestCase
+class SourceTest extends BaseTest
 {
-    protected function getPackageProviders($app)
-    {
-        return [PaymongoServiceProvider::class];
-    }
-
     /** @test */
     public function it_can_create_a_source()
     {

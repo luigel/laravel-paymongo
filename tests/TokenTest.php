@@ -9,20 +9,14 @@ use Luigel\Paymongo\PaymongoServiceProvider;
 use Luigel\Paymongo\Models\Card;
 use Luigel\Paymongo\Models\Token;
 
-class TokenTest extends TestCase
+class TokenTest extends BaseTest
 {
-
-    protected function getPackageProviders($app)
-    {
-        return [PaymongoServiceProvider::class];
-    }
-
     /** @test */
     public function it_can_create_token()
     {
         $token = Paymongo::token()
                     ->create([
-                        'number' => '4242424242424242',
+                        'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
                         'exp_month' => 12,
                         'exp_year' => 25,
                         'cvc' => "123",
@@ -56,7 +50,7 @@ class TokenTest extends TestCase
     {
         $createdToken = Paymongo::token()
                     ->create([
-                        'number' => '4242424242424242',
+                        'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
                         'exp_month' => 12,
                         'exp_year' => 25,
                         'cvc' => "123",

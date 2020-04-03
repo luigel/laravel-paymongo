@@ -2,33 +2,21 @@
 
 namespace Luigel\Paymongo\Tests;
 
-use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
 use Illuminate\Support\Collection;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
 use Luigel\Paymongo\Facades\Paymongo;
-use Orchestra\Testbench\TestCase;
-use Luigel\Paymongo\PaymongoServiceProvider;
 use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\PaymentSource;
 
-class PaymentTest extends TestCase
+class PaymentTest extends BaseTest
 {
-    use InteractsWithExceptionHandling;
-
-    protected function getPackageProviders($app)
-    {
-        return [PaymongoServiceProvider::class];
-    }
-
     /** @test */
     public function it_can_create_payment()
     {
-        $this->withoutExceptionHandling();
-
         $token = Paymongo::token()->create([
-            'number' => '4242424242424242',
+            'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
             'exp_month' => 12,
             'exp_year' => 25,
             'cvc' => "123",
@@ -61,7 +49,7 @@ class PaymentTest extends TestCase
         $this->expectException(BadRequestException::class);
 
         $token = Paymongo::token()->create([
-            'number' => '4242424242424242',
+            'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
             'exp_month' => 12,
             'exp_year' => 25,
             'cvc' => "123",
@@ -126,7 +114,7 @@ class PaymentTest extends TestCase
     public function it_can_retrieve_a_payment()
     {
         $token = Paymongo::token()->create([
-            'number' => '4242424242424242',
+            'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
             'exp_month' => 12,
             'exp_year' => 25,
             'cvc' => "123",
@@ -156,7 +144,7 @@ class PaymentTest extends TestCase
             $this->expectException(NotFoundException::class);
 
             $token = Paymongo::token()->create([
-                'number' => '4242424242424242',
+                'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
                 'exp_month' => 12,
                 'exp_year' => 25,
                 'cvc' => "123",
