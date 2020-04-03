@@ -39,7 +39,7 @@ class TokenTest extends TestCase
     {
         $this->expectException(BadRequestException::class);
 
-        $token = Paymongo::token()
+        Paymongo::token()
                     ->create([
                         'number' => '424242424242424222',
                         'exp_month' => 12,
