@@ -14,9 +14,9 @@ This package is not affiliated with [Paymongo](https://paymongo.com). The packag
     -   [Installation](#installation)
     -   [Compatibility and Supported Versions](#compatibility-and-supported-versions)
     -   [Usage](#usage)
-    -   [Tokens](#tokens)
-        -   [Create Token](#create-token)
-        -   [Get Token](#get-token)
+    -   [Payment Methods](#payment-methods)
+        -   [Create Payment Method](#create-payment-method)
+        -   [Get Payment Method](#get-payment-method)
     -   [Payments](#payments)
         -   [Create Payment](#create-payment)
         -   [Get Payment](#get-payment)
@@ -51,35 +51,59 @@ Laravel-Paymongo supports Laravel 6.* and 7.*
 
 > ## Usage
 
-> ### Tokens
+> ### Payment Methods
 >
-> ### Create Token
+> ### Create Payment Method
+Creates a payment methods. It holds the information such as credit card information and billing information.
 
-Creates a one-time use token representing your customer's credit card details. NOTE: This token can only be used once to create a Payment. You must create separate tokens for every payment attempt.
+**Payload**
+
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post_payment-methods) for payload.
 
 **Sample**
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$token = Paymongo::token()->create([
-    'number' => '4242424242424242',
-    'exp_month' => 12,
-    'exp_year' => 25,
-    'cvc' => "123",
+$paymentMethod = Paymongo::paymentMethod()->create([
+    'type' => 'card',
+    'details' => [
+        'card_number' => '4343434343434345',
+        'exp_month' => 12,
+        'exp_year' => 25,
+        'cvc' => "123",
+    ],
+    'billing' => [
+        'address' => [
+            'line1' => 'Somewhere there',
+            'city' => 'Cebu City',
+            'state' => 'Cebu',
+            'country' => 'PH',
+            'postal_code' => '6000',
+        ],
+        'name' => 'Rigel Kent Carbonel',
+        'email' => 'rigel20.kent@gmail.com',
+        'phone' => '0935454875545'
+    ],
 ]);
 ```
 
-> ### Get Token
+> ### Get Payment Method
 
-Retrieve a token given an ID. The prefix for the id is `tok_` followed by a unique hash representing the token. Just pass the token id to `find($id)` method.
+Retrieve a payment method given an ID. Just pass the payment method id to `find($id)` method.
 
 **Sample**
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$token = Paymongo::token()->find($tokenId);
+$paymentMethod = Paymongo::paymentMethod()->find($tokenId);
+
+// You can get data using getData() method
+$data = $paymentMethod->getData();
+
+// You can also retrieve specific data using a get method 
+$billing = $paymentMethod->getBillingDetails();
 ```
 
 > ### Payments
