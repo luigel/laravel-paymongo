@@ -3,19 +3,11 @@
 namespace Luigel\Paymongo\Tests;
 
 use Illuminate\Support\Collection;
-use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Webhook;
-use Orchestra\Testbench\TestCase;
-use Luigel\Paymongo\PaymongoServiceProvider;
 
-class WebhookTest extends BaseTest
+class WebhookTest extends BaseTestCase
 {
-    protected function getPackageProviders($app)
-    {
-        return [PaymongoServiceProvider::class];
-    }
-
     /** @test */
     public function it_can_list_all_webhooks()
     {
