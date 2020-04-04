@@ -17,10 +17,11 @@ This package is not affiliated with [Paymongo](https://paymongo.com). The packag
     -   [Payment Methods](#payment-methods)
         -   [Create Payment Method](#create-payment-method)
         -   [Get Payment Method](#get-payment-method)
-    -   [Payments](#payments)
-        -   [Create Payment](#create-payment)
-        -   [Get Payment](#get-payment)
-        -   [Get Payments](#get-all-payments)
+    -   [Payment Intents](#payment-intents)
+        -   [Create Payment Intent](#create-payment-intent)
+        -   [Cancel Payment Intent](#cancel-payment-intent)
+        -   [Attach Payment Intent](#attach-payment-intent)
+        -   [Get Payment Intent](#get-payment-intent)
     -   [Sources](#sources)
         -   [Create Source](#create-source)
     -   [Webhooks](#webhooks)
@@ -97,7 +98,7 @@ Retrieve a payment method given an ID. Just pass the payment method id to `find(
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$paymentMethod = Paymongo::paymentMethod()->find($tokenId);
+$paymentMethod = Paymongo::paymentMethod()->find('pm_wr98R2gwWroVxfkcNVZBuXg2');
 
 // You can get data using getData() method
 $data = $paymentMethod->getData();
@@ -106,62 +107,82 @@ $data = $paymentMethod->getData();
 $billing = $paymentMethod->getBillingDetails();
 ```
 
-> ### Payments
+> ### Payment Intents
 >
-> ### Create Payment
+> ### Create Payment Intent
 
-To charge a payment source, you must create a Payment object. When in test mode, your payment sources won't actually be charged. You can select specific payment sources for different success and failure scenarios.
+A payment intent is designed to handle a complex payment process. To compare payment intents with tokens, tokens have a straight forward credit card payment process where it does not check if 3DS is required to fulfill a payment while payment intent is designed to handle such process.
 
 **Payload**
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference#create-a-payment) for payload guidelines.
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post_payment-intents) for payload guidelines.
 
 **Sample**
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$payment = Paymongo::payment()->create([
-    'amount' => 100.00,
-    'currency' => 'PHP',
-    'description' => 'A testing Payment',
+$paymentIntent = Paymongo::paymentIntent()->create([
+    'amount' => 100,
+    'payment_method_allowed' => [
+        'card'
+    ],
+    'payment_method_options' => [
+        'card' => [
+            'request_three_d_secure' => 'automatic'
+        ]
+    ],
+    'description' => 'This is a test payment intent',
     'statement_descriptor' => 'LUIGEL STORE',
-    'source' => [
-        'id' => 'tok_Jt7WJhH4eQaEEZqWxdXW3sz5',
-        'type' => 'token'
-    ]
+    'currency' => "PHP",
 ]);
 ```
 
-> ### Get Payment
+> ### Cancel Payment Intent
 
-You can retrieve a Payment by providing a payment ID. The prefix for the id is `pay_` followed by a unique hash representing the payment. Just pass the payment id to `find($paymentId)` method.
-
-**Sample**
-
-```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$payment = Paymongo::payment()->find('pay_i35wBzLNdX8i9nKEPaSKWGib');
-```
-
-> ### Get all Payments
-
-Returns all the payments you previously created, with the most recent payments returned first. Currently, all payments are returned as one batch. We will be introducing pagination and limits in the next iteration of the API.
+Cancels the payment intent.
 
 **Sample**
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$payments = Paymongo::payment()->all();
+$paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
+$cancelledPaymentIntent = $paymentIntent->cancel();
 ```
+
+ ### Attach Payment Intent
+
+Attach the payment intent. 
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
+// Attached the payment method to the payment intent
+$successfulPayment = $paymentIntent->attach('pm_wr98R2gwWroVxfkcNVZBuXg2');
+```
+
+> ### Get Payment Intent
+
+You can retrieve a Payment Intent by providing a payment intent ID. The prefix for the id is `pi_` followed by a unique hash representing the payment. Just pass the payment id to `find($paymentIntentId)` method.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
+```
+
 
 > ### Sources
 >
 > ### Create Source
 >
-> Creates a source to let the user pay using their [Gcash Accounts](https://www.gcash.com).
+> Creates a source to let the user pay using their [Gcash Accounts](https://www.gcash.com) or [Grab Pay Accounts](https://www.grab.com/ph/pay/).
 
 **Payload**
 
@@ -172,8 +193,18 @@ Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$source = Paymongo::source()->create([
+$gcashSource = Paymongo::source()->create([
     'type' => 'gcash',
+    'amount' => 100.00,
+    'currency' => 'PHP',
+    'redirect' => [
+        'success' => 'https://your-domain.com/success',
+        'failed' => 'https://your-domain.com/failed'
+    ]
+]);
+
+$grabCarSource = Paymongo::source()->create([
+    'type' => 'grab_pay',
     'amount' => 100.00,
     'currency' => 'PHP',
     'redirect' => [
