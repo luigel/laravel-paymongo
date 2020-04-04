@@ -4,11 +4,9 @@ namespace Luigel\Paymongo\Tests;
 
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Facades\Paymongo;
-use Luigel\Paymongo\Models\Billing;
-use Luigel\Paymongo\Models\Card;
 use Luigel\Paymongo\Models\PaymentMethod;
 
-class PaymentMethodTest extends BaseTest
+class PaymentMethodTest extends BaseTestCase
 {
     /** @test */
     public function it_can_create_payment_method()
