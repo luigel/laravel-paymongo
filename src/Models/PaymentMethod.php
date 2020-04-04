@@ -9,8 +9,6 @@ class PaymentMethod
     protected $type;
     protected $card_details;
     protected $payment_method_type;
-    protected $kind;
-    protected $used;
     protected $billing;
     protected $created_at;
     protected $updated_at;
