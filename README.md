@@ -24,7 +24,7 @@ This package is not affiliated with [Paymongo](https://paymongo.com). The packag
         -   [Get Payment Intent](#get-payment-intent)
     -   [Sources](#sources)
         -   [Create Source](#create-source)
-        -   [Create Payment from Source] (#create-payment-source)
+        -   [Create Payment](#create-payment-source)
     -   [Webhooks](#webhooks)
         -   [Create Webhook](#create-webhook)
         -   [List all Webhooks](#list-all-webhooks)
