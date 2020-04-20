@@ -50,15 +50,6 @@
         "sort-packages": true,
         "discard-changes": true
     },
-    "repositories": {
-        "dev-package": {
-          "type": "path",
-          "url": "laravel-paymongo",
-          "options": {
-           "symlink": true
-          }
-        }
-    },
     "extra": {
         "laravel": {
             "providers": [
