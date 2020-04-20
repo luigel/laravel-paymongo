@@ -3,13 +3,14 @@
 namespace Luigel\Paymongo\Traits;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use Illuminate\Database\Eloquent\Model;
-use Luigel\Paymongo\Exceptions\BadRequestException;
-use Luigel\Paymongo\Exceptions\NotFoundException;
-use Luigel\Paymongo\Exceptions\PaymentErrorException;
-use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\Webhook;
+use Illuminate\Database\Eloquent\Model;
+use GuzzleHttp\Exception\ClientException;
+use Luigel\Paymongo\Models\PaymentIntent;
+use Luigel\Paymongo\Models\PaymentSource;
+use Luigel\Paymongo\Exceptions\NotFoundException;
+use Luigel\Paymongo\Exceptions\BadRequestException;
+use Luigel\Paymongo\Exceptions\PaymentErrorException;
 
 trait Request
 {
@@ -195,6 +196,29 @@ trait Request
 
         return $this->request();
     }
+
+    /**
+     * Create a Payment from a Source
+     *
+     * @param PaymentSource $payment
+     * @return Model
+     */
+    public function payment(PaymentSource $payment)
+    {
+        $this->method = 'POST';
+        $this->apiUrl = $this->apiUrl .'/payments';
+
+        $this->formRequestData();
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'json' => $this->data,
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+        return $this->request();
+    }
+
 
     /**
      * Send request to API

@@ -2,11 +2,12 @@
 
 namespace Luigel\Paymongo;
 
-use Luigel\Paymongo\Models\PaymentIntent;
-use Luigel\Paymongo\Models\PaymentMethod;
 use Luigel\Paymongo\Models\Source;
 use Luigel\Paymongo\Models\Webhook;
 use Luigel\Paymongo\Traits\Request;
+use Luigel\Paymongo\Models\PaymentIntent;
+use Luigel\Paymongo\Models\PaymentMethod;
+use Luigel\Paymongo\Models\PaymentSource;
 
 class Paymongo
 {
@@ -19,6 +20,7 @@ class Paymongo
 
     protected const BASE_API = 'https://api.paymongo.com/v1/';
     protected const ENPDPOINT_SOURCES = 'sources/';
+    protected const ENPDPOINT_PAYMENTS = 'payments/';
     protected const ENDPOINT_WEBHOOKS = 'webhooks/';
     protected const ENDPOINT_PAYMENT_METHOD = 'payment_methods/';
     protected const ENDPOINT_PAYMENT_INTENT = 'payment_intents/';
@@ -50,6 +52,13 @@ class Paymongo
     {
         $this->apiUrl = self::BASE_API . self::ENDPOINT_PAYMENT_INTENT;
         $this->returnModel = PaymentIntent::class;
+        return $this;
+    }
+
+    public function payment()
+    {
+        $this->apiUrl = self::BASE_API . self::ENPDPOINT_PAYMENTS;
+        $this->returnModel = PaymentSource::class;
         return $this;
     }
 }
