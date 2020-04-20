@@ -24,6 +24,7 @@ This package is not affiliated with [Paymongo](https://paymongo.com). The packag
         -   [Get Payment Intent](#get-payment-intent)
     -   [Sources](#sources)
         -   [Create Source](#create-source)
+        -   [Create Payment from Source] (#create-payment-source)
     -   [Webhooks](#webhooks)
         -   [Create Webhook](#create-webhook)
         -   [List all Webhooks](#list-all-webhooks)
@@ -210,6 +211,34 @@ $grabCarSource = Paymongo::source()->create([
     'redirect' => [
         'success' => 'https://your-domain.com/success',
         'failed' => 'https://your-domain.com/failed'
+    ]
+]);
+```
+
+
+> ### Sources
+>
+> ### Create Payment Source
+>
+> Creates a payment from a Payment Resource.
+
+**Payload**
+
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference#create-a-payment) for payload guidelines.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+Paymongo::payment()->create([
+    'amount' => 100.0,
+    'currency' => 'PHP',
+    'description' => 'This is a test payment resource',
+    'statement_descriptor' => 'LUIGEL STORE',
+    'source' => [
+        'id' => 'src_cJPbhyqPZFmW5H6AVuVPLTqY',
+        'type' => 'source'
     ]
 ]);
 ```
