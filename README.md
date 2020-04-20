@@ -24,7 +24,10 @@ This package is not affiliated with [Paymongo](https://paymongo.com). The packag
         -   [Get Payment Intent](#get-payment-intent)
     -   [Sources](#sources)
         -   [Create Source](#create-source)
-        -   [Create Payment](#create-payment-source)
+    -   [Payment Resource](#sources)
+        -   [Create Payment Resource](#create-payment-resource)
+        -   [Get Payment Resource](#get-payment-resource)
+        -   [Retrieve Payment Resource](#retrieve-payment-resource)
     -   [Webhooks](#webhooks)
         -   [Create Webhook](#create-webhook)
         -   [List all Webhooks](#list-all-webhooks)
@@ -216,9 +219,9 @@ $grabCarSource = Paymongo::source()->create([
 ```
 
 
-> ### Sources
+> ### Payment Resource
 >
-> ### Create Payment Source
+> ### Create Payment Resource
 >
 > Creates a payment from a Payment Resource.
 
@@ -241,6 +244,43 @@ Paymongo::payment()->create([
         'type' => 'source'
     ]
 ]);
+```
+
+> ### Payment Resource
+>
+> ### Get Payment Resource
+>
+> Get all the  Payment Resource.
+
+**Payload**
+
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference#list-all-payments) for payload guidelines.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$payment_resources = Paymongo::payment()->all();
+
+```
+> ### Payment Resource
+>
+> ### Retrieve Payment Resource
+>
+> Retrieve  a Payment Resource.
+
+**Payload**
+
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference#retrieve-a-payment) for payload guidelines.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$payment_resource = Paymongo::payment()->find('pay_Dit4AGfqVJdu1psrwqNtgrQH');
+
 ```
 
 > ### Webhooks
