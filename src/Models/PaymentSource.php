@@ -25,4 +25,9 @@ class PaymentSource {
 
         return $this;
     }
+
+    public function getId()
+    {
+        return $this->id;
+    }
 }
