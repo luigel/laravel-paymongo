@@ -198,29 +198,6 @@ trait Request
     }
 
     /**
-     * Create a Payment from a Source
-     *
-     * @param PaymentSource $payment
-     * @return Model
-     */
-    public function payment(PaymentSource $payment)
-    {
-        $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl .'/payments';
-
-        $this->formRequestData();
-        $this->setOptions([
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-            'json' => $this->data,
-            'auth' => [config('paymongo.secret_key'), ''],
-        ]);
-        return $this->request();
-    }
-
-
-    /**
      * Send request to API
      *
      * @return mixed|Throwable
