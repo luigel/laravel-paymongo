@@ -48,14 +48,16 @@ PAYMONGO_PUBLIC_KEY=
 ```
 
 > ## Compatibility and Supported Versions
-Laravel-Paymongo supports Laravel 6.* and 7.*
+>
+> Laravel-Paymongo supports Laravel 6._ and 7._
 
 > ## Usage
 
 > ### Payment Methods
 >
 > ### Create Payment Method
-Creates a payment methods. It holds the information such as credit card information and billing information.
+>
+> Creates a payment methods. It holds the information such as credit card information and billing information.
 
 **Payload**
 
@@ -103,7 +105,7 @@ $paymentMethod = Paymongo::paymentMethod()->find('pm_wr98R2gwWroVxfkcNVZBuXg2');
 // You can get data using getData() method
 $data = $paymentMethod->getData();
 
-// You can also retrieve specific data using a get method 
+// You can also retrieve specific data using a get method
 $billing = $paymentMethod->getBillingDetails();
 ```
 
@@ -151,9 +153,9 @@ $paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
 $cancelledPaymentIntent = $paymentIntent->cancel();
 ```
 
- ### Attach Payment Intent
+### Attach Payment Intent
 
-Attach the payment intent. 
+Attach the payment intent.
 
 **Sample**
 
@@ -176,7 +178,6 @@ use Luigel\Paymongo\Facades\Paymongo;
 
 $paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
 ```
-
 
 > ### Sources
 >
@@ -212,6 +213,77 @@ $grabCarSource = Paymongo::source()->create([
         'failed' => 'https://your-domain.com/failed'
     ]
 ]);
+```
+
+> ### Payment
+>
+> ### Create Payment
+>
+> Creates a payment using token.
+
+**Payload**
+
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference#payment-source) for payload guidelines.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$token = Paymongo::token()
+    ->create([
+        'number' => '4343434343434345',
+        'exp_month' => 12,
+        'exp_year' => 25,
+        'cvc' => "123",
+        'billing' => [
+            'address' => [
+                'line1' => 'Test Address',
+                'city' => 'Cebu City',
+                'postal_code' => '6000',
+                'country' => 'PH'
+            ],
+            'name' => 'Rigel Kent Carbonel',
+            'email' => 'rigel20.kent@gmail.com',
+            'phone' => '928392893'
+        ]
+    ]);
+    
+$payment = Paymongo::payment()
+    ->create([
+        'amount' => 100.00,
+        'currency' => 'PHP',
+        'description' => 'Testing payment',
+        'statement_descriptor' => 'Test Paymongo',
+        'source' => [
+            'id' => $token->getId(),
+            'type' => $token->getType()
+        ]
+    ]);
+```
+
+> ### Get Payment
+>
+> You can retrieve a Payment by providing a payment ID. The prefix for the id is `pay_` followed by a unique hash representing the payment. Just pass the payment id to `find($paymentId)` method.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$payment = Paymongo::payment()->find('pay_i35wBzLNdX8i9nKEPaSKWGib');
+```
+
+> ### Get all Payments
+
+Returns all the payments you previously created, with the most recent payments returned first. Currently, all payments are returned as one batch. We will be introducing pagination and limits in the next iteration of the API.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$payments = Paymongo::payment()->all();
 ```
 
 > ### Webhooks
