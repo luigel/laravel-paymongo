@@ -29,6 +29,11 @@ class Paymongo
     protected const SOURCE_GCASH = 'gcash';
     protected const SOURCE_GRAB_PAY = 'grab_pay';
 
+    /**
+     * Source Module used to create Source
+     *
+     * @return $this
+     */
     public function source()
     {
         $this->apiUrl = self::BASE_API . self::ENPDPOINT_SOURCES;
@@ -36,6 +41,11 @@ class Paymongo
         return $this;
     }
 
+    /**
+     * Webhook Module used to create, retrieve, enable, and disable Webhooks 
+     *
+     * @return $this
+     */
     public function webhook()
     {
         $this->apiUrl = self::BASE_API . self::ENDPOINT_WEBHOOKS;
@@ -43,6 +53,11 @@ class Paymongo
         return $this;
     }
 
+    /**
+     * Payment Method Module used to create, retrieve Payment method informations
+     *
+     * @return $this
+     */
     public function paymentMethod()
     {
         $this->apiUrl = self::BASE_API . self::ENDPOINT_PAYMENT_METHOD;
@@ -50,6 +65,11 @@ class Paymongo
         return $this;
     }
 
+    /**
+     * Payment Intent Module used to create, retrieve, and attach payment method in payment intent
+     *
+     * @return $this
+     */
     public function paymentIntent()
     {
         $this->apiUrl = self::BASE_API . self::ENDPOINT_PAYMENT_INTENT;
@@ -57,6 +77,11 @@ class Paymongo
         return $this;
     }
 
+    /**
+     * Payment Module used to create, retrieve Payment informations
+     *
+     * @return $this
+     */
     public function payment()
     {
         $this->apiUrl = self::BASE_API . self::ENDPOINT_PAYMENT;
@@ -64,6 +89,11 @@ class Paymongo
         return $this;
     }
 
+    /**
+     * Token Module used to create and retrieve token
+     * @deprecated 1.2.0
+     * @return $this
+     */
     public function token()
     {
         $this->apiUrl = self::BASE_API . self::ENDPOINT_TOKEN;
