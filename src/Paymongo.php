@@ -25,6 +25,7 @@ class Paymongo
     protected const ENDPOINT_PAYMENT_METHOD = 'payment_methods/';
     protected const ENDPOINT_PAYMENT_INTENT = 'payment_intents/';
     protected const ENDPOINT_PAYMENT = 'payments/';
+    protected const ENDPOINT_TOKEN = 'tokens/';
     protected const SOURCE_GCASH = 'gcash';
     protected const SOURCE_GRAB_PAY = 'grab_pay';
 
@@ -63,4 +64,10 @@ class Paymongo
         return $this;
     }
 
+    public function token()
+    {
+        $this->apiUrl = self::BASE_API . self::ENDPOINT_TOKEN;
+        $this->returnModel = Token::class;
+        return $this;
+    }
 }
