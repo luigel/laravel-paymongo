@@ -24,6 +24,13 @@ This package is not affiliated with [Paymongo](https://paymongo.com). The packag
         -   [Get Payment Intent](#get-payment-intent)
     -   [Sources](#sources)
         -   [Create Source](#create-source)
+    -   [Payments](#payments)
+        -   [Create Payment](#create-payment)
+        -   [Get Payment](#get-payment)
+        -   [Get All Payments](#get-all-payments)
+    -   [Tokens](#tokens)
+        -   [Create Token](#create-token)
+        -   [Get Token](#get-token)
     -   [Webhooks](#webhooks)
         -   [Create Webhook](#create-webhook)
         -   [List all Webhooks](#list-all-webhooks)
@@ -215,7 +222,7 @@ $grabCarSource = Paymongo::source()->create([
 ]);
 ```
 
-> ### Payment
+> ### Payments
 >
 > ### Create Payment
 >
@@ -230,25 +237,6 @@ Refer to [Paymongo documentation](https://developers.paymongo.com/reference#paym
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$token = Paymongo::token()
-    ->create([
-        'number' => '4343434343434345',
-        'exp_month' => 12,
-        'exp_year' => 25,
-        'cvc' => "123",
-        'billing' => [
-            'address' => [
-                'line1' => 'Test Address',
-                'city' => 'Cebu City',
-                'postal_code' => '6000',
-                'country' => 'PH'
-            ],
-            'name' => 'Rigel Kent Carbonel',
-            'email' => 'rigel20.kent@gmail.com',
-            'phone' => '928392893'
-        ]
-    ]);
-    
 $payment = Paymongo::payment()
     ->create([
         'amount' => 100.00,
@@ -274,7 +262,7 @@ use Luigel\Paymongo\Facades\Paymongo;
 $payment = Paymongo::payment()->find('pay_i35wBzLNdX8i9nKEPaSKWGib');
 ```
 
-> ### Get all Payments
+> ### Get All Payments
 
 Returns all the payments you previously created, with the most recent payments returned first. Currently, all payments are returned as one batch. We will be introducing pagination and limits in the next iteration of the API.
 
@@ -284,6 +272,49 @@ Returns all the payments you previously created, with the most recent payments r
 use Luigel\Paymongo\Facades\Paymongo;
 
 $payments = Paymongo::payment()->all();
+```
+
+> ### Tokens
+>
+> ### Create Token
+
+Creates a one-time use token representing your customer's credit card details. NOTE: This token can only be used once to create a Payment. You must create separate tokens for every payment attempt.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$token = Paymongo::token()
+    ->create([
+        'number' => '4343434343434345',
+        'exp_month' => 12,
+        'exp_year' => 25,
+        'cvc' => "123",
+        'billing' => [
+            'address' => [
+                'line1' => 'Test Address',
+                'city' => 'Cebu City',
+                'postal_code' => '6000',
+                'country' => 'PH'
+            ],
+            'name' => 'Rigel Kent Carbonel',
+            'email' => 'rigel20.kent@gmail.com',
+            'phone' => '928392893'
+        ]
+    ]);
+```
+
+> ### Get Token
+
+Retrieve a token given an ID. The prefix for the id is `tok_` followed by a unique hash representing the token. Just pass the token id to `find($id)` method.
+
+**Sample**
+
+```php
+use Luigel\Paymongo\Facades\Paymongo;
+
+$token = Paymongo::token()->find($tokenId);
 ```
 
 > ### Webhooks
