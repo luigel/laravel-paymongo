@@ -102,6 +102,17 @@ class PaymentTest extends BaseTestCase
             'exp_month' => 12,
             'exp_year' => 25,
             'cvc' => "123",
+            'billing' => [
+                'address' => [
+                    'line1' => 'Test Address',
+                    'city' => 'Cebu City',
+                    'postal_code' => '6000',
+                    'country' => 'PH'
+                ],
+                'name' => 'Rigel Kent Carbonel',
+                'email' => 'rigel20.kent@gmail.com',
+                'phone' => '928392893'
+            ]
         ]);
 
         Paymongo::payment()
