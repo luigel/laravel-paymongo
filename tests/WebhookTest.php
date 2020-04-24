@@ -23,7 +23,7 @@ class WebhookTest extends BaseTestCase
     {
         $webhooks = Paymongo::webhook()->all();
 
-        $webhook = Paymongo::webhook()->find($webhooks[0]->id);
+        $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
 
         $this->assertInstanceOf(Webhook::class, $webhook);
 
@@ -43,13 +43,13 @@ class WebhookTest extends BaseTestCase
 
         $this->assertInstanceOf(Webhook::class, $webhook);
 
-        $this->assertEquals('enabled', $webhook->status);
+        $this->assertEquals('enabled', $webhook->getStatus());
 
-        $this->assertEquals('http://localhost/webhook/' . $webhooks->count(), $webhook->url);
+        $this->assertEquals('http://localhost/webhook/' . $webhooks->count(), $webhook->getUrl());
 
-        $this->assertInstanceOf(Collection::class, $webhook->events);
+        $this->assertInstanceOf(Collection::class, $webhook->getEvents());
 
-        $this->assertEquals('source.chargeable', $webhook->events[0]);
+        $this->assertEquals('source.chargeable', $webhook->getEvents(0));
     }
 
     /** @test */
@@ -57,19 +57,19 @@ class WebhookTest extends BaseTestCase
     {
         $webhooks = Paymongo::webhook()->all();
 
-        $webhook = Paymongo::webhook()->find($webhooks[0]->id);
+        $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
 
-        if ($webhook->status === 'enabled')
+        if ($webhook->getStatus() === 'enabled')
         {
             $webhook->disable();
-            $webhook = Paymongo::webhook()->find($webhooks[0]->id);
-            $this->assertEquals('disabled', $webhook->status);
+            $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
+            $this->assertEquals('disabled', $webhook->getStatus());
         }
         else
         {
             $webhook->enable();
-            $webhook = Paymongo::webhook()->find($webhooks[0]->id);
-            $this->assertEquals('enabled', $webhook->status);
+            $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
+            $this->assertEquals('enabled', $webhook->getStatus());
         }
     }
 
@@ -77,28 +77,28 @@ class WebhookTest extends BaseTestCase
     // public function it_can_update_webhook()
     // {
     //     $this->assertTrue(true);
-        // $webhooks = Paymongo::webhook()->all();
+    //     $webhooks = Paymongo::webhook()->all();
 
-        // $webhook = Paymongo::webhook()->find($webhooks[0]->id);
+    //     $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
 
-        // if ($webhook->url === 'http://localhost/updated-webhook-test-1')
-        // {
-        //     $webhook = Paymongo::webhook()->find($webhooks[0]->id);
-        //     $webhook = $webhook->update([
-        //         'url' => 'http://localhost/updated-webhook-test-2'
-        //     ]);
-        //     $this->assertEquals('http://localhost/updated-webhook-test-2', $webhook->url);
+    //     if ($webhook->getUrl() === 'http://localhost/updated-webhook-test-1')
+    //     {
+    //         $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
+    //         $webhook = $webhook->update([
+    //             'url' => 'http://localhost/updated-webhook-test-2'
+    //         ]);
+    //         $this->assertEquals('http://localhost/updated-webhook-test-2', $webhook->getUrl());
 
-        // }
-        // else
-        // {
-        //     $webhook = Paymongo::webhook()->find($webhooks[0]->id);
+    //     }
+    //     else
+    //     {
+    //         $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
 
-        //     $webhook = $webhook->update([
-        //         'url' => 'http://localhost/updated-webhook-test-1'
-        //     ]);
-        //     $this->assertEquals('http://localhost/updated-webhook-test-1', $webhook->url);
-        // }
+    //         $webhook = $webhook->update([
+    //             'url' => 'http://localhost/updated-webhook-test-1'
+    //         ]);
+    //         $this->assertEquals('http://localhost/updated-webhook-test-1', $webhook->getUrl());
+    //     }
 
 
     // }

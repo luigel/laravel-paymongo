@@ -92,7 +92,7 @@ trait Request
     public function enable(Webhook $webhook)
     {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl . "$webhook->id/enable";
+        $this->apiUrl = $this->apiUrl . $webhook->getId() . "/enable";
 
         $this->setOptions([
             'headers' => [
@@ -113,7 +113,7 @@ trait Request
     public function disable(Webhook $webhook)
     {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl . "$webhook->id/disable";
+        $this->apiUrl = $this->apiUrl . $webhook->getId() . "/disable";
 
         $this->setOptions([
             'headers' => [
@@ -136,7 +136,7 @@ trait Request
     {
         $this->method = 'PUT';
         $this->payload = $this->convertPayloadAmountsToInteger($payload);
-        $this->apiUrl = $this->apiUrl . $webhook->id;
+        $this->apiUrl = $this->apiUrl . $webhook->getId();
 
         $this->formRequestData();
         $this->setOptions([
