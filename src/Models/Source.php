@@ -4,14 +4,15 @@ namespace Luigel\Paymongo\Models;
 
 class Source
 {
-    public $id;
-    public $type;
-    public $currency;
-    public $status;
-    public $amount;
-    public $redirect;
-    public $source_type;
-    public $created_at;
+    protected $id;
+    protected $type;
+    protected $currency;
+    protected $status;
+    protected $amount;
+    protected $redirect;
+    protected $source_type;
+    protected $created_at;
+    protected $data;
 
     public function setData($data)
     {
@@ -24,6 +25,77 @@ class Source
         $this->source_type = $data['attributes']['type'];
         $this->created_at = $data['attributes']['created_at'];
 
+        $this->data = [
+            'id' => $this->id,
+            'type' => $this->type,
+            'currency' => $this->currency,
+            'status' => $this->status,
+            'amount' => $this->amount,
+            'redirect' => $this->redirect,
+            'source_type' => $this->source_type,
+            'created_at' => $this->created_at
+        ];
+
         return $this;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    public function getRedirect()
+    {
+        return $this->redirect;
+    }
+
+    public function getSuccessRedirect()
+    {
+        return $this->redirect['success'];
+    }
+
+    public function getFailedRedirect()
+    {
+        return $this->redirect['failed'];
+    }
+
+    public function getCheckoutUrlRedirect()
+    {
+        return $this->redirect['checkout_url'];
+    }
+
+    public function getSourceType()
+    {
+        return $this->source_type;
+    }
+
+    public function getCreatedAt()
+    {
+        return $this->created_at;
+    }
+
+    public function getData()
+    {
+        return $this->data;
     }
 }
