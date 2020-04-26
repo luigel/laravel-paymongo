@@ -3,6 +3,8 @@
 namespace Luigel\Paymongo;
 
 use Illuminate\Support\ServiceProvider;
+use Luigel\Paymongo\Middlewares\PaymongoValidateSignature;
+use Luigel\Paymongo\Signer\Signer;
 
 class PaymongoServiceProvider extends ServiceProvider
 {
@@ -56,5 +58,9 @@ class PaymongoServiceProvider extends ServiceProvider
         $this->app->singleton('paymongo', function () {
             return new Paymongo;
         });
+
+        $this->app->bind(Signer::class, config('paymongo.signer'));
+
+        $this->app['router']->aliasMiddleware('paymongo.signature', PaymongoValidateSignature::class);
     }
 }

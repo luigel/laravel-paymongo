@@ -2,6 +2,8 @@
 
 return [
 
+    'livemode' => env('PAYMONGO_LIVEMODE', false),
+
     /**
      * Public and Secret keys from Paymongo. You can get the keys here https://dashboard.paymongo.com/developers.
      */
@@ -26,4 +28,21 @@ return [
      * Currently, the API supports doing payments via debit and credit cards issued by Visa and Mastercard.
      */
     'version' => env('PAYMONGO_VERSION', '2019-08-05'),
+
+    /*
+     * This class is responsible for calculating the signature that will be added to
+     * the headers of the webhook request. A webhook client can use the signature
+     * to verify the request hasn't been tampered with.
+     */
+    'signer' => \Luigel\Paymongo\Signer\DefaultSigner::class,
+
+    /**
+     * Paymongo webhook signature secret
+     */
+    'webhook_signature' => env('PAYMONGO_WEBHOOK_SIG'),
+
+    /*
+     * This is the name of the header where the signature will be added.
+     */
+    'signature_header_name' => env('PAYMONGO_SIG_HEADER', 'Paymongo-Signature'),
 ];
