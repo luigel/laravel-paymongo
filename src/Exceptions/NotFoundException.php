@@ -11,8 +11,7 @@ class NotFoundException extends Exception
         $message = 'Not found record',
         $code = 404,
         Throwable $previous = null
-    )
-    {
+    ) {
         parent::__construct($message, $code, $previous);
     }
 }

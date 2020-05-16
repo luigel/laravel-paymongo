@@ -36,6 +36,7 @@ class Payment
         foreach ($data as $item) {
             $payments->push($this->setSingleData($item));
         }
+
         return $payments;
     }
 
@@ -43,16 +44,16 @@ class Payment
     {
         $this->id = $data['id'];
         $this->type = $data['type'];
-        $this->amount = doubleval($data['attributes']['amount'] / 100);
+        $this->amount = floatval($data['attributes']['amount'] / 100);
         $this->billing_address = $data['attributes']['billing']['address'];
         $this->billing_email = $data['attributes']['billing']['email'];
         $this->billing_name = $data['attributes']['billing']['name'];
         $this->billing_phone_number = $data['attributes']['billing']['phone'];
         $this->currency = $data['attributes']['currency'] ?? 'PHP';
         $this->description = $data['attributes']['description'];
-        $this->fee = doubleval($data['attributes']['fee'] / 100);
+        $this->fee = floatval($data['attributes']['fee'] / 100);
         $this->livemode = $data['attributes']['livemode'];
-        $this->net_amount = doubleval($data['attributes']['net_amount']);
+        $this->net_amount = floatval($data['attributes']['net_amount']);
         $this->payout = $data['attributes']['payout'];
         $this->source = $data['attributes']['source'];
         $this->statement_descriptor = $data['attributes']['statement_descriptor'];

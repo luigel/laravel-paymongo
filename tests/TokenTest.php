@@ -4,9 +4,6 @@ namespace Luigel\Paymongo\Tests;
 
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Facades\Paymongo;
-use Orchestra\Testbench\TestCase;
-use Luigel\Paymongo\PaymongoServiceProvider;
-use Luigel\Paymongo\Models\Card;
 use Luigel\Paymongo\Models\Token;
 
 class TokenTest extends BaseTestCase
@@ -19,18 +16,18 @@ class TokenTest extends BaseTestCase
                 'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
                 'exp_month' => 12,
                 'exp_year' => 25,
-                'cvc' => "123",
+                'cvc' => '123',
                 'billing' => [
                     'address' => [
                         'line1' => 'Test Address',
                         'city' => 'Cebu City',
                         'postal_code' => '6000',
-                        'country' => 'PH'
+                        'country' => 'PH',
                     ],
                     'name' => 'Rigel Kent Carbonel',
                     'email' => 'rigel20.kent@gmail.com',
-                    'phone' => '928392893'
-                ]
+                    'phone' => '928392893',
+                ],
             ]);
 
         $this->assertInstanceOf(Token::class, $token);
@@ -49,7 +46,7 @@ class TokenTest extends BaseTestCase
                 'number' => '424242424242424222',
                 'exp_month' => 12,
                 'exp_year' => 25,
-                'cvc' => "123",
+                'cvc' => '123',
             ]);
     }
 
@@ -61,18 +58,18 @@ class TokenTest extends BaseTestCase
                 'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
                 'exp_month' => 12,
                 'exp_year' => 25,
-                'cvc' => "123",
+                'cvc' => '123',
                 'billing' => [
                     'address' => [
                         'line1' => 'Test Address',
                         'city' => 'Cebu City',
                         'postal_code' => '6000',
-                        'country' => 'PH'
+                        'country' => 'PH',
                     ],
                     'name' => 'Rigel Kent Carbonel',
                     'email' => 'rigel20.kent@gmail.com',
-                    'phone' => '928392893'
-                ]
+                    'phone' => '928392893',
+                ],
             ]);
 
         $token = Paymongo::token()->find($createdToken->getId());

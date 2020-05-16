@@ -19,8 +19,8 @@ class SourceTest extends BaseTestCase
             'currency' => 'PHP',
             'redirect' => [
                 'success' => 'http://localhost/success',
-                'failed' => 'http://localhost/failed'
-            ]
+                'failed' => 'http://localhost/failed',
+            ],
         ]);
 
         $this->assertInstanceOf(Source::class, $source);
@@ -34,7 +34,7 @@ class SourceTest extends BaseTestCase
         $this->assertEquals([
             'success' => 'http://localhost/success',
             'failed' => 'http://localhost/failed',
-            'checkout_url' => $source->getCheckoutUrlRedirect()
+            'checkout_url' => $source->getCheckoutUrlRedirect(),
         ], $source->getRedirect());
     }
 
@@ -50,8 +50,8 @@ class SourceTest extends BaseTestCase
             'currency' => 'PHP',
             'redirect' => [
                 'success' => 'http://localhost/success',
-                'failed' => 'http://localhost/failed'
-            ]
+                'failed' => 'http://localhost/failed',
+            ],
         ]);
 
         $this->assertInstanceOf(Source::class, $source);
@@ -65,7 +65,7 @@ class SourceTest extends BaseTestCase
         $this->assertEquals([
             'success' => 'http://localhost/success',
             'failed' => 'http://localhost/failed',
-            'checkout_url' => $source->getCheckoutUrlRedirect()
+            'checkout_url' => $source->getCheckoutUrlRedirect(),
         ], $source->getRedirect());
     }
 }

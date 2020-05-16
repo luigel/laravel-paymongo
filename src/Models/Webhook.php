@@ -20,16 +20,15 @@ class Webhook
 
     public function setData($data)
     {
-        if (is_array($data) && isset($data['id']))
-        {
+        if (is_array($data) && isset($data['id'])) {
             return $this->setSingleData($data);
         }
         $webhooks = collect();
 
-        foreach ($data as $item)
-        {
+        foreach ($data as $item) {
             $webhooks->push($this->setSingleData($item));
         }
+
         return $webhooks;
     }
 
@@ -44,8 +43,7 @@ class Webhook
         $this->created_at = $data['attributes']['created_at'];
 
         $events = collect();
-        foreach ($data['attributes']['events'] as $event)
-        {
+        foreach ($data['attributes']['events'] as $event) {
             $events->push($event);
         }
 
@@ -59,7 +57,7 @@ class Webhook
             'url' => $this->url,
             'events' => $this->events,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
         ];
 
         return $this;
@@ -92,11 +90,10 @@ class Webhook
 
     public function getEvents($i = null)
     {
-        if (is_int($i) && $i !== null)
-        {
+        if (is_int($i) && $i !== null) {
             return $this->events[$i];
         }
-        
+
         return $this->events;
     }
 

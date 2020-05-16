@@ -10,7 +10,6 @@ use Luigel\Paymongo\Models\Payment;
 
 class PaymentTest extends BaseTestCase
 {
-
     protected $token;
 
     public function setUp(): void
@@ -20,18 +19,18 @@ class PaymentTest extends BaseTestCase
             'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
             'exp_month' => 12,
             'exp_year' => 25,
-            'cvc' => "123",
+            'cvc' => '123',
             'billing' => [
                 'address' => [
                     'line1' => 'Test Address',
                     'city' => 'Cebu City',
                     'postal_code' => '6000',
-                    'country' => 'PH'
+                    'country' => 'PH',
                 ],
                 'name' => 'Rigel Kent Carbonel',
                 'email' => 'rigel20.kent@gmail.com',
-                'phone' => '928392893'
-            ]
+                'phone' => '928392893',
+            ],
         ]);
     }
 
@@ -46,8 +45,8 @@ class PaymentTest extends BaseTestCase
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
                     'id' => $this->token->getId(),
-                    'type' => $this->token->getType()
-                ]
+                    'type' => $this->token->getType(),
+                ],
             ]);
 
         $this->assertTrue($payment->getAmount() == 100.00);
@@ -71,8 +70,8 @@ class PaymentTest extends BaseTestCase
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
                     'id' => $this->token->getId(),
-                    'type' => $this->token->getType()
-                ]
+                    'type' => $this->token->getType(),
+                ],
             ]);
         $this->assertTrue($payment->getAmount() === 100.00);
         $this->assertTrue($payment->getCurrency() === 'PHP');
@@ -87,32 +86,32 @@ class PaymentTest extends BaseTestCase
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
                     'id' => $this->token->getId(),
-                    'type' => $this->token->getType()
-                ]
+                    'type' => $this->token->getType(),
+                ],
             ]);
     }
 
     /** @test */
     public function it_cannot_create_payment_when_token_is_not_valid()
-    {        
+    {
         $this->expectException(BadRequestException::class);
 
         $token = Paymongo::token()->create([
             'number' => '5100000000000198',
             'exp_month' => 12,
             'exp_year' => 25,
-            'cvc' => "123",
+            'cvc' => '123',
             'billing' => [
                 'address' => [
                     'line1' => 'Test Address',
                     'city' => 'Cebu City',
                     'postal_code' => '6000',
-                    'country' => 'PH'
+                    'country' => 'PH',
                 ],
                 'name' => 'Rigel Kent Carbonel',
                 'email' => 'rigel20.kent@gmail.com',
-                'phone' => '928392893'
-            ]
+                'phone' => '928392893',
+            ],
         ]);
 
         Paymongo::payment()
@@ -123,8 +122,8 @@ class PaymentTest extends BaseTestCase
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
                     'id' => $token->getId(),
-                    'type' => $token->getType()
-                ]
+                    'type' => $token->getType(),
+                ],
             ]);
     }
 
@@ -139,8 +138,8 @@ class PaymentTest extends BaseTestCase
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
                     'id' => $this->token->getId(),
-                    'type' => $this->token->getType()
-                ]
+                    'type' => $this->token->getType(),
+                ],
             ]);
 
         $payment = Paymongo::payment()

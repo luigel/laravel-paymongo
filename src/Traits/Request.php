@@ -17,7 +17,7 @@ trait Request
     protected $options;
 
     /**
-     * Request a create to API
+     * Request a create to API.
      *
      * @param array $payload
      * @return Model
@@ -31,7 +31,7 @@ trait Request
         $this->setOptions([
             'headers' => [
                 'Accept' => 'application/json',
-                'Content-type' => 'application/json'
+                'Content-type' => 'application/json',
             ],
             'auth' => [config('paymongo.secret_key'), ''],
             'json' => $this->data,
@@ -41,7 +41,7 @@ trait Request
     }
 
     /**
-     * Request a create to API
+     * Request a create to API.
      *
      * @param array $payload
      * @return Model
@@ -50,12 +50,12 @@ trait Request
     {
         $this->method = 'GET';
         $this->payload = $payload;
-        $this->apiUrl = $this->apiUrl . $payload;
+        $this->apiUrl = $this->apiUrl.$payload;
 
         $this->setOptions([
             'headers' => [
                 'Accept' => 'application/json',
-                'Content-type' => 'application/json'
+                'Content-type' => 'application/json',
             ],
             'auth' => [config('paymongo.secret_key'), ''],
         ]);
@@ -64,7 +64,7 @@ trait Request
     }
 
     /**
-     * Request a get all to API
+     * Request a get all to API.
      *
      * @return Model
      */
@@ -75,7 +75,7 @@ trait Request
         $this->setOptions([
             'headers' => [
                 'Accept' => 'application/json',
-                'Content-type' => 'application/json'
+                'Content-type' => 'application/json',
             ],
             'auth' => [config('paymongo.secret_key'), ''],
         ]);
@@ -84,7 +84,7 @@ trait Request
     }
 
     /**
-     * Enables the webhook
+     * Enables the webhook.
      *
      * @param Webhook $webhook
      * @return Model
@@ -92,7 +92,7 @@ trait Request
     public function enable(Webhook $webhook)
     {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl . $webhook->getId() . "/enable";
+        $this->apiUrl = $this->apiUrl.$webhook->getId().'/enable';
 
         $this->setOptions([
             'headers' => [
@@ -105,7 +105,7 @@ trait Request
     }
 
     /**
-     * Disables the webhook
+     * Disables the webhook.
      *
      * @param Webhook $webhook
      * @return Model
@@ -113,7 +113,7 @@ trait Request
     public function disable(Webhook $webhook)
     {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl . $webhook->getId() . "/disable";
+        $this->apiUrl = $this->apiUrl.$webhook->getId().'/disable';
 
         $this->setOptions([
             'headers' => [
@@ -126,7 +126,7 @@ trait Request
     }
 
     /**
-     * Updates the webhook
+     * Updates the webhook.
      *
      * @param Webhook $webhook
      * @param array $payload
@@ -136,7 +136,7 @@ trait Request
     {
         $this->method = 'PUT';
         $this->payload = $this->convertPayloadAmountsToInteger($payload);
-        $this->apiUrl = $this->apiUrl . $webhook->getId();
+        $this->apiUrl = $this->apiUrl.$webhook->getId();
 
         $this->formRequestData();
         $this->setOptions([
@@ -151,7 +151,7 @@ trait Request
     }
 
     /**
-     * Cancels the payment intent
+     * Cancels the payment intent.
      *
      * @param PaymentIntent $intent
      * @return Model
@@ -159,7 +159,7 @@ trait Request
     public function cancel(PaymentIntent $intent)
     {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl . $intent->getId() . '/cancel';
+        $this->apiUrl = $this->apiUrl.$intent->getId().'/cancel';
 
         $this->setOptions([
             'headers' => [
@@ -172,7 +172,7 @@ trait Request
     }
 
     /**
-     * Attach the payment method in the payment intent
+     * Attach the payment method in the payment intent.
      *
      * @param PaymentIntent $intent
      * @param string $paymentMethodId
@@ -181,7 +181,7 @@ trait Request
     public function attach(PaymentIntent $intent, $paymentMethodId)
     {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl . $intent->getId() . '/attach';
+        $this->apiUrl = $this->apiUrl.$intent->getId().'/attach';
         $this->payload = ['payment_method' => $paymentMethodId];
 
         $this->formRequestData();
@@ -197,7 +197,7 @@ trait Request
     }
 
     /**
-     * Send request to API
+     * Send request to API.
      *
      * @return mixed|Throwable
      */
@@ -205,36 +205,26 @@ trait Request
     {
         $client = new Client();
 
-        try
-        {
+        try {
             $response = $client->request($this->method, $this->apiUrl, $this->options);
 
             $array = $this->parseToArray((string) $response->getBody());
+
             return $this->setReturnModel($array);
-        }
-        catch (ClientException $e)
-        {
+        } catch (ClientException $e) {
             $response = json_decode($e->getResponse()->getBody()->getContents(), true);
-            if ($e->getCode() === 400)
-            {
+            if ($e->getCode() === 400) {
                 throw new BadRequestException($response['errors'][0]['detail'], $e->getCode());
-            }
-            else if ($e->getCode() === 402)
-            {
+            } elseif ($e->getCode() === 402) {
                 throw new PaymentErrorException($response['errors'][0]['detail'], $e->getCode());
-            }
-            else if ($e->getCode() === 404)
-            {
+            } elseif ($e->getCode() === 404) {
                 throw new NotFoundException($response['errors'][0]['detail'], $e->getCode());
             }
         }
-
-
-
     }
 
     /**
-     * Sets the data to add data wrapper of the payload
+     * Sets the data to add data wrapper of the payload.
      *
      * @return void
      */
@@ -242,8 +232,8 @@ trait Request
     {
         $this->data = [
             'data' => [
-                'attributes' => $this->payload
-            ]
+                'attributes' => $this->payload,
+            ],
         ];
     }
 
@@ -264,11 +254,10 @@ trait Request
 
     protected function convertPayloadAmountsToInteger($payload)
     {
-        if (isset($payload['amount']))
-        {
+        if (isset($payload['amount'])) {
             $payload['amount'] *= 100;
         }
-        return $payload;
 
+        return $payload;
     }
 }

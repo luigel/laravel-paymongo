@@ -33,7 +33,7 @@ class Source
             'amount' => $this->amount,
             'redirect' => $this->redirect,
             'source_type' => $this->source_type,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
         ];
 
         return $this;
