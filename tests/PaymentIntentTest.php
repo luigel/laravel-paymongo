@@ -15,16 +15,16 @@ class PaymentIntentTest extends BaseTestCase
         $paymentIntent = Paymongo::paymentIntent()->create([
             'amount' => 100,
             'payment_method_allowed' => [
-                'card'
+                'card',
             ],
             'payment_method_options' => [
                 'card' => [
-                    'request_three_d_secure' => 'automatic'
-                ]
+                    'request_three_d_secure' => 'automatic',
+                ],
             ],
             'description' => 'This is a test payment intent',
             'statement_descriptor' => 'LUIGEL STORE',
-            'currency' => "PHP",
+            'currency' => 'PHP',
         ]);
 
         $this->assertEquals(100.00, $paymentIntent->getAmount());
@@ -49,16 +49,16 @@ class PaymentIntentTest extends BaseTestCase
         $paymentIntent = Paymongo::paymentIntent()->create([
             'amount' => 100,
             'payment_method_allowed' => [
-                'card'
+                'card',
             ],
             'payment_method_options' => [
                 'card' => [
-                    'request_three_d_secure' => 'automatic'
-                ]
+                    'request_three_d_secure' => 'automatic',
+                ],
             ],
             'description' => 'This is a test payment intent',
             'statement_descriptor' => 'LUIGEL STORE',
-            'currency' => "PHP",
+            'currency' => 'PHP',
         ]);
 
         $cancelledPaymentIntent = $paymentIntent->cancel();
@@ -74,16 +74,16 @@ class PaymentIntentTest extends BaseTestCase
             ->create([
                 'amount' => 100,
                 'payment_method_allowed' => [
-                    'card'
+                    'card',
                 ],
                 'payment_method_options' => [
                     'card' => [
-                        'request_three_d_secure' => 'automatic'
-                    ]
+                        'request_three_d_secure' => 'automatic',
+                    ],
                 ],
                 'description' => 'This is a test payment intent',
                 'statement_descriptor' => 'LUIGEL STORE',
-                'currency' => "PHP",
+                'currency' => 'PHP',
             ]);
 
         $paymentMethod = Paymongo::paymentMethod()
@@ -93,7 +93,7 @@ class PaymentIntentTest extends BaseTestCase
                     'card_number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
                     'exp_month' => 12,
                     'exp_year' => 25,
-                    'cvc' => "123",
+                    'cvc' => '123',
                 ],
                 'billing' => [
                     'address' => [
@@ -105,14 +105,14 @@ class PaymentIntentTest extends BaseTestCase
                     ],
                     'name' => 'Rigel Kent Carbonel',
                     'email' => 'rigel20.kent@gmail.com',
-                    'phone' => '0935454875545'
+                    'phone' => '0935454875545',
                 ],
             ]);
 
-            $attachedPaymentIntent = $paymentIntent->attach($paymentMethod->getId());
+        $attachedPaymentIntent = $paymentIntent->attach($paymentMethod->getId());
 
-            $this->assertEquals($paymentIntent->getId(), $attachedPaymentIntent->getId());
-            $this->assertEquals('succeeded', $attachedPaymentIntent->getStatus());
+        $this->assertEquals($paymentIntent->getId(), $attachedPaymentIntent->getId());
+        $this->assertEquals('succeeded', $attachedPaymentIntent->getStatus());
     }
 
     /** @test */
@@ -130,20 +130,20 @@ class PaymentIntentTest extends BaseTestCase
             ->create([
                 'amount' => 100,
                 'payment_method_allowed' => [
-                    'card'
+                    'card',
                 ],
                 'payment_method_options' => [
                     'card' => [
-                        'request_three_d_secure' => 'automatic'
-                    ]
+                        'request_three_d_secure' => 'automatic',
+                    ],
                 ],
                 'description' => 'This is a test payment intent',
                 'statement_descriptor' => 'LUIGEL STORE',
-                'currency' => "PHP",
+                'currency' => 'PHP',
             ]);
 
-            $retrievedPaymentIntent = Paymongo::paymentIntent()->find($paymentIntent->getId());
+        $retrievedPaymentIntent = Paymongo::paymentIntent()->find($paymentIntent->getId());
 
-            $this->assertEquals($paymentIntent, $retrievedPaymentIntent);
+        $this->assertEquals($paymentIntent, $retrievedPaymentIntent);
     }
 }

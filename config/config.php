@@ -3,7 +3,7 @@
 return [
 
     /**
-     * Public and Secret keys from Paymongo. You can get the keys here https://dashboard.paymongo.com/developers
+     * Public and Secret keys from Paymongo. You can get the keys here https://dashboard.paymongo.com/developers.
      */
 
     /**
@@ -25,5 +25,5 @@ return [
      * Paymongo's team continuously adding more features and integrations to the API.
      * Currently, the API supports doing payments via debit and credit cards issued by Visa and Mastercard.
      */
-    'version' => env('PAYMONGO_VERSION', '2019-08-05')
+    'version' => env('PAYMONGO_VERSION', '2019-08-05'),
 ];

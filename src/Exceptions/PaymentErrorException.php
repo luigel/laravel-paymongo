@@ -11,8 +11,7 @@ class PaymentErrorException extends Exception
         $message = 'There is an error during payment',
         $code = 402,
         Throwable $previous = null
-    )
-    {
+    ) {
         parent::__construct($message, $code, $previous);
     }
 }

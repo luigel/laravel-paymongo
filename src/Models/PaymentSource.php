@@ -2,7 +2,8 @@
 
 namespace Luigel\Paymongo\Models;
 
-class PaymentSource {
+class PaymentSource
+{
     public $id;
     public $type;
 

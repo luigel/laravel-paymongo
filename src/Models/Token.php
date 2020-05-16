@@ -23,7 +23,7 @@ class Token
         $this->id = $data['id'];
         $this->type = $data['type'];
         $this->card = $data['attributes']['card'];
-        $this->kind =$data['attributes']['kind'];
+        $this->kind = $data['attributes']['kind'];
         $this->livemode = $data['attributes']['livemode'];
         $this->used = $data['attributes']['used'];
         $this->created_at = $data['attributes']['created_at'];
@@ -49,7 +49,6 @@ class Token
         ];
 
         return $this;
-
     }
 
     public function getId()

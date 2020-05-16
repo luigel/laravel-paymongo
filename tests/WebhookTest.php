@@ -100,6 +100,5 @@ class WebhookTest extends BaseTestCase
     //         $this->assertEquals('http://localhost/updated-webhook-test-1', $webhook->getUrl());
     //     }
 
-
     // }
 }

@@ -23,7 +23,6 @@ class PaymentIntent
     protected $metadata;
     protected $status;
 
-
     public function setData($data)
     {
         $this->id = $data['id'];
@@ -97,27 +96,27 @@ class PaymentIntent
     {
         return $this->statement_descriptor;
     }
-    
+
     public function getClientKey()
     {
         return $this->client_key;
     }
-    
+
     public function getLastPaymentError()
     {
         return $this->last_payment_error;
     }
-    
+
     public function getPayments()
     {
         return $this->payments;
     }
-    
+
     public function getNextAction()
     {
         return $this->next_action;
     }
-    
+
     public function getPaymentMethodOptions()
     {
         return $this->payment_method_options;

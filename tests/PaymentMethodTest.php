@@ -18,7 +18,7 @@ class PaymentMethodTest extends BaseTestCase
                             'card_number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
                             'exp_month' => 12,
                             'exp_year' => 25,
-                            'cvc' => "123",
+                            'cvc' => '123',
                         ],
                         'billing' => [
                             'address' => [
@@ -30,7 +30,7 @@ class PaymentMethodTest extends BaseTestCase
                             ],
                             'name' => 'Rigel Kent Carbonel',
                             'email' => 'rigel20.kent@gmail.com',
-                            'phone' => '0935454875545'
+                            'phone' => '0935454875545',
                         ],
                     ]);
 
@@ -60,7 +60,7 @@ class PaymentMethodTest extends BaseTestCase
                             'card_number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
                             'exp_month' => 12,
                             'exp_year' => 25,
-                            'cvc' => "123",
+                            'cvc' => '123',
                         ],
                         'billing' => [
                             'address' => [
@@ -72,7 +72,7 @@ class PaymentMethodTest extends BaseTestCase
                             ],
                             'name' => 'Rigel Kent Carbonel',
                             'email' => 'rigel20.kent@gmail.com',
-                            'phone' => '0935454875545'
+                            'phone' => '0935454875545',
                         ],
                     ]);
 
