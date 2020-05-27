@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Facade;
  * @method static mixed all()
  * @method static mixed enable()
  * @method static mixed disable()
- * 
  */
 class Paymongo extends Facade
 {
