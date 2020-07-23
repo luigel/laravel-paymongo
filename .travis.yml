@@ -6,6 +6,7 @@ php:
     - 7.4
 
 env:
+    - LARAVEL_VERSION=5.8.*
     - LARAVEL_VERSION=6.*
     - LARAVEL_VERSION=7.*
 matrix:
