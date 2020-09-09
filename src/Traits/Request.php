@@ -84,48 +84,6 @@ trait Request
     }
 
     /**
-     * Enables the webhook.
-     *
-     * @param Webhook $webhook
-     * @return Model
-     */
-    public function enable(Webhook $webhook)
-    {
-        $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl.$webhook->getId().'/enable';
-
-        $this->setOptions([
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-            'auth' => [config('paymongo.secret_key'), ''],
-        ]);
-
-        return $this->request();
-    }
-
-    /**
-     * Disables the webhook.
-     *
-     * @param Webhook $webhook
-     * @return Model
-     */
-    public function disable(Webhook $webhook)
-    {
-        $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl.$webhook->getId().'/disable';
-
-        $this->setOptions([
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-            'auth' => [config('paymongo.secret_key'), ''],
-        ]);
-
-        return $this->request();
-    }
-
-    /**
      * Updates the webhook.
      *
      * @param Webhook $webhook
@@ -237,21 +195,51 @@ trait Request
         ];
     }
 
-    protected function parseToArray($jsonString)
+    /**
+     * Parses json to array.
+     *
+     * @param string $json
+     *
+     * @return array
+     */
+    protected function parseToArray($json)
     {
-        return json_decode($jsonString, true);
+        return json_decode($json, true);
     }
 
+    /**
+     * Set the return model with the data.
+     *
+     * @param array $array
+     *
+     * @return mixed
+     */
     protected function setReturnModel($array)
     {
         return (new $this->returnModel)->setData($array['data']);
     }
 
+    /**
+     * Set the options.
+     *
+     * @param array $options
+     *
+     * @return $this
+     */
     protected function setOptions($options)
     {
         $this->options = $options;
+
+        return $this;
     }
 
+    /**
+     * Converts the Payload Amount to Integer.
+     *
+     * @param array $payload
+     *
+     * @return array
+     */
     protected function convertPayloadAmountsToInteger($payload)
     {
         if (isset($payload['amount'])) {

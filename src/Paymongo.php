@@ -8,11 +8,12 @@ use Luigel\Paymongo\Models\PaymentMethod;
 use Luigel\Paymongo\Models\Source;
 use Luigel\Paymongo\Models\Token;
 use Luigel\Paymongo\Models\Webhook;
+use Luigel\Paymongo\Traits\HasToggleWebhook;
 use Luigel\Paymongo\Traits\Request;
 
 class Paymongo
 {
-    use Request;
+    use Request, HasToggleWebhook;
 
     protected $method;
     protected $apiUrl = '';
