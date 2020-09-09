@@ -13,6 +13,11 @@ env:
 matrix:
     fast_finish: true
 
+jobs:
+    exclude:
+        - php: 7.2
+          env: LARAVEL_VERSION=8.*
+
 before_script:
     - travis_retry composer self-update
     - travis_retry composer install --prefer-source --no-interaction
