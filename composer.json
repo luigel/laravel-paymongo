@@ -25,11 +25,11 @@
     "require": {
         "php": "^7.0|^7.2|^7.3|^7.4",
         "guzzlehttp/guzzle": "^6.0|^7.0",
-        "illuminate/support": "5.8.*|^6.0|^7.0"
+        "illuminate/support": "5.8.*|^6.0|^7.0|^8.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^3.8|^4.0|^5.0",
-        "phpunit/phpunit": "^5.0|^6.0|^7.5|^8.0"
+        "orchestra/testbench": "^3.8|^4.0|^5.0|^6.0",
+        "phpunit/phpunit": "^5.0|^6.0|^7.5|^8.0|^9.3"
     },
     "autoload": {
         "psr-4": {
