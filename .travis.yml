@@ -12,8 +12,6 @@ env:
     - LARAVEL_VERSION=8.*
 matrix:
     fast_finish: true
-
-jobs:
     exclude:
         - php: 7.2
           env: LARAVEL_VERSION=8.*
