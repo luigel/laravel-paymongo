@@ -7,7 +7,7 @@ use Luigel\Paymongo\Models\Webhook;
 
 trait HasToggleWebhook
 {
-        /**
+    /**
      * Enables the webhook.
      *
      * @param Webhook $webhook
