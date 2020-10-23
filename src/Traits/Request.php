@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
+use Luigel\Paymongo\Exceptions\UnauthorizedException;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\Webhook;
 
@@ -170,13 +171,15 @@ trait Request
 
             return $this->setReturnModel($array);
         } catch (ClientException $e) {
-            $response = json_decode($e->getResponse()->getBody()->getContents(), true);
+            $response = $e->getResponse()->getBody()->getContents();
             if ($e->getCode() === 400) {
-                throw new BadRequestException($response['errors'][0]['detail'], $e->getCode());
+                throw new BadRequestException($response, $e->getCode());
+            } elseif ($e->getCode() === 401) {
+                throw new UnauthorizedException($response, $e->getCode());
             } elseif ($e->getCode() === 402) {
-                throw new PaymentErrorException($response['errors'][0]['detail'], $e->getCode());
+                throw new PaymentErrorException($response, $e->getCode());
             } elseif ($e->getCode() === 404) {
-                throw new NotFoundException($response['errors'][0]['detail'], $e->getCode());
+                throw new NotFoundException($response, $e->getCode());
             }
         }
     }
