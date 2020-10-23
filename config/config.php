@@ -37,7 +37,7 @@ return [
     'signer' => \Luigel\Paymongo\Signer\DefaultSigner::class,
 
     /**
-     * Paymongo webhook signature secret
+     * Paymongo webhook signature secret.
      */
     'webhook_signature' => env('PAYMONGO_WEBHOOK_SIG'),
 
