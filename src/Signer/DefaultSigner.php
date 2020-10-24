@@ -8,16 +8,14 @@ class DefaultSigner implements Signer
      * Calculate signature.
      *
      * @param  string|int $timestamp
-     * @param  array  $payload
+     * @param  string  $contentBody
      * @param  string $secret
      *
      * @return string
      */
-    public function calculateSignature($timestamp, array $payload, string $secret): string
+    public function calculateSignature($timestamp, string $contentBody, string $secret): string
     {
-        $payloadJson = json_encode($payload);
-
-        return hash_hmac('sha256', $timestamp.'.'.$payloadJson, $secret);
+        return hash_hmac('sha256', $timestamp.'.'.$contentBody, $secret);
     }
 
     /**

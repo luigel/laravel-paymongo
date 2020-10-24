@@ -30,7 +30,7 @@ class PaymongoValidateSignature
             }
         }
 
-        throw new InvalidSignatureException;
+        throw new InvalidSignatureException();
     }
 
     /**
@@ -68,7 +68,7 @@ class PaymongoValidateSignature
     {
         return app(Signer::class)->calculateSignature(
             $timestamp,
-            $request->all(),
+            $request->getContent(),
             config('paymongo.webhook_signature')
         );
     }

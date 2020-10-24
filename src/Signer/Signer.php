@@ -15,10 +15,10 @@ interface Signer
      * Calculate signature.
      *
      * @param  string|int $timestamp
-     * @param  array  $payload
+     * @param  string  $contentBody
      * @param  string $secret
      *
      * @return string
      */
-    public function calculateSignature($timestamp, array $payload, string $secret): string;
+    public function calculateSignature($timestamp, string $contentBody, string $secret): string;
 }

@@ -44,5 +44,5 @@ return [
     /*
      * This is the name of the header where the signature will be added.
      */
-    'signature_header_name' => env('PAYMONGO_SIG_HEADER', 'Paymongo-Signature'),
+    'signature_header_name' => env('PAYMONGO_SIG_HEADER', 'paymongo-signature'),
 ];
