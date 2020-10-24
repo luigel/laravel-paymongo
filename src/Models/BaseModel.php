@@ -150,6 +150,7 @@ class BaseModel
         foreach ($keys as $key) {
             $currentAttribute = $this->getGuessedData($key, $currentAttribute);
         }
+
         return $currentAttribute;
     }
 
@@ -165,7 +166,7 @@ class BaseModel
     protected function getGuessedData($key, $currentAttribute)
     {
         try {
-            if ($currentAttribute === null && !is_array($this->attributes[$key])) {
+            if ($currentAttribute === null && ! is_array($this->attributes[$key])) {
                 return $this->attributes[$key];
             }
         } catch (Exception $e) {
@@ -193,7 +194,7 @@ class BaseModel
      */
     protected function throwMethodNotFoundException()
     {
-        throw new MethodNotFoundException("Method [{$this->method}] not found in " . get_class($this));
+        throw new MethodNotFoundException("Method [{$this->method}] not found in ".get_class($this));
     }
 
     /**
