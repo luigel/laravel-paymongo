@@ -43,6 +43,10 @@ class PaymongoValidateSignature
     {
         $payload = $request->header(app(Signer::class)->signatureHeaderName());
 
+        if ($payload === null) {
+            return [];
+        }
+
         return collect(explode(',', $payload))
             ->mapWithKeys(function ($val) {
                 $pair = explode('=', $val);
@@ -63,7 +67,9 @@ class PaymongoValidateSignature
     public function signature($request, $timestamp)
     {
         return app(Signer::class)->calculateSignature(
-            $timestamp, $request->getContent(), config('paymongo.webhook_signature')
+            $timestamp,
+            $request->all(),
+            config('paymongo.webhook_signature')
         );
     }
 }
