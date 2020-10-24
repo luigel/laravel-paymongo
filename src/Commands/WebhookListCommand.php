@@ -3,10 +3,12 @@
 namespace Luigel\Paymongo\Commands;
 
 use Illuminate\Console\Command;
-use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Traits\HasWebhooksTable;
 
 class WebhookListCommand extends Command
 {
+    use HasWebhooksTable;
+
     /**
      * The name and signature of the console command.
      *
@@ -28,25 +30,6 @@ class WebhookListCommand extends Command
      */
     public function handle()
     {
-        $headers = ['id', 'livemode', 'secret_key', 'status', 'url'];
-
-        $this->table($headers, $this->webhooks($headers));
-    }
-
-    /**
-     * Get all the webhooks.
-     *
-     * @param array $headers
-     * @return \Illuminate\Support\Collection
-     */
-    protected function webhooks($headers)
-    {
-        return Paymongo::webhook()->all()->map(function ($webhook) use ($headers) {
-            return collect($webhook->getData())->only($headers)->toArray();
-        })->map(function ($webhook) {
-            $webhook['livemode'] = $webhook['livemode'] ? 'YES' : 'NO';
-
-            return $webhook;
-        })->toArray();
+        $this->displayWebhooks();
     }
 }

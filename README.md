@@ -387,17 +387,26 @@ $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
 
 > ### Artisan Commands
 
-We can list the `webhooks` using the artisan command.
+We can list, add, and toggle the `webhooks` using the artisan commands out of the box.
 
 ```bash
+# Adding webhook.
+php artisan paymongo:webhook
+# List webhooks
 php artisan paymongo:list-webhooks
+# Enable webhook with webhook id
+php artisan paymongo:toggle-webhook {webhook_id} --enable
+# Disable webhook with webhook id
+php artisan paymongo:toggle-webhook {webhook_id} --disable
+# Or you can just run paymongo:toggle-webhook and input needed data on runtime.
+php artisan paymongo:toggle-webhook
 ```
 
 ### **Todo**
 
 -   [ ] Add unit test for the `BaseModel`.
 -   [ ] Fix the magic method when accessing a nested data with `underscore` ("\_").
--   [ ] Add artisan commands for adding, enabling, and disabling webhooks.
+-   [x] Add artisan commands for adding, enabling, and disabling webhooks.
 -   [ ] Fix the test case for the `PaymongoValidateSignature` middleware.
 -   [ ] Transfer from travis to github actions.
 

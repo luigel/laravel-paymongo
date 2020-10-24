@@ -6,9 +6,12 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Webhook;
+use Luigel\Paymongo\Traits\HasCommandValidation;
 
 class WebhookAddCommand extends Command
 {
+    use HasCommandValidation;
+
     /**
      * The name and signature of the console command.
      *
@@ -32,18 +35,13 @@ class WebhookAddCommand extends Command
     {
         $url = $this->ask('Enter your webhook URL.');
 
-        $validator = Validator::make(
+        $validate =  $this->validate(
             ['url' => $url],
-            ['url' => ['url']]
+            ['url' => ['url', 'required']],
+            'Webhook was not created. See error messages below:'
         );
 
-        if ($validator->fails()) {
-            $this->info('Webhook was not created. See error messages below:');
-
-            foreach ($validator->errors()->all() as $error) {
-                $this->error($error);
-            }
-
+        if ($validate === 1) {
             return 1;
         }
 
