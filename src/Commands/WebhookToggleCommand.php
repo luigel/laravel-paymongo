@@ -60,9 +60,9 @@ class WebhookToggleCommand extends Command
                 $mode = $this->mode;
                 $webhook = Paymongo::webhook()->find($id);
 
-                if ($webhook->status !== $this->mode . 'd') {
+                if ($webhook->status !== $this->mode.'d') {
                     $webhook->$mode();
-                    $this->line(ucfirst($this->mode) . "d webhook {$id}.");
+                    $this->line(ucfirst($this->mode)."d webhook {$id}.");
                 } else {
                     $this->line("Webhook {$id} is already {$this->mode}d");
                 }
@@ -88,7 +88,7 @@ class WebhookToggleCommand extends Command
 
             $this->webhookIds = $this->ask('Enter the webhook id you want to enable or disable.');
 
-            $validate =  $this->validate(
+            $validate = $this->validate(
                 ['webhook_id' => $this->webhookIds],
                 ['webhook_id' => ['required']],
                 'See error messages below:'
@@ -104,7 +104,7 @@ class WebhookToggleCommand extends Command
         if ($this->mode === null) {
             $this->mode = $this->choice('Enable or disable?', [
                 self::WEBHOOK_ENABLE,
-                self::WEBHOOK_DISABLE
+                self::WEBHOOK_DISABLE,
             ], self::WEBHOOK_DISABLE);
         }
     }
