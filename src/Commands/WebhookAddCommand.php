@@ -3,7 +3,6 @@
 namespace Luigel\Paymongo\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Webhook;
@@ -44,6 +43,7 @@ class WebhookAddCommand extends Command
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return 1;
         }
 
@@ -63,10 +63,10 @@ class WebhookAddCommand extends Command
             'url' => $url,
             'events' => [
                 Webhook::SOURCE_CHARGEABLE,
-            ]
+            ],
         ]);
 
-        $this->line('Created webhook with an ID ' . $webhook->id);
+        $this->line('Created webhook with an ID '.$webhook->id);
 
         return $webhook;
     }

@@ -3,7 +3,6 @@
 namespace Luigel\Paymongo\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Luigel\Paymongo\Facades\Paymongo;
 
 class WebhookListCommand extends Command

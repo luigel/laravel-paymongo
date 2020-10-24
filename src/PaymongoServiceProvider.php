@@ -38,7 +38,6 @@ class PaymongoServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'paymongo');
 
-
         $this->app->singleton('paymongo', function () {
             return new Paymongo;
         });
