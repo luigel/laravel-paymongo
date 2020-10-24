@@ -44,15 +44,15 @@ class PaymentTest extends BaseTestCase
                 'description' => 'Testing payment',
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
-                    'id' => $this->token->getId(),
-                    'type' => $this->token->getType(),
+                    'id' => $this->token->id,
+                    'type' => $this->token->type,
                 ],
             ]);
 
-        $this->assertTrue($payment->getAmount() == 100.00);
-        $this->assertTrue($payment->getCurrency() === 'PHP');
-        $this->assertTrue($payment->getStatementDescriptor() === 'Test Paymongo');
-        $this->assertTrue($payment->getStatus() === 'paid');
+        $this->assertTrue($payment->amount == 100.00);
+        $this->assertTrue($payment->currency === 'PHP');
+        $this->assertTrue($payment->statement_descriptor === 'Test Paymongo');
+        $this->assertTrue($payment->status === 'paid');
 
         $this->assertInstanceOf(Payment::class, $payment);
     }
@@ -69,14 +69,14 @@ class PaymentTest extends BaseTestCase
                 'description' => 'Testing payment',
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
-                    'id' => $this->token->getId(),
-                    'type' => $this->token->getType(),
+                    'id' => $this->token->id,
+                    'type' => $this->token->type,
                 ],
             ]);
-        $this->assertTrue($payment->getAmount() === 100.00);
-        $this->assertTrue($payment->getCurrency() === 'PHP');
-        $this->assertTrue($payment->getStatementDescriptor() === 'Test Paymongo');
-        $this->assertTrue($payment->getStatus() === 'paid');
+        $this->assertTrue($payment->amount === 100.00);
+        $this->assertTrue($payment->currency === 'PHP');
+        $this->assertTrue($payment->statement_descriptor === 'Test Paymongo');
+        $this->assertTrue($payment->status === 'paid');
 
         $payment = Paymongo::payment()
             ->create([
@@ -85,8 +85,8 @@ class PaymentTest extends BaseTestCase
                 'description' => 'Testing payment',
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
-                    'id' => $this->token->getId(),
-                    'type' => $this->token->getType(),
+                    'id' => $this->token->id,
+                    'type' => $this->token->type,
                 ],
             ]);
     }
@@ -121,8 +121,8 @@ class PaymentTest extends BaseTestCase
                 'description' => 'Testing payment',
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
-                    'id' => $token->getId(),
-                    'type' => $token->getType(),
+                    'id' => $token->id,
+                    'type' => $token->type,
                 ],
             ]);
     }
@@ -137,13 +137,13 @@ class PaymentTest extends BaseTestCase
                 'description' => 'Testing payment',
                 'statement_descriptor' => 'Test Paymongo',
                 'source' => [
-                    'id' => $this->token->getId(),
-                    'type' => $this->token->getType(),
+                    'id' => $this->token->id,
+                    'type' => $this->token->type,
                 ],
             ]);
 
         $payment = Paymongo::payment()
-            ->find($createdPayment->getId());
+            ->find($createdPayment->id);
 
         $this->assertEquals($createdPayment, $payment);
     }

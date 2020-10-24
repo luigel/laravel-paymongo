@@ -25,17 +25,15 @@ class SourceTest extends BaseTestCase
 
         $this->assertInstanceOf(Source::class, $source);
 
-        $this->assertEquals('source', $source->getType());
+        $this->assertEquals('gcash', $source->type);
 
-        $this->assertEquals('gcash', $source->getSourceType());
-
-        $this->assertEquals(100.00, $source->getAmount());
+        $this->assertEquals(100.00, $source->amount);
 
         $this->assertEquals([
             'success' => 'http://localhost/success',
             'failed' => 'http://localhost/failed',
-            'checkout_url' => $source->getCheckoutUrlRedirect(),
-        ], $source->getRedirect());
+            'checkout_url' => $source->redirect['checkout_url'],
+        ], $source->redirect);
     }
 
     /** @test */
@@ -56,16 +54,14 @@ class SourceTest extends BaseTestCase
 
         $this->assertInstanceOf(Source::class, $source);
 
-        $this->assertEquals('source', $source->getType());
+        $this->assertEquals('grab_pay', $source->type);
 
-        $this->assertEquals('grab_pay', $source->getSourceType());
-
-        $this->assertEquals(100.00, $source->getAmount());
+        $this->assertEquals(100.00, $source->amount);
 
         $this->assertEquals([
             'success' => 'http://localhost/success',
             'failed' => 'http://localhost/failed',
-            'checkout_url' => $source->getCheckoutUrlRedirect(),
-        ], $source->getRedirect());
+            'checkout_url' => $source->redirect['checkout_url'],
+        ], $source->redirect);
     }
 }

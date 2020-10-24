@@ -95,7 +95,7 @@ trait Request
     {
         $this->method = 'PUT';
         $this->payload = $this->convertPayloadAmountsToInteger($payload);
-        $this->apiUrl = $this->apiUrl.$webhook->getId();
+        $this->apiUrl = $this->apiUrl.$webhook->id;
 
         $this->formRequestData();
         $this->setOptions([
@@ -118,7 +118,7 @@ trait Request
     public function cancel(PaymentIntent $intent)
     {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl.$intent->getId().'/cancel';
+        $this->apiUrl = $this->apiUrl.$intent->id.'/cancel';
 
         $this->setOptions([
             'headers' => [
@@ -140,7 +140,7 @@ trait Request
     public function attach(PaymentIntent $intent, $paymentMethodId)
     {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl.$intent->getId().'/attach';
+        $this->apiUrl = $this->apiUrl.$intent->id.'/attach';
         $this->payload = ['payment_method' => $paymentMethodId];
 
         $this->formRequestData();

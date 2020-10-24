@@ -31,9 +31,9 @@ class TokenTest extends BaseTestCase
             ]);
 
         $this->assertInstanceOf(Token::class, $token);
-        $this->assertEquals($token->getCard()['last4'], '4345');
-        $this->assertEquals($token->getCard()['exp_month'], 12);
-        $this->assertEquals($token->getBillingName(), 'Rigel Kent Carbonel');
+        $this->assertEquals($token->card['last4'], '4345');
+        $this->assertEquals($token->card['exp_month'], 12);
+        $this->assertEquals($token->billing['name'], 'Rigel Kent Carbonel');
     }
 
     /** @test */
@@ -72,7 +72,7 @@ class TokenTest extends BaseTestCase
                 ],
             ]);
 
-        $token = Paymongo::token()->find($createdToken->getId());
+        $token = Paymongo::token()->find($createdToken->id);
 
         $this->assertEquals($createdToken, $token);
     }
