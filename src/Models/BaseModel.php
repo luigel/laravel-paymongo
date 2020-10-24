@@ -46,7 +46,8 @@ class BaseModel
             foreach ($item as $itemKey => $element) {
                 $this->$itemKey = $element;
             }
-            return ;
+
+            return;
         }
         $this->$key = $item;
     }
