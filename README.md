@@ -48,17 +48,25 @@ composer require luigel/laravel-paymongo
 
 **Laravel 6 and up** uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
 
-Put your `Secret Key` and `Public Key` in you `.env` file.
+Put your `Secret Key` and `Public Key` and the `Webhook secret` in your `.env` file.
 
 ```
+# Paymongo
 PAYMONGO_SECRET_KEY=
 PAYMONGO_PUBLIC_KEY=
+# This is the secret from the webhook you created.
+PAYMONGO_WEBHOOK_SIG=
+
 ```
 
 > ## Compatibility and Supported Versions
 >
 > Laravel-Paymongo supports Laravel 6.x and up.
-
+>
+> ## Sample Source Code
+>
+> I created and a work in progress sample application using this package. The source code can be found here https://github.com/luigel/sample-paymongo.
+>
 > ## Usage
 
 **_Note_:** You can get data using getData() method for all the models. It also supports magic method for getting the data from the model.
@@ -382,6 +390,16 @@ use Luigel\Paymongo\Facades\Paymongo;
 $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
     'url' => 'https://update-domain.com/webhook'
 ]);
+```
+
+> ### Webhook Middleware
+>
+> Laravel paymongo has a middleware for protecting your webhook, suggested by Paymongo. Check the link here. [**Securing a Webhook. Optional but highly recommended.**](https://developers.paymongo.com/docs/webhooks#3-securing-a-webhook-optional-but-highly-recommended)
+> You can put your webhook in the `api.php` like so.
+
+```php
+Route::post('webhook/paymongo', PaymongoWebhookController::class)->middleware('paymongo.signature');
+
 ```
 
 > ### Artisan Commands
