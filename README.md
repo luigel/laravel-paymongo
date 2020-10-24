@@ -62,10 +62,12 @@ PAYMONGO_PUBLIC_KEY=
 
 > ## Usage
 
-**_Note_:** You can get data using getData() method for all the models.
+**_Note_:** You can get data using getData() method for all the models. It also supports magic method for getting the data from the model.
 
 ```php
 $data = $paymentMethod->getData();
+$billing = $paymentMethod->getBilling();
+$billingName = $paymentMethod->getBillingName();
 ```
 
 > ### Payment Methods
@@ -382,6 +384,13 @@ $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
     'url' => 'https://update-domain.com/webhook'
 ]);
 ```
+
+### **Todo**
+
+-   [ ] Add unit test for the `BaseModel`.
+-   [ ] Fix the magic method when accessing a nested data with `underscore` ("\_").
+-   [ ] Add artisan commands for adding, enabling, and disabling webhooks.
+-   [ ] Fix the test case for the `PaymongoValidateSignature` middleware.
 
 ### Testing
 

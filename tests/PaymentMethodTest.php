@@ -36,6 +36,7 @@ class PaymentMethodTest extends BaseTestCase
 
         $this->assertInstanceOf(PaymentMethod::class, $paymentMethod);
         $this->assertEquals($paymentMethod->type, 'payment_method');
+        $this->assertEquals($paymentMethod->payment_method_type, 'card');
         $this->assertEquals($paymentMethod->details['last4'], $this::TEST_VISA_CARD_WITHOUT_3D_SECURE_LAST_4);
         $this->assertEquals($paymentMethod->details['exp_month'], 12);
         $this->assertEquals('Cebu City', $paymentMethod->billing['address']['city']);

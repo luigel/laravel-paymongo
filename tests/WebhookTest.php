@@ -27,7 +27,7 @@ class WebhookTest extends BaseTestCase
 
         $this->assertInstanceOf(Webhook::class, $webhook);
 
-        $this->assertEquals($webhooks[0], $webhook);
+        $this->assertEquals($webhooks[0]->getId(), $webhook->getId());
     }
 
     // /** @test */

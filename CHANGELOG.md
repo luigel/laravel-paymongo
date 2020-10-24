@@ -8,7 +8,17 @@ All notable changes to `laravel-paymongo` will be documented in this file
 
 -   Added `getData()` for all the models.
 -   It can now access the properties of the data directly. (eg. `$token->id`)
+-   Added magic methods to all the models to get the specific data. Using the `get` prefix for the method.
 
-### Changed
+#### Example:
 
--   Removed the get methods of the properties for all the models.
+```php
+// Get the ID of the token.
+$id = $token->getId();
+
+// Get the billing details of the payment method.
+$paymentMethod->getBilling();
+
+// Get the billing name of the payment method.
+$paymentMethod->getBillingName();
+```

@@ -25,7 +25,9 @@ class SourceTest extends BaseTestCase
 
         $this->assertInstanceOf(Source::class, $source);
 
-        $this->assertEquals('gcash', $source->type);
+        $this->assertEquals('gcash', $source->source_type);
+
+        $this->assertEquals('source', $source->type);
 
         $this->assertEquals(100.00, $source->amount);
 
@@ -54,7 +56,8 @@ class SourceTest extends BaseTestCase
 
         $this->assertInstanceOf(Source::class, $source);
 
-        $this->assertEquals('grab_pay', $source->type);
+        $this->assertEquals('grab_pay', $source->source_type);
+        $this->assertEquals('source', $source->type);
 
         $this->assertEquals(100.00, $source->amount);
 
