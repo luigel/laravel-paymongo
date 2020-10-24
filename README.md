@@ -1,10 +1,11 @@
 > # Paymongo for Laravel
 
-[![Build Status](https://travis-ci.com/luigel/laravel-paymongo.svg?branch=master)](https://travis-ci.com/luigel/laravel-paymongo)
 [![Quality Score](https://img.shields.io/scrutinizer/g/luigel/laravel-paymongo.svg?style=flat-square)](https://scrutinizer-ci.com/g/luigel/laravel-paymongo)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/luigel/laravel-paymongo.svg?style=flat-square)](https://packagist.org/packages/luigel/laravel-paymongo)
-[![Total Downloads](https://img.shields.io/packagist/dt/luigel/laravel-paymongo.svg?style=flat-square)](https://packagist.org/packages/luigel/laravel-paymongo)
-[![License](https://img.shields.io/github/license/luigel/laravel-paymongo.svg?style=flat-square)](https://github.com/luigel/laravel-paymongo/blob/master/LICENSE.md)
+[![Latest Stable Version](https://poser.pugx.org/luigel/laravel-paymongo/v)](//packagist.org/packages/luigel/laravel-paymongo)
+[![Total Downloads](https://poser.pugx.org/luigel/laravel-paymongo/downloads)](//packagist.org/packages/luigel/laravel-paymongo)
+[![Monthly Downloads](https://poser.pugx.org/luigel/laravel-paymongo/d/monthly)](//packagist.org/packages/luigel/laravel-paymongo)
+[![Daily Downloads](https://poser.pugx.org/luigel/laravel-paymongo/d/daily)](//packagist.org/packages/luigel/laravel-paymongo)
+[![License](https://poser.pugx.org/luigel/laravel-paymongo/license)](//packagist.org/packages/luigel/laravel-paymongo)
 
 A PHP Library for [Paymongo](https://paymongo.com).
 
@@ -56,9 +57,17 @@ PAYMONGO_PUBLIC_KEY=
 
 > ## Compatibility and Supported Versions
 >
-> Laravel-Paymongo supports Laravel 6._ and 7._
+> Laravel-Paymongo supports Laravel 6.x and up.
 
 > ## Usage
+
+**_Note_:** You can get data using getData() method for all the models. It also supports magic method for getting the data from the model.
+
+```php
+$data = $paymentMethod->getData();
+$billing = $paymentMethod->getBilling();
+$billingName = $paymentMethod->getBillingName();
+```
 
 > ### Payment Methods
 >
@@ -108,12 +117,6 @@ Retrieve a payment method given an ID. Just pass the payment method id to `find(
 use Luigel\Paymongo\Facades\Paymongo;
 
 $paymentMethod = Paymongo::paymentMethod()->find('pm_wr98R2gwWroVxfkcNVZBuXg2');
-
-// You can get data using getData() method
-$data = $paymentMethod->getData();
-
-// You can also retrieve specific data using a get method
-$billing = $paymentMethod->getBillingDetails();
 ```
 
 > ### Payment Intents
@@ -244,8 +247,8 @@ $payment = Paymongo::payment()
         'description' => 'Testing payment',
         'statement_descriptor' => 'Test Paymongo',
         'source' => [
-            'id' => $token->getId(),
-            'type' => $token->getType()
+            'id' => $token->id,
+            'type' => $token->type
         ]
     ]);
 ```
@@ -380,6 +383,31 @@ $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
     'url' => 'https://update-domain.com/webhook'
 ]);
 ```
+
+> ### Artisan Commands
+
+We can list, add, and toggle the `webhooks` using the artisan commands out of the box.
+
+```bash
+# Adding webhook.
+php artisan paymongo:webhook
+# List webhooks
+php artisan paymongo:list-webhooks
+# Enable webhook with webhook id
+php artisan paymongo:toggle-webhook {webhook_id} --enable
+# Disable webhook with webhook id
+php artisan paymongo:toggle-webhook {webhook_id} --disable
+# Or you can just run paymongo:toggle-webhook and input needed data on runtime.
+php artisan paymongo:toggle-webhook
+```
+
+### **Todo**
+
+-   [ ] Add unit test for the `BaseModel`.
+-   [ ] Fix the magic method when accessing a nested data with `underscore` ("\_").
+-   [x] Add artisan commands for adding, enabling, and disabling webhooks.
+-   [ ] Fix the test case for the `PaymongoValidateSignature` middleware.
+-   [ ] Transfer from travis to github actions.
 
 ### Testing
 

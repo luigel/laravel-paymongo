@@ -55,7 +55,7 @@
                 "Luigel\\Paymongo\\PaymongoServiceProvider"
             ],
             "aliases": {
-                "Paymongo": "Luigel\\Paymongo\\Facades\\PaymongoFacade"
+                "Paymongo": "Luigel\\Paymongo\\Facades\\Paymongo"
             }
         }
     }

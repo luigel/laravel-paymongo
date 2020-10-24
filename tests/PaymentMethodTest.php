@@ -35,10 +35,11 @@ class PaymentMethodTest extends BaseTestCase
                     ]);
 
         $this->assertInstanceOf(PaymentMethod::class, $paymentMethod);
-        $this->assertEquals($paymentMethod->getType(), 'payment_method');
-        $this->assertEquals($paymentMethod->getCardDetails()['last4'], $this::TEST_VISA_CARD_WITHOUT_3D_SECURE_LAST_4);
-        $this->assertEquals($paymentMethod->getCardDetails()['exp_month'], 12);
-        $this->assertEquals('Cebu City', $paymentMethod->getBillingDetails()['address']['city']);
+        $this->assertEquals($paymentMethod->type, 'payment_method');
+        $this->assertEquals($paymentMethod->payment_method_type, 'card');
+        $this->assertEquals($paymentMethod->details['last4'], $this::TEST_VISA_CARD_WITHOUT_3D_SECURE_LAST_4);
+        $this->assertEquals($paymentMethod->details['exp_month'], 12);
+        $this->assertEquals('Cebu City', $paymentMethod->billing['address']['city']);
     }
 
     /** @test */
@@ -76,7 +77,7 @@ class PaymentMethodTest extends BaseTestCase
                         ],
                     ]);
 
-        $paymentMethod = Paymongo::paymentMethod()->find($paymentMethodCreated->getId());
+        $paymentMethod = Paymongo::paymentMethod()->find($paymentMethodCreated->id);
 
         $this->assertEquals($paymentMethodCreated, $paymentMethod);
     }

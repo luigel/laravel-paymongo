@@ -27,10 +27,10 @@ class PaymentIntentTest extends BaseTestCase
             'currency' => 'PHP',
         ]);
 
-        $this->assertEquals(100.00, $paymentIntent->getAmount());
-        $this->assertEquals('awaiting_payment_method', $paymentIntent->getStatus());
-        $this->assertTrue($paymentIntent->getStatementDescriptor() === 'LUIGEL STORE');
-        $this->assertTrue($paymentIntent->getType() === 'payment_intent');
+        $this->assertEquals(100.00, $paymentIntent->amount);
+        $this->assertEquals('awaiting_payment_method', $paymentIntent->status);
+        $this->assertTrue($paymentIntent->statement_descriptor === 'LUIGEL STORE');
+        $this->assertTrue($paymentIntent->type === 'payment_intent');
 
         $this->assertInstanceOf(PaymentIntent::class, $paymentIntent);
     }
@@ -63,8 +63,8 @@ class PaymentIntentTest extends BaseTestCase
 
         $cancelledPaymentIntent = $paymentIntent->cancel();
 
-        $this->assertEquals('cancelled', $cancelledPaymentIntent->getStatus());
-        $this->assertEquals($paymentIntent->getId(), $cancelledPaymentIntent->getId());
+        $this->assertEquals('cancelled', $cancelledPaymentIntent->status);
+        $this->assertEquals($paymentIntent->id, $cancelledPaymentIntent->id);
     }
 
     /** @test */
@@ -109,10 +109,10 @@ class PaymentIntentTest extends BaseTestCase
                 ],
             ]);
 
-        $attachedPaymentIntent = $paymentIntent->attach($paymentMethod->getId());
+        $attachedPaymentIntent = $paymentIntent->attach($paymentMethod->id);
 
-        $this->assertEquals($paymentIntent->getId(), $attachedPaymentIntent->getId());
-        $this->assertEquals('succeeded', $attachedPaymentIntent->getStatus());
+        $this->assertEquals($paymentIntent->id, $attachedPaymentIntent->id);
+        $this->assertEquals('succeeded', $attachedPaymentIntent->status);
     }
 
     /** @test */
@@ -142,7 +142,7 @@ class PaymentIntentTest extends BaseTestCase
                 'currency' => 'PHP',
             ]);
 
-        $retrievedPaymentIntent = Paymongo::paymentIntent()->find($paymentIntent->getId());
+        $retrievedPaymentIntent = Paymongo::paymentIntent()->find($paymentIntent->id);
 
         $this->assertEquals($paymentIntent, $retrievedPaymentIntent);
     }
