@@ -385,12 +385,21 @@ $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
 ]);
 ```
 
+> ### Artisan Commands
+
+We can list the `webhooks` using the artisan command.
+
+```bash
+php artisan paymongo:list-webhooks
+```
+
 ### **Todo**
 
 -   [ ] Add unit test for the `BaseModel`.
 -   [ ] Fix the magic method when accessing a nested data with `underscore` ("\_").
 -   [ ] Add artisan commands for adding, enabling, and disabling webhooks.
 -   [ ] Fix the test case for the `PaymongoValidateSignature` middleware.
+-   [ ] Transfer from travis to github actions.
 
 ### Testing
 

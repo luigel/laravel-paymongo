@@ -67,7 +67,7 @@ trait Request
     /**
      * Request a get all to API.
      *
-     * @return Model
+     * @return \Illuminate\Support\Collection
      */
     public function all()
     {
