@@ -3,8 +3,8 @@
 namespace Luigel\Paymongo\Middlewares;
 
 use Closure;
-use Luigel\Paymongo\Signer\Signer;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
+use Luigel\Paymongo\Signer\Signer;
 
 class PaymongoValidateSignature
 {
