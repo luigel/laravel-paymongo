@@ -1,6 +1,5 @@
 > # Paymongo for Laravel
 
-[![Build Status](https://travis-ci.com/luigel/laravel-paymongo.svg?branch=master)](https://travis-ci.com/luigel/laravel-paymongo)
 [![Quality Score](https://img.shields.io/scrutinizer/g/luigel/laravel-paymongo.svg?style=flat-square)](https://scrutinizer-ci.com/g/luigel/laravel-paymongo)
 [![Latest Stable Version](https://poser.pugx.org/luigel/laravel-paymongo/v)](//packagist.org/packages/luigel/laravel-paymongo)
 [![Total Downloads](https://poser.pugx.org/luigel/laravel-paymongo/downloads)](//packagist.org/packages/luigel/laravel-paymongo)
@@ -58,7 +57,7 @@ PAYMONGO_PUBLIC_KEY=
 
 > ## Compatibility and Supported Versions
 >
-> Laravel-Paymongo supports Laravel 6._ and 7._
+> Laravel-Paymongo supports Laravel 6.x and up.
 
 > ## Usage
 
