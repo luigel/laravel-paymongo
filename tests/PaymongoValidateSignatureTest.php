@@ -4,10 +4,7 @@ namespace Luigel\Paymongo\Tests;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
-use Illuminate\Support\Facades\Request as FacadesRequest;
 use Luigel\Paymongo\Middlewares\PaymongoValidateSignature;
-use Luigel\Paymongo\Signer\DefaultSigner;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 class PaymongoValidateSignatureTest extends BaseTestCase
 {
@@ -58,6 +55,7 @@ class PaymongoValidateSignatureTest extends BaseTestCase
         $files = []
     ) {
         $request = new \Illuminate\Http\Request;
+
         return $request->createFromBase(\Symfony\Component\HttpFoundation\Request::create($uri, $method, $parameters, $cookies, $files, $server, $content));
     }
 }
