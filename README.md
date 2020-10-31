@@ -1,5 +1,6 @@
 > # Paymongo for Laravel
 
+![Run tests](https://github.com/luigel/laravel-paymongo/workflows/Run%20tests/badge.svg)
 [![Quality Score](https://img.shields.io/scrutinizer/g/luigel/laravel-paymongo.svg?style=flat-square)](https://scrutinizer-ci.com/g/luigel/laravel-paymongo)
 [![Latest Stable Version](https://poser.pugx.org/luigel/laravel-paymongo/v)](//packagist.org/packages/luigel/laravel-paymongo)
 [![Total Downloads](https://poser.pugx.org/luigel/laravel-paymongo/downloads)](//packagist.org/packages/luigel/laravel-paymongo)
@@ -425,7 +426,7 @@ php artisan paymongo:toggle-webhook
 -   [ ] Fix the magic method when accessing a nested data with `underscore` ("\_").
 -   [x] Add artisan commands for adding, enabling, and disabling webhooks.
 -   [ ] Fix the test case for the `PaymongoValidateSignature` middleware.
--   [ ] Transfer from travis to github actions.
+-   [x] Transfer from travis to github actions.
 
 ### Testing
 
