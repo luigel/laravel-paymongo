@@ -8,10 +8,7 @@ trait HasCommandValidation
 {
     public function validate($data, $rules, $message)
     {
-        $validator = Validator::make(
-            $data,
-            $rules,
-        );
+        $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             $this->info($message);
