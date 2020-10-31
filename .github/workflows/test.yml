@@ -1,15 +1,14 @@
 name: Run tests
 
 on:
-  push:
-    branches: [ 1.x ]
-  pull_request:
-    branches: [ 1.x ]
+    push:
+        branches: [1.x]
+    pull_request:
+        branches: [1.x]
 
 jobs:
     php-tests:
         runs-on: ${{ matrix.os }}
-
         strategy:
             matrix:
                 php: [7.4, 8.0]
@@ -42,8 +41,8 @@ jobs:
 
             - name: Install PHP 7 dependencies
               run: |
-                composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-                composer update --${{ matrix.dependency-version }} --no-interaction --no-progress
+                  composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+                  composer update --${{ matrix.dependency-version }} --no-interaction --no-progress
               if: "matrix.php < 8"
 
             - name: Install PHP 8 dependencies
