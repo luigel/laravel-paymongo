@@ -8,20 +8,18 @@ use Luigel\Paymongo\Middlewares\PaymongoValidateSignature;
 
 class PaymongoValidateSignatureTest extends BaseTestCase
 {
-    /** @test */
     public function it_will_not_allow_invalid_signature()
     {
         $this->expectException(InvalidSignatureException::class);
 
         $request = new Request();
 
-        $middleware = new PaymongoValidateSignature;
+        $middleware = new PaymongoValidateSignature();
 
         $middleware->handle($request, function () {
         });
     }
 
-    /** @test */
     public function it_will_allow_valid_signature()
     {
         config(['paymongo.webhook_signature' => 'testing']);
@@ -34,12 +32,12 @@ class PaymongoValidateSignatureTest extends BaseTestCase
         $request = $this->createRequest('post', $jsonPayload);
 
         $timestamp = now()->timestamp;
-        $teSignature = hash_hmac('sha256', 't='.$timestamp.'.'.$jsonPayload, 'testing');
-        $LiSignature = hash_hmac('sha256', 't='.$timestamp.'.'.$jsonPayload, 'testing');
+        $teSignature = hash_hmac('sha256', 't=' . $timestamp . '.' . $jsonPayload, 'testing');
+        $LiSignature = hash_hmac('sha256', 't=' . $timestamp . '.' . $jsonPayload, 'testing');
 
-        $request->headers->set('Paymongo-Signature', 't='.$timestamp.',te='.$teSignature.',li='.$LiSignature);
+        $request->headers->set('Paymongo-Signature', 't=' . $timestamp . ',te=' . $teSignature . ',li=' . $LiSignature);
         // dd($teSignature);
-        $middleware = new PaymongoValidateSignature;
+        $middleware = new PaymongoValidateSignature();
 
         $middleware->handle($request, function () {
         });
@@ -54,7 +52,7 @@ class PaymongoValidateSignatureTest extends BaseTestCase
         $cookies = [],
         $files = []
     ) {
-        $request = new \Illuminate\Http\Request;
+        $request = new \Illuminate\Http\Request();
 
         return $request->createFromBase(\Symfony\Component\HttpFoundation\Request::create($uri, $method, $parameters, $cookies, $files, $server, $content));
     }
