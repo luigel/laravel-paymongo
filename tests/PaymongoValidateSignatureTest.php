@@ -34,9 +34,9 @@ class PaymongoValidateSignatureTest extends BaseTestCase
         $request = $this->createRequest('post', $jsonPayload);
 
         $timestamp = (string) now()->timestamp;
-        $teSignature = hash_hmac('sha256', $timestamp . '.' . $request->getContent(), 'testing');
+        $teSignature = hash_hmac('sha256', $timestamp.'.'.$request->getContent(), 'testing');
 
-        $request->headers->set('paymongo-signature', 't=' . $timestamp . ',te=' . $teSignature . ',li=');
+        $request->headers->set('paymongo-signature', 't='.$timestamp.',te='.$teSignature.',li=');
 
         $middleware = new PaymongoValidateSignature();
 
