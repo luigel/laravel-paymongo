@@ -209,7 +209,7 @@ class BaseModel
      */
     protected function throwMethodNotFoundException()
     {
-        throw new MethodNotFoundException("Method [{$this->method}] not found in " . get_class($this));
+        throw new MethodNotFoundException("Method [{$this->method}] not found in ".get_class($this));
     }
 
     /**
@@ -220,7 +220,7 @@ class BaseModel
      */
     protected function keyFormatFromClass($key)
     {
-        return Str::snake($this->getModel()) . '_' . $key;
+        return Str::snake($this->getModel()).'_'.$key;
     }
 
     /**
