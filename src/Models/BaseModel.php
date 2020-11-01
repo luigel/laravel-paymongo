@@ -53,7 +53,7 @@ class BaseModel
      */
     public function setSingleData($data)
     {
-        $model = new static;
+        $model = new static();
 
         foreach ($data as $key => $item) {
             $model->setAttributes($key, $item);
@@ -114,13 +114,21 @@ class BaseModel
     public function __get($key)
     {
         // This will ensure the amount is converted to float.
-        if ($key === 'amount') {
-            return floatval($this->attributes[$key] / 100);
+        if ($amount = $this->ensureFloatAmount($key)) {
+            return $amount;
         }
 
         return $this->attributes[$key];
     }
 
+    /**
+     * The magic function that guesses the attribute.
+     *
+     * @param mixed $name
+     * @param mixed $arguments
+     *
+     * @return mixed
+     */
     public function __call($name, $arguments)
     {
         return $this->guessAttributeFromMethodName($name);
@@ -140,13 +148,16 @@ class BaseModel
         $key = Str::snake(Str::after($method, 'get'));
 
         if (array_key_exists($key, $this->attributes)) {
+            if ($amount = $this->ensureFloatAmount($key)) {
+                return $amount;
+            }
+
             return $this->attributes[$key];
         }
 
         $keys = explode('_', $key);
 
         $currentAttribute = null;
-
         foreach ($keys as $key) {
             $currentAttribute = $this->getGuessedData($key, $currentAttribute);
         }
@@ -167,6 +178,10 @@ class BaseModel
     {
         try {
             if ($currentAttribute === null && ! is_array($this->attributes[$key])) {
+                if ($amount = $this->ensureFloatAmount($key)) {
+                    return $amount;
+                }
+
                 return $this->attributes[$key];
             }
         } catch (Exception $e) {
@@ -194,7 +209,7 @@ class BaseModel
      */
     protected function throwMethodNotFoundException()
     {
-        throw new MethodNotFoundException("Method [{$this->method}] not found in ".get_class($this));
+        throw new MethodNotFoundException("Method [{$this->method}] not found in " . get_class($this));
     }
 
     /**
@@ -205,7 +220,7 @@ class BaseModel
      */
     protected function keyFormatFromClass($key)
     {
-        return Str::snake($this->getModel()).'_'.$key;
+        return Str::snake($this->getModel()) . '_' . $key;
     }
 
     /**
@@ -216,5 +231,12 @@ class BaseModel
     protected function getModel()
     {
         return Str::afterLast(get_class($this), '\\');
+    }
+
+    public function ensureFloatAmount($key)
+    {
+        if ($key === 'amount') {
+            return floatval($this->attributes[$key] / 100);
+        }
     }
 }
