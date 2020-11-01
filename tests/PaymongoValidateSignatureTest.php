@@ -8,6 +8,7 @@ use Luigel\Paymongo\Middlewares\PaymongoValidateSignature;
 
 class PaymongoValidateSignatureTest extends BaseTestCase
 {
+    /** @test */
     public function it_will_not_allow_invalid_signature()
     {
         $this->expectException(InvalidSignatureException::class);
@@ -20,6 +21,7 @@ class PaymongoValidateSignatureTest extends BaseTestCase
         });
     }
 
+    /** @test */
     public function it_will_allow_valid_signature()
     {
         config(['paymongo.webhook_signature' => 'testing']);
@@ -31,15 +33,15 @@ class PaymongoValidateSignatureTest extends BaseTestCase
         $jsonPayload = json_encode($data);
         $request = $this->createRequest('post', $jsonPayload);
 
-        $timestamp = now()->timestamp;
-        $teSignature = hash_hmac('sha256', 't='.$timestamp.'.'.$jsonPayload, 'testing');
-        $LiSignature = hash_hmac('sha256', 't='.$timestamp.'.'.$jsonPayload, 'testing');
+        $timestamp = (string) now()->timestamp;
+        $teSignature = hash_hmac('sha256', $timestamp.'.'.$request->getContent(), 'testing');
 
-        $request->headers->set('Paymongo-Signature', 't='.$timestamp.',te='.$teSignature.',li='.$LiSignature);
-        // dd($teSignature);
+        $request->headers->set('paymongo-signature', 't='.$timestamp.',te='.$teSignature.',li=');
+
         $middleware = new PaymongoValidateSignature();
 
-        $middleware->handle($request, function () {
+        $middleware->handle($request, function ($req) use ($jsonPayload) {
+            $this->assertEquals($req->getContent(), $jsonPayload);
         });
     }
 

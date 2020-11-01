@@ -425,7 +425,7 @@ php artisan paymongo:toggle-webhook
 -   [ ] Add unit test for the `BaseModel`.
 -   [ ] Fix the magic method when accessing a nested data with `underscore` ("\_").
 -   [x] Add artisan commands for adding, enabling, and disabling webhooks.
--   [ ] Fix the test case for the `PaymongoValidateSignature` middleware.
+-   [x] Fix the test case for the `PaymongoValidateSignature` middleware.
 -   [x] Transfer from travis to github actions.
 
 ### Testing
