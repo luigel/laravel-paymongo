@@ -1,7 +1,6 @@
 <?php
 namespace Luigel\Paymongo\Tests;
 
-use Luigel\Paymongo\Models\BaseModel;
 use Luigel\Paymongo\Traits\Request;
 
 class AmounToIntegerTest extends BaseTestCase
