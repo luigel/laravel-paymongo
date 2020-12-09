@@ -1,4 +1,5 @@
 <?php
+
 namespace Luigel\Paymongo\Tests;
 
 use Luigel\Paymongo\Traits\Request;
