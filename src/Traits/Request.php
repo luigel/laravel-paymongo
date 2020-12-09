@@ -245,8 +245,8 @@ trait Request
      */
     protected function convertPayloadAmountsToInteger($payload)
     {
-        if (isset($payload['amount'])) {
-            $payload['amount'] *= 100;
+        if (isset($payload['amount'])) { 
+            $payload['amount'] = (int) number_format(($payload['amount'] * 100), 0);
         }
 
         return $payload;
