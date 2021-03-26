@@ -42,9 +42,9 @@ trait Request
     }
 
     /**
-     * Request a create to API.
+     * Request to retrieve a resource in API.
      *
-     * @param array $payload
+     * @param string $payload
      * @return Model
      */
     public function find($payload)
