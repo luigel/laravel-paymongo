@@ -399,7 +399,45 @@ $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
 > You can put your webhook in the `api.php` like so.
 
 ```php
-Route::post('webhook/paymongo', PaymongoWebhookController::class)->middleware('paymongo.signature');
+/** @var \Route $router */
+
+$router->group(
+    [
+        'namespace' => 'Paymongo',
+        'as' => 'paymongo.',
+    ],
+    function () use ($router) {
+
+        $router->post(
+            '/source-chargeable',
+            'PaymongoCallbackController@sourceChargeable'
+        )
+            ->middleware('paymongo.signature:source_chargeable')
+            ->name('source-chargeable');
+
+        $router->post(
+            '/payment-paid',
+            'PaymongoCallbackController@paymentPaid'
+        )
+            ->middleware('paymongo.signature:payment_paid')
+            ->name('payment-paid');
+
+        $router->post(
+            '/payment-failed',
+            'PaymongoCallbackController@paymentFailed'
+        )
+            ->middleware('paymongo.signature:payment_failed')
+            ->name('payment-failed');
+    }
+);
+
+# then add this to you .env file
+
+PAYMONGO_WEBHOOK_SIG_PAYMENT_PAID=<payment_paid-secret_key>
+PAYMONGO_WEBHOOK_SIG_PAYMENT_FAILED=<payment_failed-secret_key>
+PAYMONGO_WEBHOOK_SIG_SOURCE_CHARGABLE=<source_chargeable-secret_key>.
+
+# you can get secret key when creating an webhook
 
 ```
 
