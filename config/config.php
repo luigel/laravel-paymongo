@@ -37,9 +37,13 @@ return [
     'signer' => \Luigel\Paymongo\Signer\DefaultSigner::class,
 
     /**
-     * Paymongo webhook signature secret.
+     * Paymongo webhooks signature secret.
      */
-    'webhook_signature' => env('PAYMONGO_WEBHOOK_SIG'),
+    'webhook_signatures' => [
+        'payment_paid' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_PAID', env('PAYMONGO_WEBHOOK_SIG')),
+        'payment_failed' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_FAILED', env('PAYMONGO_WEBHOOK_SIG')),
+        'source_chargeable' => env('PAYMONGO_WEBHOOK_SIG_SOURCE_CHARGABLE', env('PAYMONGO_WEBHOOK_SIG')),
+    ],
 
     /*
      * This is the name of the header where the signature will be added.
