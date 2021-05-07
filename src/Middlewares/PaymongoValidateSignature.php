@@ -17,19 +17,18 @@ class PaymongoValidateSignature
      *
      * @throws \Illuminate\Routing\Exceptions\InvalidSignatureException
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, string $event = null)
     {
         $payload = $this->headerPayload($request);
 
         if ($payload) {
-            $signature = $this->signature($request, $payload['t']);
+            $signature = $this->signature($request, $payload['t'], $event);
             $key = config('paymongo.livemode') ? 'li' : 'te';
 
             if ($signature == $payload[$key]) {
                 return $next($request);
             }
         }
-
         throw new InvalidSignatureException();
     }
 
@@ -64,12 +63,13 @@ class PaymongoValidateSignature
      * @param  string|int  $timestamp
      * @return string
      */
-    public function signature($request, $timestamp)
+    public function signature($request, $timestamp, string $event = null)
     {
         return app(Signer::class)->calculateSignature(
             $timestamp,
             $request->getContent(),
-            config('paymongo.webhook_signature')
+            config('paymongo.webhook_signatures.'.$event, config('paymongo.webhook_signature'))
         );
     }
 }
+
