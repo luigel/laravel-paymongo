@@ -22,7 +22,7 @@
 
     <php>
         <env name="APP_ENV" value="testing" />
-        <env name="PAYMONGO_SECRET_KEY" value="sk_test_sZy4iGnqKACgXucywiLpwLEy" />
+        <env name="PAYMONGO_SECRET_KEY" value="sk_test_mTLYmYUoX3QM1AtT7WKvU9rR" />
         <env name="DB_CONNECTION" value="testing" />
         <env name="PAYMONGO_WEBHOOK_SIG" value="secret" />
     </php>
