@@ -44,7 +44,7 @@ return [
         'payment_failed' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_FAILED', env('PAYMONGO_WEBHOOK_SIG')),
         'source_chargeable' => env('PAYMONGO_WEBHOOK_SIG_SOURCE_CHARGABLE', env('PAYMONGO_WEBHOOK_SIG')),
     ],
-    
+
     /**
      * Webhook signature configuration for backwards compatibility.
      */
