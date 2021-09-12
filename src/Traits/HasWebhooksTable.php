@@ -21,7 +21,7 @@ trait HasWebhooksTable
     /**
      * Get all the webhooks.
      *
-     * @param array $headers
+     * @param  array  $headers
      * @return \Illuminate\Support\Collection
      */
     protected function webhooks($headers)

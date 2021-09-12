@@ -20,7 +20,7 @@ trait Request
     /**
      * Request a create to API.
      *
-     * @param array $payload
+     * @param  array  $payload
      * @return Model
      */
     public function create($payload)
@@ -44,7 +44,7 @@ trait Request
     /**
      * Request to retrieve a resource in API.
      *
-     * @param string $payload
+     * @param  string  $payload
      * @return Model
      */
     public function find($payload)
@@ -87,8 +87,8 @@ trait Request
     /**
      * Updates the webhook.
      *
-     * @param Webhook $webhook
-     * @param array $payload
+     * @param  Webhook  $webhook
+     * @param  array  $payload
      * @return Model
      */
     public function update(Webhook $webhook, array $payload)
@@ -112,7 +112,7 @@ trait Request
     /**
      * Cancels the payment intent.
      *
-     * @param PaymentIntent $intent
+     * @param  PaymentIntent  $intent
      * @return Model
      */
     public function cancel(PaymentIntent $intent)
@@ -133,8 +133,8 @@ trait Request
     /**
      * Attach the payment method in the payment intent.
      *
-     * @param PaymentIntent $intent
-     * @param string $paymentMethodId
+     * @param  PaymentIntent  $intent
+     * @param  string  $paymentMethodId
      * @return Model
      */
     public function attach(PaymentIntent $intent, $paymentMethodId)
@@ -201,8 +201,7 @@ trait Request
     /**
      * Parses json to array.
      *
-     * @param string $json
-     *
+     * @param  string  $json
      * @return array
      */
     protected function parseToArray($json)
@@ -213,8 +212,7 @@ trait Request
     /**
      * Set the return model with the data.
      *
-     * @param array $array
-     *
+     * @param  array  $array
      * @return mixed
      */
     protected function setReturnModel($array)
@@ -225,8 +223,7 @@ trait Request
     /**
      * Set the options.
      *
-     * @param array $options
-     *
+     * @param  array  $options
      * @return $this
      */
     protected function setOptions($options)
@@ -239,8 +236,7 @@ trait Request
     /**
      * Converts the Payload Amount to Integer.
      *
-     * @param array $payload
-     *
+     * @param  array  $payload
      * @return array
      */
     protected function convertPayloadAmountsToInteger($payload)

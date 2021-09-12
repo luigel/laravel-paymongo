@@ -10,7 +10,7 @@ trait HasToggleWebhook
     /**
      * Enables the webhook.
      *
-     * @param Webhook $webhook
+     * @param  Webhook  $webhook
      * @return Model
      */
     public function enable(Webhook $webhook)
@@ -31,7 +31,7 @@ trait HasToggleWebhook
     /**
      * Disables the webhook.
      *
-     * @param Webhook $webhook
+     * @param  Webhook  $webhook
      * @return Model
      */
     public function disable(Webhook $webhook)

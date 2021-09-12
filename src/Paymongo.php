@@ -97,7 +97,9 @@ class Paymongo
 
     /**
      * Token Module used to create and retrieve token.
+     *
      * @deprecated 1.2.0
+     *
      * @return $this
      */
     public function token()
