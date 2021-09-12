@@ -1,4 +1,4 @@
-> # Paymongo for Laravel
+# Paymongo for Laravel
 
 ![Run tests](https://github.com/luigel/laravel-paymongo/workflows/Run%20tests/badge.svg)
 [![Quality Score](https://img.shields.io/scrutinizer/g/luigel/laravel-paymongo.svg?style=flat-square)](https://scrutinizer-ci.com/g/luigel/laravel-paymongo)
@@ -11,6 +11,10 @@
 A PHP Library for [Paymongo](https://paymongo.com).
 
 This package is not affiliated with [Paymongo](https://paymongo.com). The package requires PHP 7.2+
+
+## Documentation
+
+https://paymongo.rigelkentcarbonel.com
 
 -   [Paymongo for Laravel](#paymongo-for-laravel)
     -   [Installation](#installation)
