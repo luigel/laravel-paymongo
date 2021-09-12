@@ -25,8 +25,7 @@ class BaseModel
     /**
      * Set all the data to the attributes.
      *
-     * @param array $data
-     *
+     * @param  array  $data
      * @return \Illuminate\Support\Collection
      */
     public function setData($data)
@@ -47,8 +46,7 @@ class BaseModel
     /**
      * Set the single data to the attributes.
      *
-     * @param array $data
-     *
+     * @param  array  $data
      * @return $this
      */
     public function setSingleData($data)
@@ -85,9 +83,8 @@ class BaseModel
     /**
      * Set the attributes by key and value.
      *
-     * @param string $key
-     * @param mixed $item
-     *
+     * @param  string  $key
+     * @param  mixed  $item
      * @return void
      */
     public function setAttributes($key, $item)
@@ -124,9 +121,8 @@ class BaseModel
     /**
      * The magic function that guesses the attribute.
      *
-     * @param mixed $name
-     * @param mixed $arguments
-     *
+     * @param  mixed  $name
+     * @param  mixed  $arguments
      * @return mixed
      */
     public function __call($name, $arguments)
@@ -137,8 +133,7 @@ class BaseModel
     /**
      * Guess the attribute from the method name.
      *
-     * @param string $method
-     *
+     * @param  string  $method
      * @return mixed
      */
     protected function guessAttributeFromMethodName($method)
@@ -168,11 +163,11 @@ class BaseModel
     /**
      * Get the guessed data.
      *
-     * @param string $key
-     * @param mixed $currentAttribute
+     * @param  string  $key
+     * @param  mixed  $currentAttribute
+     * @return mixed
      *
      * @throws \Luigel\Paymongo\Exceptions\MethodNotFoundException
-     * @return mixed
      */
     protected function getGuessedData($key, $currentAttribute)
     {
@@ -204,8 +199,9 @@ class BaseModel
     /**
      * Throws the method not found exception.
      *
-     * @throws \Luigel\Paymongo\Exceptions\MethodNotFoundException
      * @return void
+     *
+     * @throws \Luigel\Paymongo\Exceptions\MethodNotFoundException
      */
     protected function throwMethodNotFoundException()
     {
@@ -215,7 +211,7 @@ class BaseModel
     /**
      * Get the class name in snake format.
      *
-     * @param string $key
+     * @param  string  $key
      * @return string
      */
     protected function keyFormatFromClass($key)

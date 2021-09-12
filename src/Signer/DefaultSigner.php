@@ -7,10 +7,9 @@ class DefaultSigner implements Signer
     /**
      * Calculate signature.
      *
-     * @param  string|int $timestamp
+     * @param  string|int  $timestamp
      * @param  string  $contentBody
-     * @param  string $secret
-     *
+     * @param  string  $secret
      * @return string
      */
     public function calculateSignature($timestamp, string $contentBody, string $secret): string
