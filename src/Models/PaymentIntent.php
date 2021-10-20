@@ -12,9 +12,8 @@ class PaymentIntent extends BaseModel
     }
 
     /**
-     * @param string $paymentMethodId
-     * @param string|null $returnUrl
-     *
+     * @param  string  $paymentMethodId
+     * @param  string|null  $returnUrl
      * @return \Luigel\Paymongo\Models\BaseModel
      */
     public function attach($paymentMethodId, $returnUrl = null)

@@ -154,7 +154,7 @@ class PaymentIntentTest extends BaseTestCase
             ->create([
                 'amount' => 100,
                 'payment_method_allowed' => [
-                    'paymaya', 'card'
+                    'paymaya', 'card',
                 ],
                 'payment_method_options' => [
                     'card' => [
