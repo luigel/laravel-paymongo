@@ -29,6 +29,7 @@
     },
     "require-dev": {
         "orchestra/testbench": "^4.0|^5.0|^6.0",
+        "pestphp/pest": "^1.20",
         "phpunit/phpunit": "^6.0|^7.5|^8.0|^9.3"
     },
     "autoload": {
@@ -42,7 +43,7 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
+        "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
     },
     "config": {

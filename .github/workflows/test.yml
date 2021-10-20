@@ -48,4 +48,4 @@ jobs:
               if: "matrix.php >= 8"
 
             - name: Execute tests
-              run: vendor/bin/phpunit
+              run: vendor/bin/pest --coverage

@@ -3,8 +3,8 @@
 namespace Luigel\Paymongo\Traits;
 
 use GuzzleHttp\Client;
+use Luigel\Paymongo\Models\BaseModel;
 use GuzzleHttp\Exception\ClientException;
-use Illuminate\Database\Eloquent\Model;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
@@ -21,7 +21,7 @@ trait Request
      * Request a create to API.
      *
      * @param  array  $payload
-     * @return Model
+     * @return \Luigel\Paymongo\Models\BaseModel
      */
     public function create($payload)
     {
@@ -45,7 +45,7 @@ trait Request
      * Request to retrieve a resource in API.
      *
      * @param  string  $payload
-     * @return Model
+     * @return BaseModel
      */
     public function find($payload)
     {
@@ -89,7 +89,7 @@ trait Request
      *
      * @param  Webhook  $webhook
      * @param  array  $payload
-     * @return Model
+     * @return BaseModel
      */
     public function update(Webhook $webhook, array $payload)
     {
@@ -113,7 +113,7 @@ trait Request
      * Cancels the payment intent.
      *
      * @param  PaymentIntent  $intent
-     * @return Model
+     * @return BaseModel
      */
     public function cancel(PaymentIntent $intent)
     {
@@ -135,7 +135,7 @@ trait Request
      *
      * @param  PaymentIntent  $intent
      * @param  string  $paymentMethodId
-     * @return Model
+     * @return BaseModel
      */
     public function attach(PaymentIntent $intent, $paymentMethodId)
     {
@@ -158,7 +158,11 @@ trait Request
     /**
      * Send request to API.
      *
-     * @return mixed|Throwable
+     * @throws \Luigel\Paymongo\Exceptions\BadRequestException
+     * @throws \Luigel\Paymongo\Exceptions\UnauthorizedException
+     * @throws \Luigel\Paymongo\Exceptions\PaymentErrorException
+     * @throws \Luigel\Paymongo\Exceptions\NotFoundException|\GuzzleHttp\Exception\GuzzleException
+     * @return mixed
      */
     protected function request()
     {
