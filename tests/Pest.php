@@ -1,8 +1,8 @@
 <?php
 
-use Luigel\Paymongo\Traits\Request;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Tests\BaseTestCase;
+use Luigel\Paymongo\Traits\Request;
 
 uses(BaseTestCase::class, Request::class)
     ->in(__DIR__);
@@ -28,13 +28,12 @@ function getTestCardLast4()
     return '4345';
 }
 
-
 function createPaymentIntent()
 {
     return Paymongo::paymentIntent()->create([
         'amount' => 100,
         'payment_method_allowed' => [
-            'card', 'paymaya'
+            'card', 'paymaya',
         ],
         'payment_method_options' => [
             'card' => [

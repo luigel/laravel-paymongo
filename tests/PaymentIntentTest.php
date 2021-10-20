@@ -1,9 +1,9 @@
 <?php
 
+use Luigel\Paymongo\Exceptions\BadRequestException;
+use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\PaymentIntent;
-use Luigel\Paymongo\Exceptions\NotFoundException;
-use Luigel\Paymongo\Exceptions\BadRequestException;
 
 it('can create payment intent', function () {
     $paymentIntent = createPaymentIntent();
@@ -23,7 +23,7 @@ it('cannot create payment intent when data is invalid', function () {
 });
 
 it('can cancel payment intent', function () {
-   $paymentIntent = createPaymentIntent();
+    $paymentIntent = createPaymentIntent();
 
     $cancelledPaymentIntent = $paymentIntent->cancel();
 
@@ -80,4 +80,3 @@ it('can retrieve payment intent', function () {
 
     $this->assertEquals($paymentIntent, $retrievedPaymentIntent);
 });
-

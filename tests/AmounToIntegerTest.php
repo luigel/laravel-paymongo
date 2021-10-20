@@ -32,7 +32,6 @@
 //    }
 //}
 
-
 it('can convert without decimal', function () {
     $payload = ['amount' => 147];
 
