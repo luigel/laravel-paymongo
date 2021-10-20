@@ -146,4 +146,48 @@ class PaymentIntentTest extends BaseTestCase
 
         $this->assertEquals($paymentIntent, $retrievedPaymentIntent);
     }
+
+    /** @test */
+    public function it_can_attach_paymaya_payment_method_to_payment_intent()
+    {
+        $paymentIntent = Paymongo::paymentIntent()
+            ->create([
+                'amount' => 100,
+                'payment_method_allowed' => [
+                    'paymaya', 'card',
+                ],
+                'payment_method_options' => [
+                    'card' => [
+                        'request_three_d_secure' => 'automatic',
+                    ],
+                ],
+                'description' => 'This is a test payment intent',
+                'statement_descriptor' => 'LUIGEL STORE',
+                'currency' => 'PHP',
+            ]);
+
+        $paymentMethod = Paymongo::paymentMethod()
+            ->create([
+                'type' => 'paymaya',
+                'billing' => [
+                    'address' => [
+                        'line1' => 'Somewhere there',
+                        'city' => 'Cebu City',
+                        'state' => 'Cebu',
+                        'country' => 'PH',
+                        'postal_code' => '6000',
+                    ],
+                    'name' => 'Rigel Kent Carbonel',
+                    'email' => 'rigel20.kent@gmail.com',
+                    'phone' => '0935454875545',
+                ],
+            ]);
+
+        $attachedPaymentIntent = $paymentIntent->attach($paymentMethod->id, 'http://example.com/success');
+
+        $this->assertEquals($paymentIntent->id, $attachedPaymentIntent->id);
+        $this->assertEquals('awaiting_next_action', $attachedPaymentIntent->status);
+        $this->assertEquals('redirect', $attachedPaymentIntent->next_action['type']);
+        $this->assertNotNull($attachedPaymentIntent->next_action['redirect']['url']);
+    }
 }

@@ -4,11 +4,11 @@ namespace Luigel\Paymongo\Traits;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use Illuminate\Database\Eloquent\Model;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
 use Luigel\Paymongo\Exceptions\UnauthorizedException;
+use Luigel\Paymongo\Models\BaseModel;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\Webhook;
 
@@ -21,7 +21,7 @@ trait Request
      * Request a create to API.
      *
      * @param  array  $payload
-     * @return Model
+     * @return BaseModel
      */
     public function create($payload)
     {
@@ -45,7 +45,7 @@ trait Request
      * Request to retrieve a resource in API.
      *
      * @param  string  $payload
-     * @return Model
+     * @return BaseModel
      */
     public function find($payload)
     {
@@ -89,7 +89,7 @@ trait Request
      *
      * @param  Webhook  $webhook
      * @param  array  $payload
-     * @return Model
+     * @return BaseModel
      */
     public function update(Webhook $webhook, array $payload)
     {
@@ -113,7 +113,7 @@ trait Request
      * Cancels the payment intent.
      *
      * @param  PaymentIntent  $intent
-     * @return Model
+     * @return BaseModel
      */
     public function cancel(PaymentIntent $intent)
     {
@@ -135,13 +135,18 @@ trait Request
      *
      * @param  PaymentIntent  $intent
      * @param  string  $paymentMethodId
-     * @return Model
+     * @param  null|string  $returnUrl
+     * @return BaseModel
      */
-    public function attach(PaymentIntent $intent, $paymentMethodId)
+    public function attach(PaymentIntent $intent, $paymentMethodId, $returnUrl = null)
     {
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$intent->id.'/attach';
         $this->payload = ['payment_method' => $paymentMethodId];
+
+        if ($returnUrl) {
+            $this->payload = array_merge($this->payload, ['return_url' => $returnUrl]);
+        }
 
         $this->formRequestData();
         $this->setOptions([
@@ -158,7 +163,12 @@ trait Request
     /**
      * Send request to API.
      *
-     * @return mixed|Throwable
+     * @return mixed
+     *
+     * @throws \Luigel\Paymongo\Exceptions\BadRequestException
+     * @throws \Luigel\Paymongo\Exceptions\UnauthorizedException
+     * @throws \Luigel\Paymongo\Exceptions\PaymentErrorException
+     * @throws \Luigel\Paymongo\Exceptions\NotFoundException
      */
     protected function request()
     {
