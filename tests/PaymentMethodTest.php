@@ -1,8 +1,8 @@
 <?php
 
+use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\PaymentMethod;
-use Luigel\Paymongo\Exceptions\BadRequestException;
 
 it('can create payment method', function () {
     $paymentMethod = createPaymentMethod();
@@ -35,7 +35,7 @@ it('can retrieve payment method', function () {
 });
 
 it('can create paymaya payment method', function () {
-   $paymentMethod = Paymongo::paymentMethod()
+    $paymentMethod = Paymongo::paymentMethod()
        ->create([
            'type' => 'paymaya',
            'billing' => [
@@ -52,7 +52,7 @@ it('can create paymaya payment method', function () {
            ],
        ]);
 
-   expect($paymentMethod)
+    expect($paymentMethod)
        ->toBeInstanceOf(PaymentMethod::class)
        ->type->toBe('payment_method')
        ->payment_method_type->toBe('paymaya');
