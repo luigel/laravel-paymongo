@@ -53,13 +53,51 @@ $cancelledPaymentIntent = $paymentIntent->cancel();
 Attach the payment intent.
 
 ### Sample
-
+1. Simple attaching of payment method in payment intent.
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
 $paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
 // Attached the payment method to the payment intent
 $successfulPayment = $paymentIntent->attach('pm_wr98R2gwWroVxfkcNVZBuXg2');
+```
+
+2. Attaching paymaya payment method in payment intent.
+```php 
+$paymentIntent = Paymongo::paymentIntent()
+    ->create([
+        'amount' => 100,
+        'payment_method_allowed' => [
+            'paymaya', 'card'  // <--- Make sure to add paymaya here.
+        ],
+        'payment_method_options' => [
+            'card' => [
+                'request_three_d_secure' => 'automatic',
+            ],
+        ],
+        'description' => 'This is a test payment intent',
+        'statement_descriptor' => 'LUIGEL STORE',
+        'currency' => 'PHP',
+    ]);
+
+$paymentMethod = Paymongo::paymentMethod()
+    ->create([
+        'type' => 'paymaya',  // <--- and payment method type should be paymaya
+        'billing' => [
+            'address' => [
+                'line1' => 'Somewhere there',
+                'city' => 'Cebu City',
+                'state' => 'Cebu',
+                'country' => 'PH',
+                'postal_code' => '6000',
+            ],
+            'name' => 'Rigel Kent Carbonel',
+            'email' => 'rigel20.kent@gmail.com',
+            'phone' => '0935454875545',
+        ],
+    ]);
+
+$attachedPaymentIntent = $paymentIntent->attach($paymentMethod->id, 'http://example.com/success'); // <--- And the second parameter should be the return_url.
 ```
 
 ## Get Payment Intent
