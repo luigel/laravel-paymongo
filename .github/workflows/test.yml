@@ -2,24 +2,20 @@ name: Run tests
 
 on:
     push:
-        branches: [1.x]
+        branches: [main]
     pull_request:
-        branches: [1.x]
+        branches: [main]
 
 jobs:
     php-tests:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                php: [7.4, 8.0]
-                laravel: [7.*, 8.*, 6.*]
+                php: [8.0, 8.1]
+                laravel: [8.*]
                 dependency-version: [prefer-stable]
                 os: [ubuntu-latest, windows-latest]
                 include:
-                    - laravel: 6.*
-                      testbench: 4.*
-                    - laravel: 7.*
-                      testbench: 5.*
                     - laravel: 8.*
                       testbench: 6.*
 
@@ -48,4 +44,4 @@ jobs:
               if: "matrix.php >= 8"
 
             - name: Execute tests
-              run: vendor/bin/phpunit
+              run: vendor/bin/pest --coverage --parallel
