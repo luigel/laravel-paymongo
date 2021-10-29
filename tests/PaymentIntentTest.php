@@ -80,3 +80,50 @@ it('can retrieve payment intent', function () {
 
     $this->assertEquals($paymentIntent, $retrievedPaymentIntent);
 });
+
+it('can attach paymaya payment method to payment intent', function () {
+    $paymentIntent = Paymongo::paymentIntent()
+        ->create([
+            'amount' => 100,
+            'payment_method_allowed' => [
+                'paymaya', 'card',
+            ],
+            'payment_method_options' => [
+                'card' => [
+                    'request_three_d_secure' => 'automatic',
+                ],
+            ],
+            'description' => 'This is a test payment intent',
+            'statement_descriptor' => 'LUIGEL STORE',
+            'currency' => 'PHP',
+        ]);
+
+    $paymentMethod = Paymongo::paymentMethod()
+        ->create([
+            'type' => 'paymaya',
+            'billing' => [
+                'address' => [
+                    'line1' => 'Somewhere there',
+                    'city' => 'Cebu City',
+                    'state' => 'Cebu',
+                    'country' => 'PH',
+                    'postal_code' => '6000',
+                ],
+                'name' => 'Rigel Kent Carbonel',
+                'email' => 'rigel20.kent@gmail.com',
+                'phone' => '0935454875545',
+            ],
+        ]);
+
+    $attachedPaymentIntent = $paymentIntent->attach($paymentMethod->id, 'http://example.com/success');
+
+    expect($attachedPaymentIntent)
+        ->id->toBe($paymentIntent->id)
+        ->status->toBe('awaiting_next_action')
+        ->next_action->toBeArray()->toMatchArray([
+            'type' => 'redirect',
+        ]);
+
+    expect($attachedPaymentIntent->next_action['redirect'])
+        ->toHaveKeys(['url', 'return_url']);
+});
