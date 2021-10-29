@@ -6,7 +6,6 @@ use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Payment;
 
-
 it('can get all the payments', function () {
     $payments = Paymongo::payment()->all();
 
@@ -132,4 +131,3 @@ it('can create payment', function () {
         ->statement_descriptor->toBe('Test Paymongo')
         ->status->toBe('paid');
 });
-

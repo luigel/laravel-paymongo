@@ -30,10 +30,10 @@ it('it can create token', function () {
         ->toBeInstanceOf(Token::class)
         ->card->toBeArray()->toMatchArray([
             'last4' => '4345',
-            'exp_month' => 12
+            'exp_month' => 12,
         ])
         ->billing->toBeArray()->toMatchArray([
-            'name' => 'Rigel Kent Carbonel'
+            'name' => 'Rigel Kent Carbonel',
         ]);
 });
 
