@@ -23,7 +23,7 @@ https://paymongo.rigelkentcarbonel.com
 - [x] Add artisan commands for adding, enabling, and disabling webhooks.
 - [x] Fix the test case for the `PaymongoValidateSignature` middleware.
 - [x] Transfer from travis to github actions.
-- [ ] Refactor test cases into Pest.
+- [x] Refactor test cases into Pest.
 
 ## Laravel Version Compatibility
 
