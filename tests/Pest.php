@@ -28,6 +28,27 @@ function getTestCardLast4()
     return '4345';
 }
 
+function createToken()
+{
+    return Paymongo::token()->create([
+        'number' => getTestCardWithout3dSecure(),
+        'exp_month' => 12,
+        'exp_year' => 25,
+        'cvc' => '123',
+        'billing' => [
+            'address' => [
+                'line1' => 'Test Address',
+                'city' => 'Cebu City',
+                'postal_code' => '6000',
+                'country' => 'PH',
+            ],
+            'name' => 'Rigel Kent Carbonel',
+            'email' => 'rigel20.kent@gmail.com',
+            'phone' => '928392893',
+        ],
+    ]);
+}
+
 function createPaymentIntent()
 {
     return Paymongo::paymentIntent()->create([
@@ -57,4 +78,18 @@ function createSource($type = 'gcash')
             'failed' => 'http://localhost/failed',
         ],
     ]);
+}
+
+function createRequest(
+    $method,
+    $content,
+    $uri = '/test',
+    $server = ['CONTENT_TYPE' => 'application/json'],
+    $parameters = [],
+    $cookies = [],
+    $files = []
+) {
+    $request = new \Illuminate\Http\Request();
+
+    return $request->createFromBase(\Symfony\Component\HttpFoundation\Request::create($uri, $method, $parameters, $cookies, $files, $server, $content));
 }

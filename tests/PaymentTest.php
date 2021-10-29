@@ -1,167 +1,135 @@
 <?php
 
-namespace Luigel\Paymongo\Tests;
-
 use Illuminate\Support\Collection;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Payment;
 
-class PaymentTest extends BaseTestCase
-{
-    protected $token;
 
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->token = Paymongo::token()->create([
-            'number' => $this::TEST_VISA_CARD_WITHOUT_3D_SECURE,
-            'exp_month' => 12,
-            'exp_year' => 25,
-            'cvc' => '123',
-            'billing' => [
-                'address' => [
-                    'line1' => 'Test Address',
-                    'city' => 'Cebu City',
-                    'postal_code' => '6000',
-                    'country' => 'PH',
-                ],
-                'name' => 'Rigel Kent Carbonel',
-                'email' => 'rigel20.kent@gmail.com',
-                'phone' => '928392893',
-            ],
-        ]);
-    }
+it('can get all the payments', function () {
+    $payments = Paymongo::payment()->all();
 
-    /** @test */
-    public function it_can_create_payment()
-    {
-        $payment = Paymongo::payment()
-            ->create([
-                'amount' => 100.00,
-                'currency' => 'PHP',
-                'description' => 'Testing payment',
-                'statement_descriptor' => 'Test Paymongo',
-                'source' => [
-                    'id' => $this->token->id,
-                    'type' => $this->token->type,
-                ],
-            ]);
+    expect($payments)->toBeInstanceOf(Collection::class);
+});
 
-        $this->assertTrue($payment->amount == 100.00);
-        $this->assertTrue($payment->currency === 'PHP');
-        $this->assertTrue($payment->statement_descriptor === 'Test Paymongo');
-        $this->assertTrue($payment->status === 'paid');
+it('can not retrieve a payment with invalid id', function () {
+    $this->expectException(NotFoundException::class);
 
-        $this->assertInstanceOf(Payment::class, $payment);
-    }
+    Paymongo::payment()
+        ->find('test');
+});
 
-    /** @test */
-    public function it_cannot_create_payment_when_token_is_used_more_than_once()
-    {
-        $this->expectException(BadRequestException::class);
+it('can retrieve a payment', function () {
+    $token = createToken();
 
-        $payment = Paymongo::payment()
-            ->create([
-                'amount' => 100.00,
-                'currency' => 'PHP',
-                'description' => 'Testing payment',
-                'statement_descriptor' => 'Test Paymongo',
-                'source' => [
-                    'id' => $this->token->id,
-                    'type' => $this->token->type,
-                ],
-            ]);
-        $this->assertTrue($payment->amount === 100.00);
-        $this->assertTrue($payment->currency === 'PHP');
-        $this->assertTrue($payment->statement_descriptor === 'Test Paymongo');
-        $this->assertTrue($payment->status === 'paid');
-
-        $payment = Paymongo::payment()
-            ->create([
-                'amount' => '100.00',
-                'currency' => 'PHP',
-                'description' => 'Testing payment',
-                'statement_descriptor' => 'Test Paymongo',
-                'source' => [
-                    'id' => $this->token->id,
-                    'type' => $this->token->type,
-                ],
-            ]);
-    }
-
-    /** @test */
-    public function it_cannot_create_payment_when_token_is_not_valid()
-    {
-        $this->expectException(BadRequestException::class);
-
-        $token = Paymongo::token()->create([
-            'number' => '5100000000000198',
-            'exp_month' => 12,
-            'exp_year' => 25,
-            'cvc' => '123',
-            'billing' => [
-                'address' => [
-                    'line1' => 'Test Address',
-                    'city' => 'Cebu City',
-                    'postal_code' => '6000',
-                    'country' => 'PH',
-                ],
-                'name' => 'Rigel Kent Carbonel',
-                'email' => 'rigel20.kent@gmail.com',
-                'phone' => '928392893',
+    $createdPayment = Paymongo::payment()
+        ->create([
+            'amount' => 100.00,
+            'currency' => 'PHP',
+            'description' => 'Testing payment',
+            'statement_descriptor' => 'Test Paymongo',
+            'source' => [
+                'id' => $token->id,
+                'type' => $token->type,
             ],
         ]);
 
-        Paymongo::payment()
-            ->create([
-                'amount' => 100.00,
-                'currency' => 'PHP',
-                'description' => 'Testing payment',
-                'statement_descriptor' => 'Test Paymongo',
-                'source' => [
-                    'id' => $token->id,
-                    'type' => $token->type,
-                ],
-            ]);
-    }
+    $payment = Paymongo::payment()
+        ->find($createdPayment->id);
 
-    /** @test */
-    public function it_can_retrieve_a_payment()
-    {
-        $createdPayment = Paymongo::payment()
-            ->create([
-                'amount' => 100.00,
-                'currency' => 'PHP',
-                'description' => 'Testing payment',
-                'statement_descriptor' => 'Test Paymongo',
-                'source' => [
-                    'id' => $this->token->id,
-                    'type' => $this->token->type,
-                ],
-            ]);
+    expect($payment->id)->toBe($createdPayment->id);
+});
 
-        $payment = Paymongo::payment()
-            ->find($createdPayment->id);
+it('cannot create payment when token is not valid', function () {
+    $this->expectException(BadRequestException::class);
 
-        $this->assertEquals($createdPayment, $payment);
-    }
+    $token = Paymongo::token()->create([
+        'number' => '5100000000000198',
+        'exp_month' => 12,
+        'exp_year' => 25,
+        'cvc' => '123',
+        'billing' => [
+            'address' => [
+                'line1' => 'Test Address',
+                'city' => 'Cebu City',
+                'postal_code' => '6000',
+                'country' => 'PH',
+            ],
+            'name' => 'Rigel Kent Carbonel',
+            'email' => 'rigel20.kent@gmail.com',
+            'phone' => '928392893',
+        ],
+    ]);
 
-    /** @test */
-    public function it_can_not_retrieve_a_payment_with_invalid_id()
-    {
-        $this->expectException(NotFoundException::class);
+    Paymongo::payment()
+        ->create([
+            'amount' => 100.00,
+            'currency' => 'PHP',
+            'description' => 'Testing payment',
+            'statement_descriptor' => 'Test Paymongo',
+            'source' => [
+                'id' => $token->id,
+                'type' => $token->type,
+            ],
+        ]);
+});
 
-        Paymongo::payment()
-            ->find('test');
-    }
+it('cannot create payment when token is used more than once', function () {
+    $this->expectException(BadRequestException::class);
 
-    /** @test */
-    public function it_can_get_all_payments()
-    {
-        $payments = Paymongo::payment()->all();
+    $token = createToken();
+    $payment = Paymongo::payment()
+        ->create([
+            'amount' => 100.00,
+            'currency' => 'PHP',
+            'description' => 'Testing payment',
+            'statement_descriptor' => 'Test Paymongo',
+            'source' => [
+                'id' => $token->id,
+                'type' => $token->type,
+            ],
+        ]);
 
-        $this->assertInstanceOf(Collection::class, $payments);
-    }
-}
+    expect($payment)
+        ->amount->toBe(100.00)
+        ->currency->toBe('PHP')
+        ->statement_descriptor->toBe('Test Paymongo')
+        ->status->toBe('paid');
+
+    Paymongo::payment()
+        ->create([
+            'amount' => '100.00',
+            'currency' => 'PHP',
+            'description' => 'Testing payment',
+            'statement_descriptor' => 'Test Paymongo',
+            'source' => [
+                'id' => $token->id,
+                'type' => $token->type,
+            ],
+        ]);
+});
+
+it('can create payment', function () {
+    $token = createToken();
+
+    $payment = Paymongo::payment()
+        ->create([
+            'amount' => 100.00,
+            'currency' => 'PHP',
+            'description' => 'Testing payment',
+            'statement_descriptor' => 'Test Paymongo',
+            'source' => [
+                'id' => $token->id,
+                'type' => $token->type,
+            ],
+        ]);
+
+    expect($payment)
+        ->toBeInstanceOf(Payment::class)
+        ->amount->toBe(100.00)
+        ->currency->toBe('PHP')
+        ->statement_descriptor->toBe('Test Paymongo')
+        ->status->toBe('paid');
+});
+

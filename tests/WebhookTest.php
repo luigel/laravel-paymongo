@@ -6,27 +6,19 @@ use Illuminate\Support\Collection;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Webhook;
 
-class WebhookTest extends BaseTestCase
-{
-    /** @test */
-    public function it_can_list_all_webhooks()
-    {
-        $webhooks = Paymongo::webhook()->all();
+it('can list all webhooks', function () {
+    $webhooks = Paymongo::webhook()->all();
 
-        $this->assertInstanceOf(Collection::class, $webhooks);
+    expect($webhooks)
+        ->toBeInstanceOf(Collection::class)
+        ->not->toBeEmpty();
+});
 
-        $this->assertNotEmpty($webhooks);
-    }
+it('can retrieve webhook', function () {
+    $webhooks = Paymongo::webhook()->all();
 
-    /** @test */
-    public function it_can_retrieve_webhook()
-    {
-        $webhooks = Paymongo::webhook()->all();
+    $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
 
-        $webhook = Paymongo::webhook()->find($webhooks[0]->getId());
-
-        $this->assertInstanceOf(Webhook::class, $webhook);
-
-        $this->assertEquals($webhooks[0]->getId(), $webhook->getId());
-    }
-}
+    expect($webhook)->toBeInstanceOf(Webhook::class);
+    expect($webhook->getId())->toBe($webhooks[0]->getId());
+});
