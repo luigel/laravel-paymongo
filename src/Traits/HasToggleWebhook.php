@@ -2,7 +2,7 @@
 
 namespace Luigel\Paymongo\Traits;
 
-use Illuminate\Database\Eloquent\Model;
+use Luigel\Paymongo\Models\BaseModel;
 use Luigel\Paymongo\Models\Webhook;
 
 trait HasToggleWebhook
@@ -11,7 +11,7 @@ trait HasToggleWebhook
      * Enables the webhook.
      *
      * @param  Webhook  $webhook
-     * @return Model
+     * @return BaseModel
      */
     public function enable(Webhook $webhook)
     {
@@ -32,7 +32,7 @@ trait HasToggleWebhook
      * Disables the webhook.
      *
      * @param  Webhook  $webhook
-     * @return Model
+     * @return BaseModel
      */
     public function disable(Webhook $webhook)
     {

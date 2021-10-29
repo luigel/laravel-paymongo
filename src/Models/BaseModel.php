@@ -4,33 +4,24 @@ namespace Luigel\Paymongo\Models;
 
 use Exception;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use Luigel\Paymongo\Exceptions\MethodNotFoundException;
 
 class BaseModel
 {
-    /**
-     * The list of attributes of the model.
-     *
-     * @var array
-     */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /**
      * The method from the __call magic method.
-     *
-     * @var string
      */
-    protected $method = '';
+    protected string $method = '';
 
     /**
      * Set all the data to the attributes.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Support\Collection
      */
-    public function setData($data)
+    public function setData(array $data): Collection | self
     {
-        if (is_array($data) && isset($data['id'])) {
+        if (isset($data['id'])) {
             return $this->setSingleData($data);
         }
 
@@ -45,11 +36,8 @@ class BaseModel
 
     /**
      * Set the single data to the attributes.
-     *
-     * @param  array  $data
-     * @return $this
      */
-    public function setSingleData($data)
+    public function setSingleData(array $data): self
     {
         $model = new static();
 
@@ -62,32 +50,24 @@ class BaseModel
 
     /**
      * Get all the attributes.
-     *
-     * @return array
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
 
     /**
      * Alias for getAttributes.
-     *
-     * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->getAttributes();
     }
 
     /**
      * Set the attributes by key and value.
-     *
-     * @param  string  $key
-     * @param  mixed  $item
-     * @return void
      */
-    public function setAttributes($key, $item)
+    public function setAttributes(string $key, mixed $item): void
     {
         if (is_array($item)) {
             foreach ($item as $itemKey => $element) {
@@ -99,7 +79,7 @@ class BaseModel
         $this->$key = $item;
     }
 
-    public function __set($key, $value)
+    public function __set(string $key, mixed $value): void
     {
         if (array_key_exists($key, $this->attributes)) {
             $this->attributes[$this->keyFormatFromClass($key)] = $value;
@@ -108,7 +88,7 @@ class BaseModel
         }
     }
 
-    public function __get($key)
+    public function __get(string $key): mixed
     {
         // This will ensure the amount is converted to float.
         if ($amount = $this->ensureFloatAmount($key)) {
@@ -120,23 +100,16 @@ class BaseModel
 
     /**
      * The magic function that guesses the attribute.
-     *
-     * @param  mixed  $name
-     * @param  mixed  $arguments
-     * @return mixed
      */
-    public function __call($name, $arguments)
+    public function __call(string $name, mixed $arguments): mixed
     {
         return $this->guessAttributeFromMethodName($name);
     }
 
     /**
      * Guess the attribute from the method name.
-     *
-     * @param  string  $method
-     * @return mixed
      */
-    protected function guessAttributeFromMethodName($method)
+    protected function guessAttributeFromMethodName(string $method): mixed
     {
         $this->method = $method;
 
@@ -163,13 +136,9 @@ class BaseModel
     /**
      * Get the guessed data.
      *
-     * @param  string  $key
-     * @param  mixed  $currentAttribute
-     * @return mixed
-     *
      * @throws \Luigel\Paymongo\Exceptions\MethodNotFoundException
      */
-    protected function getGuessedData($key, $currentAttribute)
+    protected function getGuessedData(string $key, mixed $currentAttribute): mixed
     {
         try {
             if ($currentAttribute === null && ! is_array($this->attributes[$key])) {
@@ -199,40 +168,35 @@ class BaseModel
     /**
      * Throws the method not found exception.
      *
-     * @return void
-     *
      * @throws \Luigel\Paymongo\Exceptions\MethodNotFoundException
      */
-    protected function throwMethodNotFoundException()
+    protected function throwMethodNotFoundException(): void
     {
         throw new MethodNotFoundException("Method [{$this->method}] not found in ".get_class($this));
     }
 
     /**
      * Get the class name in snake format.
-     *
-     * @param  string  $key
-     * @return string
      */
-    protected function keyFormatFromClass($key)
+    protected function keyFormatFromClass(string $key): string
     {
         return Str::snake($this->getModel()).'_'.$key;
     }
 
     /**
      * Get the model.
-     *
-     * @return string
      */
-    protected function getModel()
+    protected function getModel(): string
     {
         return Str::afterLast(get_class($this), '\\');
     }
 
-    public function ensureFloatAmount($key)
+    public function ensureFloatAmount(string $key): null | float
     {
         if ($key === 'amount') {
             return floatval($this->attributes[$key] / 100);
         }
+
+        return null;
     }
 }

@@ -69,7 +69,7 @@ class WebhookToggleCommand extends Command
             });
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         if ($this->option('enable')) {
             $this->mode = self::WEBHOOK_ENABLE;
@@ -95,7 +95,7 @@ class WebhookToggleCommand extends Command
             );
 
             if ($validate === 1) {
-                return 1;
+                return;
             }
 
             $this->webhookIds = explode(',', $this->webhookIds);

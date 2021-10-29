@@ -3,6 +3,8 @@
 namespace Luigel\Paymongo\Middlewares;
 
 use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
 use Luigel\Paymongo\Signer\Signer;
 
@@ -11,13 +13,9 @@ class PaymongoValidateSignature
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return \Illuminate\Http\Response
-     *
      * @throws \Illuminate\Routing\Exceptions\InvalidSignatureException
      */
-    public function handle($request, Closure $next, string $event = null)
+    public function handle(Request $request, Closure $next, string $event = null): Response | null
     {
         $payload = $this->headerPayload($request);
 
@@ -34,11 +32,8 @@ class PaymongoValidateSignature
 
     /**
      * Get header signature payload.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
      */
-    public function headerPayload($request)
+    public function headerPayload(Request $request): array
     {
         $payload = $request->header(app(Signer::class)->signatureHeaderName());
 
@@ -58,12 +53,8 @@ class PaymongoValidateSignature
 
     /**
      * Get webhook signature.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string|int  $timestamp
-     * @return string
      */
-    public function signature($request, $timestamp, string $event = null)
+    public function signature(Request $request, string|int $timestamp, string $event = null): string
     {
         return app(Signer::class)->calculateSignature(
             $timestamp,

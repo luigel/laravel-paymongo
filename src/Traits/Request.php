@@ -2,7 +2,9 @@
 
 namespace Luigel\Paymongo\Traits;
 
+use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Support\Collection;
 use GuzzleHttp\Exception\ClientException;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
@@ -14,16 +16,14 @@ use Luigel\Paymongo\Models\Webhook;
 
 trait Request
 {
-    protected $data;
-    protected $options;
+    protected array $data;
+    protected array $payload;
+    protected array $options;
 
     /**
      * Request a create to API.
-     *
-     * @param  array  $payload
-     * @return BaseModel
      */
-    public function create($payload)
+    public function create(array $payload): BaseModel
     {
         $this->method = 'POST';
         $this->payload = $this->convertPayloadAmountsToInteger($payload);
@@ -43,14 +43,10 @@ trait Request
 
     /**
      * Request to retrieve a resource in API.
-     *
-     * @param  string  $payload
-     * @return BaseModel
      */
-    public function find($payload)
+    public function find(string $payload): BaseModel
     {
         $this->method = 'GET';
-        $this->payload = $payload;
         $this->apiUrl = $this->apiUrl.$payload;
 
         $this->setOptions([
@@ -66,10 +62,8 @@ trait Request
 
     /**
      * Request a get all to API.
-     *
-     * @return \Illuminate\Support\Collection
      */
-    public function all()
+    public function all(): Collection
     {
         $this->method = 'GET';
 
@@ -86,12 +80,8 @@ trait Request
 
     /**
      * Updates the webhook.
-     *
-     * @param  Webhook  $webhook
-     * @param  array  $payload
-     * @return BaseModel
      */
-    public function update(Webhook $webhook, array $payload)
+    public function update(Webhook $webhook, array $payload): BaseModel
     {
         $this->method = 'PUT';
         $this->payload = $this->convertPayloadAmountsToInteger($payload);
@@ -111,11 +101,8 @@ trait Request
 
     /**
      * Cancels the payment intent.
-     *
-     * @param  PaymentIntent  $intent
-     * @return BaseModel
      */
-    public function cancel(PaymentIntent $intent)
+    public function cancel(PaymentIntent $intent): BaseModel
     {
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$intent->id.'/cancel';
@@ -132,13 +119,8 @@ trait Request
 
     /**
      * Attach the payment method in the payment intent.
-     *
-     * @param  PaymentIntent  $intent
-     * @param  string  $paymentMethodId
-     * @param  null|string  $returnUrl
-     * @return BaseModel
      */
-    public function attach(PaymentIntent $intent, $paymentMethodId, $returnUrl = null)
+    public function attach(PaymentIntent $intent, string $paymentMethodId, string|null $returnUrl = null): BaseModel
     {
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$intent->id.'/attach';
@@ -163,14 +145,13 @@ trait Request
     /**
      * Send request to API.
      *
-     * @return mixed
-     *
      * @throws \Luigel\Paymongo\Exceptions\BadRequestException
      * @throws \Luigel\Paymongo\Exceptions\UnauthorizedException
      * @throws \Luigel\Paymongo\Exceptions\PaymentErrorException
      * @throws \Luigel\Paymongo\Exceptions\NotFoundException
+     * @throws \Exception
      */
-    protected function request()
+    protected function request(): BaseModel | Collection
     {
         $client = new Client();
 
@@ -191,6 +172,8 @@ trait Request
             } elseif ($e->getCode() === 404) {
                 throw new NotFoundException($response, $e->getCode());
             }
+
+            throw new Exception($response, $e->getCode());
         }
     }
 
