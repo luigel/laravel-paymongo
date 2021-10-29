@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
 use Luigel\Paymongo\Middlewares\PaymongoValidateSignature;
 
-
 it('will not allow invalid signature', function () {
     $this->expectException(InvalidSignatureException::class);
 
