@@ -44,6 +44,14 @@ PAYMONGO_WEBHOOK_SIG=
 
 Laravel-Paymongo supports Laravel 6.x and up.
 
+Laravel  | Package
+:---------|:----------
+5.8.x              | 1.x
+6.x.x              | 1.x
+7.x.x              | 1.x
+8.x.x (PHP 7.4)    | 1.x
+8.x.x (PHP 8.0)    | 2.x
+
 ## Configuring the package
 You can publish the config file by running: 
 ```bash

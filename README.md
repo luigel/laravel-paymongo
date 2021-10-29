@@ -25,6 +25,15 @@ https://paymongo.rigelkentcarbonel.com
 - [x] Transfer from travis to github actions.
 - [ ] Refactor test cases into Pest.
 
+## Laravel Version Compatibility
+
+Laravel  | Package
+:---------|:----------
+5.8.x    | 1.x
+6.x.x    | 1.x
+7.x.x    | 1.x
+8.x.x    | 2.x
+
 ### Testing
 
 ```bash
