@@ -4,8 +4,8 @@ namespace Luigel\Paymongo\Commands;
 
 use Illuminate\Console\Command;
 use Luigel\Paymongo\Facades\Paymongo;
-use Luigel\Paymongo\Models\Webhook;
 use Luigel\Paymongo\Models\BaseModel;
+use Luigel\Paymongo\Models\Webhook;
 use Luigel\Paymongo\Traits\HasCommandValidation;
 
 class WebhookAddCommand extends Command
