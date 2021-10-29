@@ -7,7 +7,7 @@ class DefaultSigner implements Signer
     /**
      * Calculate signature.
      */
-    public function calculateSignature(string | int $timestamp, string $contentBody, string $secret): string
+    public function calculateSignature(string|int $timestamp, string $contentBody, string $secret): string
     {
         return hash_hmac('sha256', $timestamp.'.'.$contentBody, $secret);
     }

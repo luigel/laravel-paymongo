@@ -11,7 +11,7 @@ class PaymentIntent extends BaseModel
         return (new Paymongo)->paymentIntent()->cancel($this);
     }
 
-    public function attach(string $paymentMethodId, string | null $returnUrl = null): BaseModel
+    public function attach(string $paymentMethodId, string|null $returnUrl = null): BaseModel
     {
         return (new Paymongo)->paymentIntent()->attach($this, $paymentMethodId, $returnUrl);
     }

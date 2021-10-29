@@ -4,8 +4,8 @@ namespace Luigel\Paymongo\Traits;
 
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Support\Collection;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Collection;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
@@ -151,7 +151,7 @@ trait Request
      * @throws \Luigel\Paymongo\Exceptions\NotFoundException
      * @throws \Exception
      */
-    protected function request(): BaseModel | Collection
+    protected function request(): BaseModel|Collection
     {
         $client = new Client();
 
