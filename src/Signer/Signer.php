@@ -12,5 +12,5 @@ interface Signer
     /**
      * Calculate signature.
      */
-    public function calculateSignature(string | int $timestamp, string $contentBody, string $secret): string;
+    public function calculateSignature(string|int $timestamp, string $contentBody, string $secret): string;
 }

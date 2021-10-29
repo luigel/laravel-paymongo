@@ -3,8 +3,8 @@
 namespace Luigel\Paymongo\Models;
 
 use Exception;
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Luigel\Paymongo\Exceptions\MethodNotFoundException;
 
 class BaseModel
@@ -19,7 +19,7 @@ class BaseModel
     /**
      * Set all the data to the attributes.
      */
-    public function setData(array $data): Collection | self
+    public function setData(array $data): Collection|self
     {
         if (isset($data['id'])) {
             return $this->setSingleData($data);
@@ -191,7 +191,7 @@ class BaseModel
         return Str::afterLast(get_class($this), '\\');
     }
 
-    public function ensureFloatAmount(string $key): null | float
+    public function ensureFloatAmount(string $key): null|float
     {
         if ($key === 'amount') {
             return floatval($this->attributes[$key] / 100);

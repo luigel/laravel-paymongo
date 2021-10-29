@@ -15,7 +15,7 @@ class PaymongoValidateSignature
      *
      * @throws \Illuminate\Routing\Exceptions\InvalidSignatureException
      */
-    public function handle(Request $request, Closure $next, string $event = null): Response | null
+    public function handle(Request $request, Closure $next, string $event = null): Response|null
     {
         $payload = $this->headerPayload($request);
 
