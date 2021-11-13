@@ -1,7 +1,7 @@
 <?php
 
-use Luigel\Paymongo\Paymongo;
 use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
+use Luigel\Paymongo\Paymongo;
 
 it('can convert without decimal', function () {
     $payload = ['amount' => 147];
