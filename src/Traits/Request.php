@@ -6,6 +6,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Collection;
+use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
@@ -13,7 +14,6 @@ use Luigel\Paymongo\Exceptions\UnauthorizedException;
 use Luigel\Paymongo\Models\BaseModel;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\Webhook;
-use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 
 trait Request
 {
@@ -230,15 +230,15 @@ trait Request
     /**
      * Converts the Payload Amount to Integer.
      *
-     * @param array $payload
+     * @param  array  $payload
+     * @return array
      *
      * @throws \Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException
-     * @return array
      */
     protected function convertPayloadAmountsToInteger($payload)
     {
         if (isset($payload['amount'])) {
-            $payload['amount'] = match($amountType = config('paymongo.amount_type', 'float')) {
+            $payload['amount'] = match ($amountType = config('paymongo.amount_type', 'float')) {
                 'float' => (int) number_format(($payload['amount'] * 100), 0, '', ''),
                 'int' => $payload['amount'],
                 default => throw new AmountTypeNotSupportedException("The amount_type [$amountType] used is not supported."),
