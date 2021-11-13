@@ -54,4 +54,12 @@ return [
      * This is the name of the header where the signature will be added.
      */
     'signature_header_name' => env('PAYMONGO_SIG_HEADER', 'paymongo-signature'),
+
+    /**
+     * This is the amount type to automatically convert the amount in your payload.
+     * The default is Paymongo::AMOUNT_TYPE_FLOAT.
+     *
+     * Choices are: Paymongo::AMOUNT_TYPE_FLOAT, or Paymongo::AMOUNT_TYPE_INT
+     */
+    'amount_type' => \Luigel\Paymongo\Paymongo::AMOUNT_TYPE_FLOAT,
 ];

@@ -28,6 +28,8 @@ class Paymongo
     protected const ENDPOINT_TOKEN = 'tokens/';
     public const SOURCE_GCASH = 'gcash';
     public const SOURCE_GRAB_PAY = 'grab_pay';
+    public const AMOUNT_TYPE_FLOAT = 'float';
+    public const AMOUNT_TYPE_INT = 'int';
 
     /**
      * Source Module used to create Source.
