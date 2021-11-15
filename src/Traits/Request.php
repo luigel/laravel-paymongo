@@ -11,6 +11,7 @@ use Luigel\Paymongo\Exceptions\UnauthorizedException;
 use Luigel\Paymongo\Models\BaseModel;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\Webhook;
+use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 
 trait Request
 {
@@ -246,13 +247,22 @@ trait Request
     /**
      * Converts the Payload Amount to Integer.
      *
-     * @param  array  $payload
+     * @param array $payload
+     *
+     * @throws \Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException
      * @return array
      */
     protected function convertPayloadAmountsToInteger($payload)
     {
         if (isset($payload['amount'])) {
-            $payload['amount'] = (int) number_format(($payload['amount'] * 100), 0, '', '');
+            $amountType = config('paymongo.amount_type', 'float');
+            if ($amountType === 'float') {
+                $payload['amount'] = (int) number_format(($payload['amount'] * 100), 0, '', '');
+            } elseif ($amountType === 'int') {
+                $payload['amount'] = (int) $payload['amount'];
+            } else {
+                throw new AmountTypeNotSupportedException("The amount_type [$amountType] used is not supported.");
+            }
         }
 
         return $payload;

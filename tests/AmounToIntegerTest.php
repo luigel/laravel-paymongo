@@ -2,7 +2,9 @@
 
 namespace Luigel\Paymongo\Tests;
 
+use Luigel\Paymongo\Paymongo;
 use Luigel\Paymongo\Traits\Request;
+use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 
 class AmounToIntegerTest extends BaseTestCase
 {
@@ -39,5 +41,27 @@ class AmounToIntegerTest extends BaseTestCase
 
         $this->assertIsInt($convertedPayload['amount']);
         $this->assertIsNotFloat($convertedPayload['amount']);
+    }
+
+    /** @test */
+    public function it_can_change_amount_type_from_the_config()
+    {
+        config(['paymongo.amount_type' => Paymongo::AMOUNT_TYPE_INT]);
+
+        $payload = ['amount' => 10000];
+        $convertedPayload = $this->convertPayloadAmountsToInteger($payload);
+
+        $this->assertIsInt($convertedPayload['amount']);
+        $this->assertEquals(10000, $convertedPayload['amount']);
+    }
+
+    /** @test */
+    public function it_will_throw_an_exception_if_amount_type_is_invalid_or_not_supported()
+    {
+        config(['paymongo.amount_type' => 'test']);
+        $payload = ['amount' => 10000];
+
+        $this->expectException(AmountTypeNotSupportedException::class);
+        $this->convertPayloadAmountsToInteger($payload);
     }
 }
