@@ -2,9 +2,9 @@
 
 namespace Luigel\Paymongo\Tests;
 
+use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 use Luigel\Paymongo\Paymongo;
 use Luigel\Paymongo\Traits\Request;
-use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 
 class AmounToIntegerTest extends BaseTestCase
 {
