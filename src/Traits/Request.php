@@ -4,6 +4,7 @@ namespace Luigel\Paymongo\Traits;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
@@ -11,7 +12,6 @@ use Luigel\Paymongo\Exceptions\UnauthorizedException;
 use Luigel\Paymongo\Models\BaseModel;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\Webhook;
-use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 
 trait Request
 {
@@ -247,10 +247,10 @@ trait Request
     /**
      * Converts the Payload Amount to Integer.
      *
-     * @param array $payload
+     * @param  array  $payload
+     * @return array
      *
      * @throws \Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException
-     * @return array
      */
     protected function convertPayloadAmountsToInteger($payload)
     {
