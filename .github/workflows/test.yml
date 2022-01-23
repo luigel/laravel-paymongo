@@ -14,7 +14,6 @@ jobs:
                 php: [8.0, 8.1]
                 laravel: [8.*, 9.*]
                 stability: [prefer-lowest, prefer-stable]
-                os: [ubuntu-latest, windows-latest]
                 include:
                     - laravel: 8.*
                       testbench: ^6.23
@@ -34,8 +33,10 @@ jobs:
                   coverage: pcov
                   tools: composer:v2
 
-            - name: Install dependencies
-              run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+            -   name: Install dependencies
+                run: |
+                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
             - name: Execute tests
               run: vendor/bin/pest --coverage --parallel
