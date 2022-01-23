@@ -11,6 +11,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
+                os: [ubuntu-latest]
                 php: [8.0, 8.1]
                 laravel: [8.*, 9.*]
                 stability: [prefer-lowest, prefer-stable]
