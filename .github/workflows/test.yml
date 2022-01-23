@@ -10,15 +10,17 @@ jobs:
     php-tests:
         runs-on: ${{ matrix.os }}
         strategy:
+            fail-fast: false
             matrix:
+                os: [ubuntu-latest]
                 php: [8.0, 8.1]
-                laravel: [8.*]
-                dependency-version: [prefer-stable]
-                os: [ubuntu-latest, windows-latest]
+                laravel: [8.*, 9.*]
+                stability: [prefer-lowest, prefer-stable]
                 include:
                     - laravel: 8.*
-                      testbench: 6.*
-
+                      testbench: ^6.23
+                    - laravel: 9.*
+                      testbench: 7.*
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
 
         steps:
@@ -33,8 +35,10 @@ jobs:
                   coverage: pcov
                   tools: composer:v2
 
-            - name: Install PHP 8 dependencies
-              run: composer update --${{ matrix.dependency-version }} --ignore-platform-req=php --no-interaction --no-progress
+            -   name: Install dependencies
+                run: |
+                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
             - name: Execute tests
               run: vendor/bin/pest --coverage --parallel

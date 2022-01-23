@@ -25,12 +25,12 @@
     "require": {
         "php": "^8.0",
         "guzzlehttp/guzzle": "^7.0",
-        "illuminate/support": "^8.0"
+        "illuminate/support": "^8.0|^9.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^6.0",
+        "orchestra/testbench": "^6.0|^7.0",
         "pestphp/pest": "^1.20",
-        "pestphp/pest-plugin-parallel": "^0.3.1"
+        "pestphp/pest-plugin-parallel": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -48,7 +48,10 @@
     },
     "config": {
         "sort-packages": true,
-        "discard-changes": true
+        "discard-changes": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "extra": {
         "laravel": {
@@ -59,5 +62,6 @@
                 "Paymongo": "Luigel\\Paymongo\\Facades\\Paymongo"
             }
         }
-    }
+    },
+    "minimum-stability": "dev"
 }
