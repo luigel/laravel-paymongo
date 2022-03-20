@@ -12,7 +12,7 @@ Creates a source to let the user pay using their [Gcash Accounts](https://www.gc
 
 ### Payload
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post_sources-1) for payload guidelines.
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference/the-sources-object) for payload guidelines.
 
 ### Sample
 

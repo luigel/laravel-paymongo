@@ -12,7 +12,7 @@ Creates a payment using source.
 
 ### Payload
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference#payment-source) for payload guidelines.
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference/payment-source) for payload guidelines.
 
 ### Sample
 

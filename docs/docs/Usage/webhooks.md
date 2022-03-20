@@ -75,14 +75,14 @@ $webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
 
 ```php
 /** @var \Route $router */
-
 $router->group(
     [
         'namespace' => 'Paymongo',
         'as' => 'paymongo.',
+        'middleware' => 'paymongo.signature' // If you want to have only one signature key add this middleware in the group route where your webhook routes are defined.
     ],
     function () use ($router) {
-
+    // This example is for different signature key for each webhook.
         $router->post(
             '/source-chargeable',
             'PaymongoCallbackController@sourceChargeable'
@@ -103,6 +103,20 @@ $router->group(
         )
             ->middleware('paymongo.signature:payment_failed')
             ->name('payment-failed');
+            
+        $router->post(
+            '/payment-refunded',
+            'PaymongoCallbackController@paymentRefunded'
+        )
+            ->middleware('paymongo.signature:payment_refunded')
+            ->name('payment-refunded');
+                    
+        $router->post(
+            '/payment-refund-updated',
+            'PaymongoCallbackController@paymentRefundUpdated'
+        )
+            ->middleware('paymongo.signature:payment_refund_updated')
+            ->name('payment-refund-updated');
     }
 );
 
@@ -111,6 +125,8 @@ $router->group(
 PAYMONGO_WEBHOOK_SIG_PAYMENT_PAID=<payment_paid-secret_key>
 PAYMONGO_WEBHOOK_SIG_PAYMENT_FAILED=<payment_failed-secret_key>
 PAYMONGO_WEBHOOK_SIG_SOURCE_CHARGABLE=<source_chargeable-secret_key>.
+PAYMONGO_WEBHOOK_SIG_PAYMENT_REFUNDED=<payment_refunded-secret_key>.
+PAYMONGO_WEBHOOK_SIG_PAYMENT_REFUND_UPDATED=<payment_refund_updated-secret_key>.
 
 # you can get secret key when creating an webhook
 

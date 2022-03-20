@@ -12,7 +12,7 @@ A payment intent is designed to handle a complex payment process. To compare pay
 
 ### Payload
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post_payment-intents) for payload guidelines.
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference/the-payment-intent-object) for payload guidelines.
 
 ### Sample
 

@@ -12,7 +12,7 @@ Creates a payment methods. It holds the information such as credit card informat
 
 ### Payload
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post_payment-methods) for payload.
+Refer to [Paymongo documentation](https://developers.paymongo.com/reference/the-payment-method-object) for payload.
 
 ### Sample
 
