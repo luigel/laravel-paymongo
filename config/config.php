@@ -43,6 +43,8 @@ return [
         'payment_paid' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_PAID', env('PAYMONGO_WEBHOOK_SIG')),
         'payment_failed' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_FAILED', env('PAYMONGO_WEBHOOK_SIG')),
         'source_chargeable' => env('PAYMONGO_WEBHOOK_SIG_SOURCE_CHARGABLE', env('PAYMONGO_WEBHOOK_SIG')),
+        'payment_refunded' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_REFUNDED', env('PAYMONGO_WEBHOOK_SIG')),
+        'payment_refund_updated' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_REFUND_UPDATED', env('PAYMONGO_WEBHOOK_SIG')),
     ],
 
     /**
