@@ -22,17 +22,7 @@ it('can not retrieve a payment with invalid id', function () {
 it('can retrieve a payment', function () {
     $token = createToken();
 
-    $createdPayment = Paymongo::payment()
-        ->create([
-            'amount' => 100.00,
-            'currency' => 'PHP',
-            'description' => 'Testing payment',
-            'statement_descriptor' => 'Test Paymongo',
-            'source' => [
-                'id' => $token->id,
-                'type' => $token->type,
-            ],
-        ]);
+    $createdPayment = createPayment($token);
 
     $payment = Paymongo::payment()
         ->find($createdPayment->id);
@@ -61,34 +51,14 @@ it('cannot create payment when token is not valid', function () {
         ],
     ]);
 
-    Paymongo::payment()
-        ->create([
-            'amount' => 100.00,
-            'currency' => 'PHP',
-            'description' => 'Testing payment',
-            'statement_descriptor' => 'Test Paymongo',
-            'source' => [
-                'id' => $token->id,
-                'type' => $token->type,
-            ],
-        ]);
+    createPayment($token);
 });
 
 it('cannot create payment when token is used more than once', function () {
     $this->expectException(BadRequestException::class);
 
     $token = createToken();
-    $payment = Paymongo::payment()
-        ->create([
-            'amount' => 100.00,
-            'currency' => 'PHP',
-            'description' => 'Testing payment',
-            'statement_descriptor' => 'Test Paymongo',
-            'source' => [
-                'id' => $token->id,
-                'type' => $token->type,
-            ],
-        ]);
+    $payment = createPayment($token);
 
     expect($payment)
         ->amount->toBe(100.00)
@@ -96,33 +66,13 @@ it('cannot create payment when token is used more than once', function () {
         ->statement_descriptor->toBe('Test Paymongo')
         ->status->toBe('paid');
 
-    Paymongo::payment()
-        ->create([
-            'amount' => '100.00',
-            'currency' => 'PHP',
-            'description' => 'Testing payment',
-            'statement_descriptor' => 'Test Paymongo',
-            'source' => [
-                'id' => $token->id,
-                'type' => $token->type,
-            ],
-        ]);
+    createPayment($token);
 });
 
 it('can create payment', function () {
     $token = createToken();
 
-    $payment = Paymongo::payment()
-        ->create([
-            'amount' => 100.00,
-            'currency' => 'PHP',
-            'description' => 'Testing payment',
-            'statement_descriptor' => 'Test Paymongo',
-            'source' => [
-                'id' => $token->id,
-                'type' => $token->type,
-            ],
-        ]);
+    $payment = createPayment($token);
 
     expect($payment)
         ->toBeInstanceOf(Payment::class)

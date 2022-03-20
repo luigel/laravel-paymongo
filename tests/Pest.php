@@ -1,8 +1,12 @@
 <?php
 
+use Luigel\Paymongo\Models\Token;
+use Luigel\Paymongo\Models\Source;
+use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Tests\BaseTestCase;
 use Luigel\Paymongo\Traits\Request;
+use Luigel\Paymongo\Models\PaymentIntent;
 
 uses(BaseTestCase::class, Request::class)
     ->in(__DIR__);
@@ -28,7 +32,7 @@ function getTestCardLast4()
     return '4345';
 }
 
-function createToken()
+function createToken(): Token
 {
     return Paymongo::token()->create([
         'number' => getTestCardWithout3dSecure(),
@@ -49,7 +53,7 @@ function createToken()
     ]);
 }
 
-function createPaymentIntent()
+function createPaymentIntent(): PaymentIntent
 {
     return Paymongo::paymentIntent()->create([
         'amount' => 100,
@@ -67,7 +71,7 @@ function createPaymentIntent()
     ]);
 }
 
-function createSource($type = 'gcash')
+function createSource($type = 'gcash'): Source
 {
     return Paymongo::source()->create([
         'type' => $type,
@@ -78,6 +82,21 @@ function createSource($type = 'gcash')
             'failed' => 'http://localhost/failed',
         ],
     ]);
+}
+
+function createPayment(Source|Token $source): Payment
+{
+    return Paymongo::payment()
+        ->create([
+            'amount' => 100.00,
+            'currency' => 'PHP',
+            'description' => 'Testing payment',
+            'statement_descriptor' => 'Test Paymongo',
+            'source' => [
+                'id' => $source->id,
+                'type' => $source->type,
+            ],
+        ]);
 }
 
 function createRequest(
