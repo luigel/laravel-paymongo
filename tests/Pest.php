@@ -1,12 +1,12 @@
 <?php
 
-use Luigel\Paymongo\Models\Token;
-use Luigel\Paymongo\Models\Source;
-use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Models\Payment;
+use Luigel\Paymongo\Models\PaymentIntent;
+use Luigel\Paymongo\Models\Source;
+use Luigel\Paymongo\Models\Token;
 use Luigel\Paymongo\Tests\BaseTestCase;
 use Luigel\Paymongo\Traits\Request;
-use Luigel\Paymongo\Models\PaymentIntent;
 
 uses(BaseTestCase::class, Request::class)
     ->in(__DIR__);
