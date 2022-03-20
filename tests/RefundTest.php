@@ -1,6 +1,7 @@
 <?php
 
 use Luigel\Paymongo\Models\Refund;
+use Illuminate\Support\Collection;
 use Luigel\Paymongo\Facades\Paymongo;
 
 it('can create refund', function (string $reason) {
@@ -49,4 +50,12 @@ it('can retrieve a refund', function () {
         ->payment_id->toBe($payment->id)
         ->reason->toBe(Refund::REASON_DUPLICATE)
         ->status->toBe('succeeded');
+});
+
+it('can get all refunds', function () {
+   $refunds = Paymongo::refund()->all();
+
+   expect($refunds)->toBeInstanceOf(Collection::class)
+       ->each
+       ->toBeInstanceOf(Refund::class);
 });
