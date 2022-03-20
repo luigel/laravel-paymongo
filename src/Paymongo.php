@@ -2,10 +2,10 @@
 
 namespace Luigel\Paymongo;
 
-use Luigel\Paymongo\Models\Refund;
 use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\PaymentMethod;
+use Luigel\Paymongo\Models\Refund;
 use Luigel\Paymongo\Models\Source;
 use Luigel\Paymongo\Models\Token;
 use Luigel\Paymongo\Models\Webhook;

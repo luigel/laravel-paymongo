@@ -1,8 +1,8 @@
 <?php
 
-use Luigel\Paymongo\Models\Refund;
 use Illuminate\Support\Collection;
 use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Models\Refund;
 
 it('can create refund', function (string $reason) {
     $token = createToken();
@@ -29,7 +29,6 @@ it('can create refund', function (string $reason) {
     'reason others' => [Refund::REASON_OTHERS],
 ]);
 
-
 it('can retrieve a refund', function () {
     $token = createToken();
     $payment = createPayment($token);
@@ -53,9 +52,9 @@ it('can retrieve a refund', function () {
 });
 
 it('can get all refunds', function () {
-   $refunds = Paymongo::refund()->all();
+    $refunds = Paymongo::refund()->all();
 
-   expect($refunds)->toBeInstanceOf(Collection::class)
+    expect($refunds)->toBeInstanceOf(Collection::class)
        ->each
        ->toBeInstanceOf(Refund::class);
 });
