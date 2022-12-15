@@ -37,7 +37,7 @@ it('can retrieve a link by reference number', function () {
 it('can archive a link', function () {
     $link = createLink();
     $archivedLink = Paymongo::link()
-        ->archive($link);
+        ->archive();
 
     expect($archivedLink->archived)->toBe(true);
 });
@@ -48,7 +48,7 @@ it('can unarchive a link', function () {
         ->archive($link);
 
     $unarchivedLink = Paymongo::link()
-        ->unarchive($archivedLink);
+        ->unarchive();
 
     expect($unarchivedLink->archived)->toBe(false);
 });
