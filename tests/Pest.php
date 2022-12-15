@@ -1,16 +1,16 @@
 <?php
 
 use Illuminate\Support\Str;
-use Luigel\Paymongo\Models\Link;
-use Luigel\Paymongo\Models\Token;
-use Luigel\Paymongo\Models\Source;
-use Luigel\Paymongo\Models\Payment;
-use Luigel\Paymongo\Traits\Request;
-use Luigel\Paymongo\Models\Customer;
 use Luigel\Paymongo\Facades\Paymongo;
-use Luigel\Paymongo\Tests\BaseTestCase;
+use Luigel\Paymongo\Models\Customer;
+use Luigel\Paymongo\Models\Link;
+use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\PaymentMethod;
+use Luigel\Paymongo\Models\Source;
+use Luigel\Paymongo\Models\Token;
+use Luigel\Paymongo\Tests\BaseTestCase;
+use Luigel\Paymongo\Traits\Request;
 
 uses(BaseTestCase::class, Request::class)
     ->in(__DIR__);
@@ -145,7 +145,7 @@ function createLink(): Link
     return Paymongo::link()->create([
         'amount' => 100.00,
         'description' => 'Link Test',
-        'remarks' => 'laravel-paymongo'
+        'remarks' => 'laravel-paymongo',
     ]);
 }
 
@@ -154,9 +154,9 @@ function createCustomer(): Customer
     return Paymongo::customer()->create([
         'first_name' => 'Gringiemar',
         'last_name' => 'Felix',
-        'phone' => '+6391234' . rand(10000, 99999),
-        'email' => 'customer' . Str::random(8) . rand(0, 100) . '@email.com',
-        'default_device' => 'phone'
+        'phone' => '+6391234'.rand(10000, 99999),
+        'email' => 'customer'.Str::random(8).rand(0, 100).'@email.com',
+        'default_device' => 'phone',
     ]);
 }
 
