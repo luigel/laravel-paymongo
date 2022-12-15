@@ -1,13 +1,14 @@
 <?php
 
-use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Models\Link;
+use Luigel\Paymongo\Models\Token;
+use Luigel\Paymongo\Models\Source;
 use Luigel\Paymongo\Models\Payment;
+use Luigel\Paymongo\Traits\Request;
+use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Tests\BaseTestCase;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\PaymentMethod;
-use Luigel\Paymongo\Models\Source;
-use Luigel\Paymongo\Models\Token;
-use Luigel\Paymongo\Tests\BaseTestCase;
-use Luigel\Paymongo\Traits\Request;
 
 uses(BaseTestCase::class, Request::class)
     ->in(__DIR__);
@@ -135,6 +136,15 @@ function createCardPayment(): Payment
     $cardPayment = $cardPayment->setData($attachedPaymentIntent->payments[0]);
 
     return $cardPayment;
+}
+
+function createLink(): Link
+{
+    return Paymongo::link()->create([
+        'amount' => 100.00,
+        'description' => 'Link Test',
+        'remarks' => 'laravel-paymongo'
+    ]);
 }
 
 function createRequest(

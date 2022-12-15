@@ -12,6 +12,7 @@ use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
 use Luigel\Paymongo\Exceptions\UnauthorizedException;
 use Luigel\Paymongo\Models\BaseModel;
+use Luigel\Paymongo\Models\Link;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\Webhook;
 
@@ -130,6 +131,44 @@ trait Request
         if ($returnUrl) {
             $this->payload = array_merge($this->payload, ['return_url' => $returnUrl]);
         }
+
+        $this->formRequestData();
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'json' => $this->data,
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Archives the link
+     */
+    public function archive(Link $link){
+        $this->method = 'POST';
+        $this->apiUrl = $this->apiUrl . $link->id . '/archive';
+
+        $this->formRequestData();
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'json' => $this->data,
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Unarchives the link
+     */
+    public function unarchive(Link $link){
+        $this->method = 'POST';
+        $this->apiUrl = $this->apiUrl . $link->id . '/unarchive';
 
         $this->formRequestData();
         $this->setOptions([
