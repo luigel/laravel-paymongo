@@ -182,7 +182,7 @@ trait Request
     /**
      * Update the customer information
      */
-    public function updateInfo(Customer $customer, array $payload){
+    public function updateCustomer(Customer $customer, array $payload){
         $this->method = 'PATCH';
         $this->apiUrl = $this->apiUrl . $customer->id;
         $this->payload = $payload;
@@ -193,6 +193,40 @@ trait Request
                 'Accept' => 'application/json',
             ],
             'json' => $this->data,
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Delete the customer
+     */
+    public function deleteCustomer(Customer $customer){
+        $this->method = 'DELETE';
+        $this->apiUrl = $this->apiUrl . $customer->id;
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Get Customer's Payment Methods
+     */
+    public function getPaymentMethods(Customer $customer){
+        $this->method = 'GET';
+        $this->apiUrl = $this->apiUrl . $customer->id . '/payment_methods';
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
             'auth' => [config('paymongo.secret_key'), ''],
         ]);
 
