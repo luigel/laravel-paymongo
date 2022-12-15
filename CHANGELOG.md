@@ -2,6 +2,15 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
+## 2.4.0 (2022-12-15)
+
+### Added
+- Links API
+- Customers API
+
+### Fixed
+- Failing tests
+
 ## 1.3.0 (2020-10-31)
 
 ### Added

@@ -4,16 +4,18 @@ namespace Luigel\Paymongo\Traits;
 
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+use Luigel\Paymongo\Models\Link;
 use Illuminate\Support\Collection;
-use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
-use Luigel\Paymongo\Exceptions\BadRequestException;
+use Luigel\Paymongo\Models\Webhook;
+use Luigel\Paymongo\Models\Customer;
+use Luigel\Paymongo\Models\BaseModel;
+use GuzzleHttp\Exception\ClientException;
+use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Exceptions\NotFoundException;
+use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
 use Luigel\Paymongo\Exceptions\UnauthorizedException;
-use Luigel\Paymongo\Models\BaseModel;
-use Luigel\Paymongo\Models\PaymentIntent;
-use Luigel\Paymongo\Models\Webhook;
+use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 
 trait Request
 {
@@ -137,6 +139,94 @@ trait Request
                 'Accept' => 'application/json',
             ],
             'json' => $this->data,
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Archives the link
+     */
+    public function archive(Link $link){
+        $this->method = 'POST';
+        $this->apiUrl = $this->apiUrl.$link->id.'/archive';
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Unarchives the link
+     */
+    public function unarchive(Link $link){
+        $this->method = 'POST';
+        $this->apiUrl = $this->apiUrl . $link->id . '/unarchive';
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Update the customer information
+     */
+    public function updateCustomer(Customer $customer, array $payload){
+        $this->method = 'PATCH';
+        $this->apiUrl = $this->apiUrl . $customer->id;
+        $this->payload = $payload;
+
+        $this->formRequestData();
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'json' => $this->data,
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Delete the customer
+     */
+    public function deleteCustomer(Customer $customer){
+        $this->method = 'DELETE';
+        $this->apiUrl = $this->apiUrl . $customer->id;
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'auth' => [config('paymongo.secret_key'), ''],
+        ]);
+
+        return $this->request();
+    }
+
+    /**
+     * Get Customer's Payment Methods
+     */
+    public function getPaymentMethods(Customer $customer){
+        $this->method = 'GET';
+        $this->apiUrl = $this->apiUrl . $customer->id . '/payment_methods';
+
+        $this->setOptions([
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
             'auth' => [config('paymongo.secret_key'), ''],
         ]);
 

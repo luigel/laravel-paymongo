@@ -2,15 +2,17 @@
 
 namespace Luigel\Paymongo;
 
-use Luigel\Paymongo\Models\Payment;
-use Luigel\Paymongo\Models\PaymentIntent;
-use Luigel\Paymongo\Models\PaymentMethod;
+use Luigel\Paymongo\Models\Link;
+use Luigel\Paymongo\Models\Token;
 use Luigel\Paymongo\Models\Refund;
 use Luigel\Paymongo\Models\Source;
-use Luigel\Paymongo\Models\Token;
+use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\Webhook;
-use Luigel\Paymongo\Traits\HasToggleWebhook;
 use Luigel\Paymongo\Traits\Request;
+use Luigel\Paymongo\Models\Customer;
+use Luigel\Paymongo\Models\PaymentIntent;
+use Luigel\Paymongo\Models\PaymentMethod;
+use Luigel\Paymongo\Traits\HasToggleWebhook;
 
 class Paymongo
 {
@@ -28,6 +30,8 @@ class Paymongo
     protected const ENDPOINT_PAYMENT = 'payments/';
     protected const ENDPOINT_TOKEN = 'tokens/';
     protected const ENDPOINT_REFUND = 'refunds/';
+    protected const ENDPOINT_LINK = 'links/';
+    protected const ENDPOINT_CUSTOMER = 'customers/';
     public const SOURCE_GCASH = 'gcash';
     public const SOURCE_GRAB_PAY = 'grab_pay';
     public const AMOUNT_TYPE_FLOAT = 'float';
@@ -105,6 +109,22 @@ class Paymongo
     {
         $this->apiUrl = self::BASE_API.self::ENDPOINT_REFUND;
         $this->returnModel = Refund::class;
+
+        return $this;
+    }
+
+    public function link(): self
+    {
+        $this->apiUrl = self::BASE_API.self::ENDPOINT_LINK;
+        $this->returnModel = Link::class;
+
+        return $this;
+    }
+
+    public function customer(): self
+    {
+        $this->apiUrl = self::BASE_API.self::ENDPOINT_CUSTOMER;
+        $this->returnModel = Customer::class;
 
         return $this;
     }
