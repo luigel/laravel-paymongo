@@ -2,17 +2,17 @@
 
 namespace Luigel\Paymongo;
 
-use Luigel\Paymongo\Models\Link;
-use Luigel\Paymongo\Models\Token;
-use Luigel\Paymongo\Models\Refund;
-use Luigel\Paymongo\Models\Source;
-use Luigel\Paymongo\Models\Payment;
-use Luigel\Paymongo\Models\Webhook;
-use Luigel\Paymongo\Traits\Request;
 use Luigel\Paymongo\Models\Customer;
+use Luigel\Paymongo\Models\Link;
+use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\PaymentMethod;
+use Luigel\Paymongo\Models\Refund;
+use Luigel\Paymongo\Models\Source;
+use Luigel\Paymongo\Models\Token;
+use Luigel\Paymongo\Models\Webhook;
 use Luigel\Paymongo\Traits\HasToggleWebhook;
+use Luigel\Paymongo\Traits\Request;
 
 class Paymongo
 {

@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Collection;
-use Luigel\Paymongo\Models\Customer;
-use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Exceptions\NotFoundException;
+use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Models\Customer;
 
 it('can create a customer', function () {
     $customer = createCustomer();
@@ -13,7 +13,7 @@ it('can create a customer', function () {
 
 it('can not retrieve a customer with invalid id', function () {
     $this->expectException(NotFoundException::class);
-    
+
     Paymongo::customer()
         ->find('test');
 });
@@ -33,7 +33,7 @@ it('can update a customer', function () {
     expect($customer->last_name)->toBe('Felix');
 
     $updatedCustomer = $customer->update([
-        'last_name' => 'Mongo'
+        'last_name' => 'Mongo',
     ]);
 
     expect($updatedCustomer->last_name)->toBe('Mongo');

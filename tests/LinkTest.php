@@ -1,8 +1,8 @@
 <?php
 
-use Luigel\Paymongo\Models\Link;
-use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Exceptions\NotFoundException;
+use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Models\Link;
 
 it('can create a link', function () {
     $link = createLink();
@@ -12,7 +12,7 @@ it('can create a link', function () {
 
 it('can not retrieve a link with invalid id', function () {
     $this->expectException(NotFoundException::class);
-    
+
     Paymongo::link()
         ->find('test');
 });

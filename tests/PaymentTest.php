@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Collection;
-use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Payment;
