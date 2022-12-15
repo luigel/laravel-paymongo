@@ -3,6 +3,7 @@
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\PaymentIntent;
+use Luigel\Paymongo\Models\PaymentMethod;
 use Luigel\Paymongo\Models\Source;
 use Luigel\Paymongo\Models\Token;
 use Luigel\Paymongo\Tests\BaseTestCase;
@@ -71,6 +72,32 @@ function createPaymentIntent(): PaymentIntent
     ]);
 }
 
+function createPaymentMethod(): PaymentMethod
+{
+    return Paymongo::paymentMethod()
+        ->create([
+            'type' => 'card',
+            'details' => [
+                'card_number' => getTestCardWithout3dSecure(),
+                'exp_month' => 12,
+                'exp_year' => 25,
+                'cvc' => '123',
+            ],
+            'billing' => [
+                'address' => [
+                    'line1' => 'Somewhere there',
+                    'city' => 'Cebu City',
+                    'state' => 'Cebu',
+                    'country' => 'PH',
+                    'postal_code' => '6000',
+                ],
+                'name' => 'Rigel Kent Carbonel',
+                'email' => 'rigel20.kent@gmail.com',
+                'phone' => '0935454875545',
+            ],
+        ]);
+}
+
 function createSource($type = 'gcash'): Source
 {
     return Paymongo::source()->create([
@@ -97,6 +124,17 @@ function createPayment(Source|Token $source): Payment
                 'type' => $source->type,
             ],
         ]);
+}
+
+function createCardPayment(): Payment
+{
+    $paymentIntent = createPaymentIntent();
+    $paymentMethod = createPaymentMethod();
+    $attachedPaymentIntent = $paymentIntent->attach($paymentMethod->id, 'http://example.com/success');
+    $cardPayment = new Payment();
+    $cardPayment = $cardPayment->setData($attachedPaymentIntent->payments[0]);
+
+    return $cardPayment;
 }
 
 function createRequest(

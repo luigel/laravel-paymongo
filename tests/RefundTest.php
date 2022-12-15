@@ -5,13 +5,12 @@ use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Refund;
 
 it('can create refund', function (string $reason) {
-    $token = createToken();
-    $payment = createPayment($token);
+    $cardPayment = createCardPayment();
 
     $refund = Paymongo::refund()->create([
         'amount' => 10,
         'notes' => 'test refund',
-        'payment_id' => $payment->id,
+        'payment_id' => $cardPayment->id,
         'reason' => $reason,
     ]);
 
@@ -19,7 +18,7 @@ it('can create refund', function (string $reason) {
         ->type->toBe('refund')
         ->amount->toBe(10.0)
         ->notes->toBe('test refund')
-        ->payment_id->toBe($payment->id)
+        ->payment_id->toBe($cardPayment->id)
         ->reason->toBe($reason)
         ->status->toBe('pending');
 })->with([
@@ -30,13 +29,12 @@ it('can create refund', function (string $reason) {
 ]);
 
 it('can retrieve a refund', function () {
-    $token = createToken();
-    $payment = createPayment($token);
+    $cardPayment = createCardPayment();
 
     $refund = Paymongo::refund()->create([
         'amount' => 10,
         'notes' => 'test refund',
-        'payment_id' => $payment->id,
+        'payment_id' => $cardPayment->id,
         'reason' => Refund::REASON_DUPLICATE,
     ]);
 
@@ -46,7 +44,7 @@ it('can retrieve a refund', function () {
         ->type->toBe('refund')
         ->amount->toBe(10.0)
         ->notes->toBe('test refund')
-        ->payment_id->toBe($payment->id)
+        ->payment_id->toBe($cardPayment->id)
         ->reason->toBe(Refund::REASON_DUPLICATE)
         ->status->toBe('succeeded');
 });
