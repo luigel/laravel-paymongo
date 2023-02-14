@@ -263,7 +263,7 @@ trait Request
                 // throw new BadRequestException($response, $e->getCode());
                 $error_response = json_decode($response);
 
-                $error_collection = array();
+                $error_collection = [];
                 foreach ($error_response as $errors) {
                     foreach ($errors as $error) {
                         $error_collection[] = $error->detail;
