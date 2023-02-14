@@ -260,7 +260,17 @@ trait Request
         } catch (ClientException $e) {
             $response = $e->getResponse()->getBody()->getContents();
             if ($e->getCode() === 400) {
-                throw new BadRequestException($response, $e->getCode());
+                // throw new BadRequestException($response, $e->getCode());
+                $error_response = json_decode($response);
+
+                $error_collection = array();
+                foreach ($error_response as $errors) {
+                    foreach ($errors as $error) {
+                        $error_collection[] = $error->detail;
+                    }
+                }
+
+                return back()->withErrors($error_collection)->withInput()->send();
             } elseif ($e->getCode() === 401) {
                 throw new UnauthorizedException($response, $e->getCode());
             } elseif ($e->getCode() === 402) {
