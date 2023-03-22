@@ -23,7 +23,7 @@ class Paymongo
     protected string $returnModel = '';
 
     protected const BASE_API = 'https://api.paymongo.com/v1/';
-    protected const ENPDPOINT_SOURCES = 'sources/';
+    protected const ENDPOINT_SOURCES = 'sources/';
     protected const ENDPOINT_WEBHOOKS = 'webhooks/';
     protected const ENDPOINT_PAYMENT_METHOD = 'payment_methods/';
     protected const ENDPOINT_PAYMENT_INTENT = 'payment_intents/';
@@ -42,7 +42,7 @@ class Paymongo
      */
     public function source(): self
     {
-        $this->apiUrl = self::BASE_API.self::ENPDPOINT_SOURCES;
+        $this->apiUrl = self::BASE_API.self::ENDPOINT_SOURCES;
         $this->returnModel = Source::class;
 
         return $this;
