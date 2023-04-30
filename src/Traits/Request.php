@@ -15,7 +15,11 @@ use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\BadRequestException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
 use Luigel\Paymongo\Exceptions\UnauthorizedException;
-use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
+use Luigel\Paymongo\Models\BaseModel;
+use Luigel\Paymongo\Models\Customer;
+use Luigel\Paymongo\Models\Link;
+use Luigel\Paymongo\Models\PaymentIntent;
+use Luigel\Paymongo\Models\Webhook;
 
 trait Request
 {
@@ -146,9 +150,10 @@ trait Request
     }
 
     /**
-     * Archives the link
+     * Archives the link.
      */
-    public function archive(Link $link){
+    public function archive(Link $link)
+    {
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$link->id.'/archive';
 
@@ -163,11 +168,12 @@ trait Request
     }
 
     /**
-     * Unarchives the link
+     * Unarchives the link.
      */
-    public function unarchive(Link $link){
+    public function unarchive(Link $link)
+    {
         $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl . $link->id . '/unarchive';
+        $this->apiUrl = $this->apiUrl.$link->id.'/unarchive';
 
         $this->setOptions([
             'headers' => [
@@ -180,11 +186,12 @@ trait Request
     }
 
     /**
-     * Update the customer information
+     * Update the customer information.
      */
-    public function updateCustomer(Customer $customer, array $payload){
+    public function updateCustomer(Customer $customer, array $payload)
+    {
         $this->method = 'PATCH';
-        $this->apiUrl = $this->apiUrl . $customer->id;
+        $this->apiUrl = $this->apiUrl.$customer->id;
         $this->payload = $payload;
 
         $this->formRequestData();
@@ -200,11 +207,12 @@ trait Request
     }
 
     /**
-     * Delete the customer
+     * Delete the customer.
      */
-    public function deleteCustomer(Customer $customer){
+    public function deleteCustomer(Customer $customer)
+    {
         $this->method = 'DELETE';
-        $this->apiUrl = $this->apiUrl . $customer->id;
+        $this->apiUrl = $this->apiUrl.$customer->id;
 
         $this->setOptions([
             'headers' => [
@@ -217,11 +225,12 @@ trait Request
     }
 
     /**
-     * Get Customer's Payment Methods
+     * Get Customer's Payment Methods.
      */
-    public function getPaymentMethods(Customer $customer){
+    public function getPaymentMethods(Customer $customer)
+    {
         $this->method = 'GET';
-        $this->apiUrl = $this->apiUrl . $customer->id . '/payment_methods';
+        $this->apiUrl = $this->apiUrl.$customer->id.'/payment_methods';
 
         $this->setOptions([
             'headers' => [

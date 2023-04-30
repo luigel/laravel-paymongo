@@ -2,8 +2,8 @@
 
 namespace Luigel\Paymongo\Models;
 
-use Luigel\Paymongo\Paymongo;
 use Illuminate\Support\Collection;
+use Luigel\Paymongo\Paymongo;
 
 class Customer extends BaseModel
 {
