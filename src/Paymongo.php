@@ -2,7 +2,6 @@
 
 namespace Luigel\Paymongo;
 
-use Luigel\Paymongo\Models\Customer;
 use Luigel\Paymongo\Models\Link;
 use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\Webhook;
