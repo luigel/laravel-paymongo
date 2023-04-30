@@ -242,19 +242,19 @@ trait Request
     /**
      * 
      */
-    public function expireCheckout(Checkout $checkout) {
-        $this->method = 'POST';
-        $this->apiUrl = $this->apiUrl.$checkout->id.'/expire';
+    // public function expireCheckout(Checkout $checkout) {
+    //     $this->method = 'POST';
+    //     $this->apiUrl = $this->apiUrl.$checkout->id.'/expire';
 
-        $this->setOptions([
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-            'auth' => [config('paymongo.secret_key'), ''],
-        ]);
+    //     $this->setOptions([
+    //         'headers' => [
+    //             'Accept' => 'application/json',
+    //         ],
+    //         'auth' => [config('paymongo.secret_key'), ''],
+    //     ]);
         
-        return $this->request();
-    }
+    //     return $this->request();
+    // }
 
     /**
      * Send request to API.
