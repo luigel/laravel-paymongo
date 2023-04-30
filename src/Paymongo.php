@@ -2,6 +2,7 @@
 
 namespace Luigel\Paymongo;
 
+use Luigel\Paymongo\Models\Checkout;
 use Luigel\Paymongo\Models\Link;
 use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\Webhook;
@@ -29,6 +30,7 @@ class Paymongo
     protected const ENDPOINT_REFUND = 'refunds/';
     protected const ENDPOINT_LINK = 'links/';
     protected const ENDPOINT_CUSTOMER = 'customers/';
+    protected const ENDPOINT_CHECKOUT = 'checkout_sessions/';
     public const SOURCE_GCASH = 'gcash';
     public const SOURCE_GRAB_PAY = 'grab_pay';
     public const AMOUNT_TYPE_FLOAT = 'float';
@@ -122,6 +124,14 @@ class Paymongo
     {
         $this->apiUrl = self::BASE_API.self::ENDPOINT_CUSTOMER;
         $this->returnModel = Customer::class;
+
+        return $this;
+    }
+
+    public function checkout(): self
+    {
+        $this->apiUrl = self::BASE_API.self::ENDPOINT_CHECKOUT;
+        $this->returnModel = Checkout::class;
 
         return $this;
     }
