@@ -6,6 +6,7 @@ All notable changes to `laravel-paymongo` will be documented in this file
 
 ### Added
 - Checkouts API
+- Support laravel 10
 
 ## 2.3.0 (2022-12-15)
 
