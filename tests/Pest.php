@@ -1,17 +1,17 @@
 <?php
 
 use Illuminate\Support\Str;
-use Luigel\Paymongo\Models\Link;
-use Luigel\Paymongo\Models\Token;
-use Luigel\Paymongo\Models\Source;
-use Luigel\Paymongo\Models\Payment;
-use Luigel\Paymongo\Traits\Request;
+use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Models\Checkout;
 use Luigel\Paymongo\Models\Customer;
-use Luigel\Paymongo\Facades\Paymongo;
-use Luigel\Paymongo\Tests\BaseTestCase;
+use Luigel\Paymongo\Models\Link;
+use Luigel\Paymongo\Models\Payment;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\PaymentMethod;
+use Luigel\Paymongo\Models\Source;
+use Luigel\Paymongo\Models\Token;
+use Luigel\Paymongo\Tests\BaseTestCase;
+use Luigel\Paymongo\Traits\Request;
 
 uses(BaseTestCase::class, Request::class)
     ->in(__DIR__);
@@ -177,11 +177,11 @@ function createCheckout(): Checkout
                 'currency' => 'PHP',
                 'description' => 'Something of a product.',
                 'images' => [
-                    'https://images.unsplash.com/photo-1613243555988-441166d4d6fd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80'
+                    'https://images.unsplash.com/photo-1613243555988-441166d4d6fd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
                 ],
                 'name' => 'A payment card',
-                'quantity' => 1
-            ]
+                'quantity' => 1,
+            ],
         ],
         'payment_method_types' => [
             'atome',
@@ -190,14 +190,14 @@ function createCheckout(): Checkout
             'dob',
             'dob_ubp',
             'gcash',
-            'grab_pay', 
-            'paymaya'
+            'grab_pay',
+            'paymaya',
         ],
         'success_url' => 'https://paymongo.rigelkentcarbonel.com/',
         'statement_descriptor' => 'Laravel Paymongo Library',
         'metadata' => [
-            'Key' => 'Value'
-        ]
+            'Key' => 'Value',
+        ],
     ]);
 }
 
