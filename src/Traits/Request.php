@@ -4,19 +4,19 @@ namespace Luigel\Paymongo\Traits;
 
 use Exception;
 use GuzzleHttp\Client;
-use Luigel\Paymongo\Models\Link;
-use Illuminate\Support\Collection;
-use Luigel\Paymongo\Models\Webhook;
-use Luigel\Paymongo\Models\Checkout;
-use Luigel\Paymongo\Models\Customer;
-use Luigel\Paymongo\Models\BaseModel;
 use GuzzleHttp\Exception\ClientException;
-use Luigel\Paymongo\Models\PaymentIntent;
-use Luigel\Paymongo\Exceptions\NotFoundException;
+use Illuminate\Support\Collection;
+use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
 use Luigel\Paymongo\Exceptions\BadRequestException;
+use Luigel\Paymongo\Exceptions\NotFoundException;
 use Luigel\Paymongo\Exceptions\PaymentErrorException;
 use Luigel\Paymongo\Exceptions\UnauthorizedException;
-use Luigel\Paymongo\Exceptions\AmountTypeNotSupportedException;
+use Luigel\Paymongo\Models\BaseModel;
+use Luigel\Paymongo\Models\Checkout;
+use Luigel\Paymongo\Models\Customer;
+use Luigel\Paymongo\Models\Link;
+use Luigel\Paymongo\Models\PaymentIntent;
+use Luigel\Paymongo\Models\Webhook;
 
 trait Request
 {
@@ -239,10 +239,8 @@ trait Request
         return $this->request();
     }
 
-    /**
-     * 
-     */
-    public function expireCheckout(Checkout $checkout) {
+    public function expireCheckout(Checkout $checkout)
+    {
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$checkout->id.'/expire';
 
@@ -252,7 +250,7 @@ trait Request
             ],
             'auth' => [config('paymongo.secret_key'), ''],
         ]);
-        
+
         return $this->request();
     }
 
