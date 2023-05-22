@@ -2,7 +2,12 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
-## 2.4.0 (2022-12-15)
+## 2.4.0 (2023-04-30)
+
+### Added
+- Checkouts API
+
+## 2.3.0 (2022-12-15)
 
 ### Added
 - Links API

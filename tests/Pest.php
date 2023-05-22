@@ -1,16 +1,17 @@
 <?php
 
 use Illuminate\Support\Str;
-use Luigel\Paymongo\Facades\Paymongo;
-use Luigel\Paymongo\Models\Customer;
 use Luigel\Paymongo\Models\Link;
+use Luigel\Paymongo\Models\Token;
+use Luigel\Paymongo\Models\Source;
 use Luigel\Paymongo\Models\Payment;
+use Luigel\Paymongo\Traits\Request;
+use Luigel\Paymongo\Models\Checkout;
+use Luigel\Paymongo\Models\Customer;
+use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Tests\BaseTestCase;
 use Luigel\Paymongo\Models\PaymentIntent;
 use Luigel\Paymongo\Models\PaymentMethod;
-use Luigel\Paymongo\Models\Source;
-use Luigel\Paymongo\Models\Token;
-use Luigel\Paymongo\Tests\BaseTestCase;
-use Luigel\Paymongo\Traits\Request;
 
 uses(BaseTestCase::class, Request::class)
     ->in(__DIR__);
@@ -157,6 +158,46 @@ function createCustomer(): Customer
         'phone' => '+6391234'.rand(10000, 99999),
         'email' => 'customer'.Str::random(8).rand(0, 100).'@email.com',
         'default_device' => 'phone',
+    ]);
+}
+
+function createCheckout(): Checkout
+{
+    return Paymongo::checkout()->create([
+        'cancel_url' => 'https://paymongo.rigelkentcarbonel.com/',
+        'billing' => [
+            'name' => 'Gringiemar Felix',
+            'email' => 'gringiemar@felix.com',
+            'phone' => '+6391234'.rand(10000, 99999),
+        ],
+        'description' => 'My checkout session description',
+        'line_items' => [
+            [
+                'amount' => 10000,
+                'currency' => 'PHP',
+                'description' => 'Something of a product.',
+                'images' => [
+                    'https://images.unsplash.com/photo-1613243555988-441166d4d6fd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80'
+                ],
+                'name' => 'A payment card',
+                'quantity' => 1
+            ]
+        ],
+        'payment_method_types' => [
+            'atome',
+            'billease',
+            'card',
+            'dob',
+            'dob_ubp',
+            'gcash',
+            'grab_pay', 
+            'paymaya'
+        ],
+        'success_url' => 'https://paymongo.rigelkentcarbonel.com/',
+        'statement_descriptor' => 'Laravel Paymongo Library',
+        'metadata' => [
+            'Key' => 'Value'
+        ]
     ]);
 }
 
