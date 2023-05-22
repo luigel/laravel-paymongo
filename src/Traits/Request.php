@@ -334,7 +334,7 @@ trait Request
     {
         if (isset($payload['amount'])) {
             $payload['amount'] = match ($amountType = config('paymongo.amount_type', 'float')) {
-                'float' => (int) number_format(($payload['amount'] * 100), 0, '', ''),
+                'float' => (int) number_format($payload['amount'] * 100, 0, '', ''),
                 'int' => (int) $payload['amount'],
                 default => throw new AmountTypeNotSupportedException("The amount_type [$amountType] used is not supported."),
             };
