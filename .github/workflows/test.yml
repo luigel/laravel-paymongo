@@ -1,44 +1,55 @@
 name: Run tests
 
 on:
-    schedule:
-        - cron: "0 0 * * *"
-    push:
-        branches: [main, 2.x]
-    pull_request:
-        branches: [main, 2.x]
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - main
+      - 2.x
+  pull_request:
+    branches:
+      - main
+      - 2.x
 
 jobs:
-    php-tests:
-        runs-on: ${{ matrix.os }}
-        strategy:
-            fail-fast: false
-            matrix:
-                os: [ubuntu-latest]
-                php: [8.1]
-                laravel: [9.*]
-                stability: [prefer-lowest, prefer-stable]
-                include:
-                    - laravel: 9.*
-                      testbench: 7.*
-        name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+  php-tests:
+    runs-on: ${{ matrix.os }}
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        php: [8.1, '8.2']
+        laravel: ['9.*', '11.*']
+        stability: [prefer-lowest, prefer-stable]
+        include:
+          - laravel: 9.*
+            testbench: 7.*
+          - laravel: 11.*
+            testbench: 9.*
+        exclude:
+          - laravel: 11.*
+            php: 8.1
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
-                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
-                  coverage: pcov
-                  tools: composer:v2
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
-            -   name: Install dependencies
-                run: |
-                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-            - name: Execute tests
-              run: vendor/bin/pest --coverage --parallel
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+
+      - name: Execute tests
+        run: vendor/bin/pest --coverage --parallel
