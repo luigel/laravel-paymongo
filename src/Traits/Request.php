@@ -22,7 +22,7 @@ trait Request
 {
     protected array $data;
     protected array $payload;
-    protected array $options;
+    protected array $guzzleOptions;
 
     /**
      * Request a create to API.
@@ -33,7 +33,7 @@ trait Request
         $this->payload = $this->convertPayloadAmountsToInteger($payload);
         $this->formRequestData();
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-type' => 'application/json',
@@ -53,7 +53,7 @@ trait Request
         $this->method = 'GET';
         $this->apiUrl = $this->apiUrl.$payload;
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-type' => 'application/json',
@@ -71,7 +71,7 @@ trait Request
     {
         $this->method = 'GET';
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-type' => 'application/json',
@@ -92,7 +92,7 @@ trait Request
         $this->apiUrl = $this->apiUrl.$webhook->id;
 
         $this->formRequestData();
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -111,7 +111,7 @@ trait Request
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$intent->id.'/cancel';
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -135,7 +135,7 @@ trait Request
         }
 
         $this->formRequestData();
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -154,7 +154,7 @@ trait Request
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$link->id.'/archive';
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -172,7 +172,7 @@ trait Request
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$link->id.'/unarchive';
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -192,7 +192,7 @@ trait Request
         $this->payload = $payload;
 
         $this->formRequestData();
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -211,7 +211,7 @@ trait Request
         $this->method = 'DELETE';
         $this->apiUrl = $this->apiUrl.$customer->id;
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -229,7 +229,7 @@ trait Request
         $this->method = 'GET';
         $this->apiUrl = $this->apiUrl.$customer->id.'/payment_methods';
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -244,7 +244,7 @@ trait Request
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$checkout->id.'/expire';
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -268,7 +268,7 @@ trait Request
         $client = new Client();
 
         try {
-            $response = $client->request($this->method, $this->apiUrl, $this->options);
+            $response = $client->request($this->method, $this->apiUrl, $this->guzzleOptions);
 
             $array = $this->parseToArray((string) $response->getBody());
 
@@ -328,12 +328,12 @@ trait Request
     /**
      * Set the options.
      *
-     * @param  array  $options
+     * @param  array  $guzzleOptions
      * @return $this
      */
-    protected function setOptions($options)
+    protected function setGuzzleOptions($guzzleOptions)
     {
-        $this->options = $options;
+        $this->guzzleOptions = $guzzleOptions;
 
         return $this;
     }

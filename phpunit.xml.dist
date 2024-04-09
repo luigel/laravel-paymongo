@@ -19,6 +19,11 @@
             <directory suffix=".php">src/</directory>
         </whitelist>
     </filter>
+    <source>
+        <include>
+            <directory suffix=".php">src/</directory>
+        </include>
+    </source>
 
     <php>
         <env name="APP_ENV" value="testing" />

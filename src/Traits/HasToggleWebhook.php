@@ -18,7 +18,7 @@ trait HasToggleWebhook
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$webhook->getId().'/enable';
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -39,7 +39,7 @@ trait HasToggleWebhook
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$webhook->getId().'/disable';
 
-        $this->setOptions([
+        $this->setGuzzleOptions([
             'headers' => [
                 'Accept' => 'application/json',
             ],
