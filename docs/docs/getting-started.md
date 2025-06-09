@@ -18,7 +18,7 @@ id: getting-started
 
 A PHP Library for [Paymongo](https://paymongo.com).
 
-This package is not affiliated with [Paymongo](https://paymongo.com). The package requires PHP 7.2+
+This package is not affiliated with [Paymongo](https://paymongo.com). The package requires PHP 8.1+
 
 ## Installation
 
@@ -51,6 +51,10 @@ Laravel  | Package
 7.x.x              | 1.x
 8.x.x (PHP 7.4)    | 1.x
 8.x.x (PHP 8.0)    | 2.x
+9.x.x              | 2.x
+10.x.x             | 2.x
+11.x.x             | 2.x
+12.x.x             | 2.x
 
 ## Configuring the package
 You can publish the config file by running: 

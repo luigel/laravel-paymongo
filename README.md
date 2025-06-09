@@ -10,7 +10,7 @@
 
 A PHP Library for [Paymongo](https://paymongo.com).
 
-This package is not affiliated with [Paymongo](https://paymongo.com). The package requires PHP 7.2+
+This package is not affiliated with [Paymongo](https://paymongo.com). The package requires PHP 8.1+
 
 ## Documentation
 
@@ -33,6 +33,10 @@ Laravel  | Package
 6.x.x    | 1.x
 7.x.x    | 1.x
 8.x.x    | 2.x
+9.x.x    | 2.x
+10.x.x   | 2.x
+11.x.x   | 2.x
+12.x.x   | 2.x
 
 ### Testing
 

@@ -2,6 +2,13 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
+## 2.5.0 (2024-12-15)
+
+### Added
+- Support for Laravel 12
+- Updated minimum PHP version to 8.1 to align with Laravel 12 requirements
+- Updated Orchestra Testbench to support Laravel 12 testing
+
 ## 2.4.0 (2023-04-30)
 
 ### Added
