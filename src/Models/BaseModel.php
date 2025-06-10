@@ -191,7 +191,7 @@ class BaseModel
         return Str::afterLast(get_class($this), '\\');
     }
 
-    public function ensureFloatAmount(string $key): null|float
+    public function ensureFloatAmount(string $key): ?float
     {
         if ($key === 'amount') {
             return floatval($this->attributes[$key] / 100);
