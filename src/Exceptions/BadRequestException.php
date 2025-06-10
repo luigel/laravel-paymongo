@@ -10,7 +10,7 @@ class BadRequestException extends Exception
     public function __construct(
         $message = 'The request was not understood, often caused by missing parameters.',
         $code = 400,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }

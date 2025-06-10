@@ -15,7 +15,7 @@ class PaymongoValidateSignature
      *
      * @throws \Illuminate\Routing\Exceptions\InvalidSignatureException
      */
-    public function handle(Request $request, Closure $next, string $event = null): Response|null
+    public function handle(Request $request, Closure $next, ?string $event = null): ?Response
     {
         $payload = $this->headerPayload($request);
 
@@ -54,7 +54,7 @@ class PaymongoValidateSignature
     /**
      * Get webhook signature.
      */
-    public function signature(Request $request, string|int $timestamp, string $event = null): string
+    public function signature(Request $request, string|int $timestamp, ?string $event = null): string
     {
         return app(Signer::class)->calculateSignature(
             $timestamp,

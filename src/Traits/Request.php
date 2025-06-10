@@ -124,7 +124,7 @@ trait Request
     /**
      * Attach the payment method in the payment intent.
      */
-    public function attach(PaymentIntent $intent, string $paymentMethodId, string|null $returnUrl = null): BaseModel
+    public function attach(PaymentIntent $intent, string $paymentMethodId, ?string $returnUrl = null): BaseModel
     {
         $this->method = 'POST';
         $this->apiUrl = $this->apiUrl.$intent->id.'/attach';
