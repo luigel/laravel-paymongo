@@ -142,7 +142,7 @@ json_encode($total);                       // 150050
 
 ## Usage
 
-Every resource is reached through a service on the `Paymongo` facade: `Paymongo::paymentIntents()`, `paymentMethods()`, `payments()`, `refunds()`, `webhooks()`, `checkoutSessions()`, `links()`, `customers()`, `plans()`, `subscriptions()`, and the deprecated `sources()`.
+Every resource is reached through a service on the `Paymongo` facade: `Paymongo::paymentIntents()`, `paymentMethods()`, `payments()`, `refunds()`, `webhooks()`, `checkoutSessions()`, `links()`, `paymentLinks()`, `qrph()`, `customers()`, `plans()`, `subscriptions()`, `payouts()`, and the deprecated `sources()`.
 
 Services take plain attribute arrays (exactly the `data.attributes` from the [PayMongo docs](https://developers.paymongo.com/reference)) and return typed, immutable DTOs from `Luigel\Paymongo\Data`. Enum instances from `Luigel\Paymongo\Enums` may be used anywhere in attribute arrays; they are converted to their string values automatically.
 
@@ -151,6 +151,8 @@ Every DTO exposes:
 - typed readonly properties (`$intent->status`, `$payment->billing?->name`, ...), with enum-typed properties (`PaymentIntentStatus`, `PaymentStatus`, ...) that are `null` for values the package does not know yet;
 - the raw payload via `$resource->attributes`, `$resource->attribute('dot.notation.key')`, and `$resource->toArray()`;
 - `createdAt()` / `updatedAt()` as `CarbonImmutable`.
+
+Two newer PayMongo APIs — [Payment links](#payment-links) and the v3 [QR Ph](#qr-ph) API — return flat objects instead of the `{id, type, attributes}` envelope. Their DTOs are standalone: the raw payload lives in `$resource->raw` (still readable with `$resource->attribute('dot.key')`), and timestamps are readonly properties. The differences are called out in those sections.
 
 ### Payment intents
 
@@ -255,6 +257,89 @@ $link = Paymongo::links()->archive('link_wWaibr22CzEnficNhQNPUdoo');
 $link = Paymongo::links()->unarchive('link_wWaibr22CzEnficNhQNPUdoo');
 ```
 
+PayMongo also runs a newer, separate [`/payment_links` API](#payment-links) — `Paymongo::links()` keeps targeting the legacy `/links` API unchanged.
+
+### Payment links
+
+`Paymongo::paymentLinks()` targets the newer `/payment_links` API. It coexists with the legacy `/links` API above but behaves differently: requests send **flat bodies** (no `data.attributes` envelope), responses are flat objects with **ISO 8601 string timestamps**, and `status` is a management state (`active` | `archived`), not a payment state.
+
+```php
+$link = Paymongo::paymentLinks()->create([
+    'amount' => 150050, // centavos, min 100
+    'currency' => 'PHP',
+    'description' => 'Invoice #1234',
+    'remarks' => 'laravel-paymongo',
+    'restrictions' => ['completed_sessions' => 1],
+]);
+
+$link->url;    // share this with your customer
+$link->status; // ?PaymentLinkStatus (Active | Archived)
+
+$link = Paymongo::paymentLinks()->retrieve('plink_uSJXoxTBNqRrg35kj5w9dTVY');
+$link = Paymongo::paymentLinks()->update('plink_uSJXoxTBNqRrg35kj5w9dTVY', ['description' => 'Invoice #1234 (rev 2)']);
+
+$link = Paymongo::paymentLinks()->archive('plink_uSJXoxTBNqRrg35kj5w9dTVY');   // shorthand for update(status: archived)
+$link = Paymongo::paymentLinks()->unarchive('plink_uSJXoxTBNqRrg35kj5w9dTVY'); // shorthand for update(status: active)
+
+$page = Paymongo::paymentLinks()->list(['limit' => 10]); // CursorPage<PaymentLink>
+
+$payments = Paymongo::paymentLinks()->payments('plink_uSJXoxTBNqRrg35kj5w9dTVY'); // CursorPage<Payment>
+
+// PayMongo does not document this endpoint's response shape, so refund() returns the raw array.
+$result = Paymongo::paymentLinks()->refund('plink_uSJXoxTBNqRrg35kj5w9dTVY', ['amount' => 150050]);
+```
+
+`PaymentLink` is one of the standalone flat DTOs: `createdAt` / `updatedAt` are `CarbonImmutable` properties parsed from the ISO 8601 strings, and the raw payload lives in `$link->raw` / `$link->attribute('restrictions.completed_sessions')`.
+
+### QR Ph
+
+`Paymongo::qrph()` generates QR Ph codes. The MPM operations live on PayMongo's **v3 QR API** — under `/v3` instead of the configured `/v1` base URL, with flat request bodies and flat responses; the package routes and parses this for you.
+
+```php
+use Luigel\Paymongo\Enums\QrMode;
+use Luigel\Paymongo\Enums\QrType;
+
+$qr = Paymongo::qrph()->generate([
+    'nation' => 'ph',
+    'mode' => QrMode::P2m,     // p2p | p2b | p2m | p2micro
+    'type' => QrType::Dynamic, // dynamic carries a fixed amount; static lets the scanner enter one
+    'transaction_currency' => 'PHP',
+    'transaction_amount' => 150050, // centavos — dynamic QRs only
+    'expiry_seconds' => 1800,       // 60–9000, default 1800
+    'qr_image' => true,
+]);
+
+$qr->qrString; // render as a QR code — or use the pre-rendered $qr->qrImage
+$qr->status;   // ?QrStatus (Active | Expired)
+
+$qr = Paymongo::qrph()->retrieve('qr_2vDcPuS9tsAZzVPFGwGe31eR', qrString: true, qrImage: true);
+$qr = Paymongo::qrph()->expire('qr_2vDcPuS9tsAZzVPFGwGe31eR');
+```
+
+**Executing a QR string moves real money** out of the scanning account:
+
+```php
+$execution = Paymongo::qrph()->execute([
+    'qr_string' => $qr->qrString,
+    'amount' => 150050,
+    'reference_number' => 'ORDER-10101',
+]);
+```
+
+The final outcome arrives asynchronously through the `qr.paid` / `qr.expired` webhooks (typed events `QrPaid` / `QrExpired`) — see [Webhooks](#webhooks).
+
+Static in-store QR Ph codes come from the normal v1 API:
+
+```php
+$code = Paymongo::qrph()->generateStatic([
+    'kind' => 'instore', // required
+    'mobile_number' => '+639171234567',
+    'notes' => 'Counter 1',
+]);
+
+$code->qrImage; // print and display in-store
+```
+
 ### Customers
 
 ```php
@@ -305,6 +390,35 @@ $subscription = Paymongo::subscriptions()->cancel('sub_iEbGuGDrxPZoTg9r6BLbdCfV'
 Paymongo::subscriptions()->triggerTestCycle('sub_iEbGuGDrxPZoTg9r6BLbdCfV'); // test mode only
 ```
 
+### Payouts
+
+Payouts — PayMongo depositing your balance to your bank account — are **read-only**:
+
+```php
+use Luigel\Paymongo\Enums\PayoutStatus;
+
+$page = Paymongo::payouts()->list([
+    'payout_status' => PayoutStatus::Deposited, // pending | on_hold | in_transit | deposited | returned | cancelled
+    'created_at.between' => '2026-08-01..2026-08-31',
+    'sort_by' => 'net_amount', // or created_at
+    'order' => 'desc',
+]);
+
+$page->meta;       // totals: total_records, total_amount, total_per_currency (when present)
+$page->nextCursor; // opaque token — payout lists paginate with cursor tokens, not has_more
+
+$payout = Paymongo::payouts()->retrieve('po_2fdKBqNAKMvUXTUAvhZDdXbW');
+$payout->money()->format(); // the net amount deposited, e.g. "₱4,855.00"
+
+// The payments, refunds, disputes, and adjustments lined up in a payout:
+$transactions = Paymongo::payouts()->transactions('po_2fdKBqNAKMvUXTUAvhZDdXbW');
+
+// Your payout schedule (pass your organization id):
+$schedule = Paymongo::payouts()->schedule('org_9NxTZ8ZDVQpZC3bDMSKtwEXA');
+```
+
+More list filters: `search`, `provider` (`paymongo_central_hub` | `unionbank`), `limit` (default 20), `after`, `before`. `list()` and `transactions()` return a `CursorTokenPage` — see [Pagination](#pagination). The `payout.deposited` / `payout.returned` webhooks (typed events `PayoutDeposited` / `PayoutReturned`) tell you when money lands.
+
 ### Webhook endpoints (outbound CRUD)
 
 ```php
@@ -342,6 +456,8 @@ Paymongo::payments()->list()->lazy()->each(function ($payment) {
     // one HTTP request per page, items streamed one by one
 });
 ```
+
+The Payouts API paginates differently — with opaque cursor tokens and totals metadata instead of `has_more`. `Paymongo::payouts()->list()` and `->transactions()` return a `Luigel\Paymongo\Pagination\CursorTokenPage` with the same ergonomics (`items`, `first()`, `nextPage()`, `lazy()`, iteration, counting) plus `nextCursor` / `prevCursor` and a `meta` array of totals (`total_records`, `total_amount`, `total_per_currency` when present).
 
 ## Error handling
 
@@ -409,7 +525,7 @@ class FulfillOrder
 
 Every event class wraps a `Luigel\Paymongo\Webhooks\WebhookEvent` with `id`, `type`, `livemode`, `data` (the embedded resource array), `timestamp`, `raw`, plus helpers `eventType()`, `resourceId()`, and `resourceAttribute()`.
 
-A generic `Luigel\Paymongo\Events\WebhookReceived` is dispatched for **every** verified event. These event names additionally dispatch a typed subclass of it:
+A generic `Luigel\Paymongo\Events\WebhookReceived` is dispatched for **every** verified event. Every event name PayMongo sends additionally dispatches a typed subclass of it:
 
 | Event name | Event class (`Luigel\Paymongo\Events\...`) |
 |---|---|
@@ -424,14 +540,22 @@ A generic `Luigel\Paymongo\Events\WebhookReceived` is dispatched for **every** v
 | `source.chargeable` | `SourceChargeable` |
 | `refund.succeeded` | `RefundSucceeded` |
 | `qrph.expired` | `QrphExpired` |
+| `qr.paid` | `QrPaid` |
+| `qr.expired` | `QrExpired` |
 | `subscription.activated` | `SubscriptionActivated` |
 | `subscription.past_due` | `SubscriptionPastDue` |
 | `subscription.unpaid` | `SubscriptionUnpaid` |
 | `subscription.updated` | `SubscriptionUpdated` |
+| `subscription.invoice.created` | `SubscriptionInvoiceCreated` |
+| `subscription.invoice.finalized` | `SubscriptionInvoiceFinalized` |
 | `subscription.invoice.paid` | `SubscriptionInvoicePaid` |
 | `subscription.invoice.payment_failed` | `SubscriptionInvoicePaymentFailed` |
+| `dispute.created` | `DisputeCreated` |
+| `dispute.resolved` | `DisputeResolved` |
+| `payout.deposited` | `PayoutDeposited` |
+| `payout.returned` | `PayoutReturned` |
 
-All other event names (`subscription.invoice.created`, `subscription.invoice.finalized`, `qr.paid`, `qr.expired`, `dispute.created`, `dispute.resolved`, `payout.deposited`, `payout.returned`, and any future ones) still arrive as `WebhookReceived` — match on `$event->event->type`.
+Event names the package does not know yet (future ones) still arrive as `WebhookReceived` — match on `$event->event->type`.
 
 **Deduplication**: PayMongo retries deliveries up to 12 times, so the controller remembers each event id in your cache (key `paymongo:webhook:{event_id}`, 24h TTL) and dispatches events only once. Tune or disable via `paymongo.webhooks.dedupe.*` (`PAYMONGO_WEBHOOK_DEDUPE`, `PAYMONGO_WEBHOOK_DEDUPE_STORE`).
 
@@ -473,7 +597,7 @@ $intent = $merchant->paymentIntents()->create([
 
 ## Testing your integration
 
-The package never hits the network in your tests. Call `Paymongo::fake()` and every API call is served realistic fixture responses; creates echo your attributes back:
+The package never hits the network in your tests. Call `Paymongo::fake()` and every API call — the whole `api.paymongo.com` origin, `/v3` QR endpoints included — is served realistic fixture responses; creates echo your attributes back:
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
@@ -508,6 +632,8 @@ Paymongo::fake([
     '*/payments' => Fixtures::list([Fixtures::payment(['amount' => 150050])], hasMore: false),
 ]);
 ```
+
+The platform resources have factories too — `Fixtures::paymentLink()`, `mpmQr()`, `qrExecution()`, `staticQr()`, `payout()`, `payoutTransaction()`, and `payoutSchedule()` — alongside the list envelopes `Fixtures::list()` (standard `has_more` lists), `Fixtures::flatList()` (flat `/payment_links`-style lists), and `Fixtures::payoutList()` (token-cursor payout lists).
 
 `Fixtures::event('payment.paid', Fixtures::payment())` builds full webhook event payloads for testing your listeners. Since `Paymongo::fake()` registers plain `Http::fake()` handlers under the hood, `Http::assertSent()`, `Http::fakeSequence()`, and everything else from Laravel's HTTP client testing toolkit work alongside it.
 

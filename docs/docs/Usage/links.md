@@ -10,6 +10,10 @@ A payment link is a shareable URL for a one-off payment — no code on the payin
 
 All methods live on `Paymongo::links()` and return `Luigel\Paymongo\Data\Link` DTOs. See the [PayMongo documentation](https://developers.paymongo.com/reference/links-resource) for payload guidelines.
 
+:::info
+This page covers the legacy `/links` API. PayMongo also runs a newer, separate `/payment_links` API — flat request bodies, ISO 8601 timestamps, and an `active`/`archived` management status — available as `Paymongo::paymentLinks()`. See [Payment Links](./payment-links.md) for it and for a side-by-side comparison. Both APIs remain supported.
+:::
+
 ## Create
 
 ```php

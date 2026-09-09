@@ -1,5 +1,5 @@
 ---
-sidebar_position: 10
+sidebar_position: 13
 slug: /testing
 id: testing
 ---
@@ -12,10 +12,12 @@ The package ships first-class fakes so your test suite never touches the network
 
 Call `Paymongo::fake()` and every PayMongo API call in the code under test is served a realistic fixture response:
 
-- **creates** echo the attributes you sent back into the returned resource;
+- **creates** echo the attributes you sent (enveloped or flat) back into the returned resource;
 - **retrieves** echo the requested id;
 - **lists** return a one-item page;
 - **actions** (attach, capture, cancel, expire, archive, ...) return the parent resource.
+
+The catch-all covers the **entire API origin**, so every endpoint is faked uniformly — the `/v3` QR endpoints, `/payment_links`, payouts, and merchant schedules right alongside the `/v1` resources.
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
@@ -89,6 +91,22 @@ Fixtures::subscription();
 Fixtures::list([Fixtures::payment(), Fixtures::payment()], true); // a list envelope with has_more
 ```
 
+The platform resources have factories too. `paymentLink()`, `mpmQr()`, and `qrExecution()` return the **flat** payload shapes those APIs use (fields directly on `data`, no `{id, type, attributes}` triple), with overrides replacing into the flat object itself; the rest are standard resources:
+
+```php
+Fixtures::paymentLink(['amount' => 150050]); // "plink_..." — flat, ISO 8601 timestamps
+Fixtures::mpmQr(['type' => 'static']);       // "qr_..."    — flat, includes qr_string
+Fixtures::qrExecution();                     // "qrx_..."   — flat
+Fixtures::staticQr();                        // "qrph_..."  — normal v1 triple, type "code"
+Fixtures::payout(['status' => 'in_transit']); // "po_..."
+Fixtures::payoutTransaction();               // resource type = transaction kind ("payment", "refund", ...)
+Fixtures::payoutSchedule();                  // "sched_..."
+
+// Matching list envelopes:
+Fixtures::flatList([Fixtures::paymentLink()], true);                // {"data": [...], "has_more": true}
+Fixtures::payoutList([Fixtures::payout()], nextCursor: 'cursor_2'); // {"data": [...], "pagination": {next_cursor, ...}}
+```
+
 ### Testing webhook listeners
 
 `Fixtures::event()` builds a full inbound event envelope — post it to your webhook route with `Event::fake()`, or construct the event object directly:
@@ -117,7 +135,7 @@ use Illuminate\Support\Facades\Http;
 use Luigel\Paymongo\Testing\Fixtures;
 
 Http::fake([
-    'api.paymongo.com/*' => Http::response(['data' => Fixtures::paymentIntent()]),
+    'api.paymongo.com/*' => Http::response(Fixtures::paymentIntent()), // factories already include the {"data": ...} envelope
 ]);
 ```
 
