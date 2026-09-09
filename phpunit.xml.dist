@@ -1,34 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php"
-         backupGlobals="false"
-         backupStaticAttributes="false"
-         colors="true"
-         verbose="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         cacheDirectory=".phpunit.cache"
+         colors="true">
     <testsuites>
-        <testsuite name="Test Suite">
-            <directory>tests</directory>
+        <testsuite name="default">
+            <directory>tests/Unit</directory>
+            <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src/</directory>
-        </whitelist>
-    </filter>
     <source>
         <include>
-            <directory suffix=".php">src/</directory>
+            <directory>src</directory>
         </include>
     </source>
-
     <php>
-        <env name="APP_ENV" value="testing" />
-        <env name="PAYMONGO_SECRET_KEY" value="sk_test_mTLYmYUoX3QM1AtT7WKvU9rR" />
-        <env name="DB_CONNECTION" value="testing" />
-        <env name="PAYMONGO_WEBHOOK_SIG" value="secret" />
+        <env name="PAYMONGO_SECRET_KEY" value="sk_test_fake"/>
+        <env name="PAYMONGO_PUBLIC_KEY" value="pk_test_fake"/>
+        <env name="PAYMONGO_WEBHOOK_SECRET" value="whsk_test_fake"/>
     </php>
 </phpunit>

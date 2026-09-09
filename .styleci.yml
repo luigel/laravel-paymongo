@@ -1,6 +1,0 @@
-preset: laravel
-
-version: 8.0
-
-disabled:
-  - single_class_element_per_statement

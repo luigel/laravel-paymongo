@@ -1,6 +1,7 @@
-build
+/build
 composer.lock
 vendor
 coverage
 .env*
 .idea
+.phpunit.cache/

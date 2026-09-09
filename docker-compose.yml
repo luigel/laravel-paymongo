@@ -1,0 +1,12 @@
+services:
+  php:
+    build: ./docker
+    working_dir: /app
+    volumes:
+      - .:/app
+      - composer-home:/tmp/composer
+    environment:
+      COMPOSER_HOME: /tmp/composer
+
+volumes:
+  composer-home:
