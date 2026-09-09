@@ -441,6 +441,192 @@ final class Fixtures
     }
 
     /**
+     * A payment link from the newer `/payment_links` API: a FLAT object
+     * (id and fields directly on `data`, no `{id, type, attributes}`
+     * triple) with ISO 8601 string timestamps. Overrides replace into the
+     * flat object itself, `id` included.
+     *
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function paymentLink(array $overrides = []): array
+    {
+        return self::flat('plink_uSJXoxTBNqRrg35kj5w9dTVY', [
+            'amount' => 150050,
+            'currency' => 'PHP',
+            'description' => 'Payment for Order #10101',
+            'remarks' => 'Facebook order',
+            'status' => 'active',
+            'livemode' => false,
+            'url' => 'https://pm.link/luigel-test/plink_uSJXoxTBNqRrg35kj5w9dTVY',
+            'reference_number' => 'JCUV9NF',
+            'metadata' => null,
+            'restrictions' => ['completed_sessions' => 1],
+            'created_at' => '2024-09-09T00:00:00.000Z',
+            'updated_at' => '2024-09-09T00:00:00.000Z',
+        ], $overrides);
+    }
+
+    /**
+     * An MPM QR code from the v3 QR API: a FLAT object with unix
+     * timestamps. Overrides replace into the flat object itself.
+     *
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function mpmQr(array $overrides = []): array
+    {
+        return self::flat('qr_2vDcPuS9tsAZzVPFGwGe31eR', [
+            'status' => 'active',
+            'type' => 'dynamic',
+            'mode' => 'p2m',
+            'nation' => 'ph',
+            'qr_string' => '00020101021228660011ph.ppmi.p2m0111LUIGELSTORE520459995303608540715005.505802PH5912Luigel Store6006Taguig6304A1B2',
+            'qr_image' => null,
+            'transaction_amount' => 150050,
+            'transaction_currency' => 'PHP',
+            'merchant_name' => 'Luigel Store',
+            'merchant_city' => 'Taguig',
+            'metadata' => null,
+            'expires_at' => 1725841800,
+            'created_at' => 1725840000,
+            'updated_at' => 1725840000,
+        ], $overrides);
+    }
+
+    /**
+     * The result of executing an MPM QR string (v3 QR API, FLAT object).
+     *
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function qrExecution(array $overrides = []): array
+    {
+        return self::flat('qrx_8q1M4moJnVq5cCzKFFV1yvhs', [
+            'status' => 'pending',
+            'reference_number' => 'QR-REF-10101',
+            'amount' => 150050,
+            'metadata' => null,
+            'created_at' => 1725840000,
+            'updated_at' => 1725840000,
+        ], $overrides);
+    }
+
+    /**
+     * A static in-store QR Ph code from the v1 `/qrph/generate` endpoint
+     * (normal `{id, type, attributes}` triple, resource type `code`).
+     *
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function staticQr(array $overrides = []): array
+    {
+        return self::resource('qrph_Tn9EyxduZ9gV8WHhSGYqBihv', 'code', [
+            'mobile_number' => '+639171234567',
+            'qr_image' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAA=',
+            'name' => 'Luigel Store',
+        ], $overrides);
+    }
+
+    /**
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function payout(array $overrides = []): array
+    {
+        return self::resource('po_2fdKBqNAKMvUXTUAvhZDdXbW', 'payout', [
+            'amount' => 500000,
+            'net_amount' => 485500,
+            'fee' => 14500,
+            'tax_amount' => 0,
+            'refund_amount' => 0,
+            'dispute_amount' => 0,
+            'adjustment_amount' => 0,
+            'currency' => 'PHP',
+            'status' => 'deposited',
+            'bank_account_name' => 'Juan Dela Cruz',
+            'bank_account_number' => '****4567',
+            'bank_name' => 'BDO Unibank',
+            'livemode' => false,
+            'created_at' => 1725840000,
+            'updated_at' => 1726099200,
+        ], $overrides);
+    }
+
+    /**
+     * One transaction lined up in a payout; the resource `type` is the
+     * transaction kind (`payment`, `refund`, `dispute`, ...).
+     *
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function payoutTransaction(array $overrides = []): array
+    {
+        return self::resource('pay_hvTn9EyxduZ9gV8WHhSGYqBi', 'payment', [
+            'amount' => 150050,
+            'currency' => 'PHP',
+            'net_amount' => 144798,
+            'fee' => 5252,
+            'created_at' => 1725840000,
+            'updated_at' => 1725840060,
+        ], $overrides);
+    }
+
+    /**
+     * A merchant's payout schedule; the schedule kind lives in
+     * `attributes.type`.
+     *
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function payoutSchedule(array $overrides = []): array
+    {
+        return self::resource('sched_9NxTZ8ZDVQpZC3bDMSKtwEXA', 'schedule', [
+            'type' => 'automatic',
+            'options' => ['automatic', 'manual'],
+            'lineup' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+            'created_at' => 1725840000,
+            'updated_at' => 1725840000,
+        ], $overrides);
+    }
+
+    /**
+     * Wrap resources in the Payouts list envelope (`{"data": [...],
+     * "pagination": {next_cursor, prev_cursor, total_records}}`), which
+     * paginates with opaque cursor tokens instead of `has_more`.
+     *
+     * @param  array<array<string, mixed>>  $items
+     * @return array<string, mixed>
+     */
+    public static function payoutList(array $items, ?string $nextCursor = null): array
+    {
+        return [
+            'data' => array_map(static fn (array $item): array => self::unwrap($item), array_values($items)),
+            'pagination' => [
+                'next_cursor' => $nextCursor,
+                'prev_cursor' => null,
+                'total_records' => count($items),
+            ],
+        ];
+    }
+
+    /**
+     * Wrap FLAT objects (e.g. {@see paymentLink()}) in the flat list
+     * envelope (`{"data": [...], "has_more": bool}`); single-object
+     * envelopes are unwrapped automatically.
+     *
+     * @param  array<array<string, mixed>>  $items
+     * @return array<string, mixed>
+     */
+    public static function flatList(array $items, bool $hasMore = false): array
+    {
+        return [
+            'data' => array_map(static fn (array $item): array => self::unwrap($item), array_values($items)),
+            'has_more' => $hasMore,
+        ];
+    }
+
+    /**
      * Wrap resources in a PayMongo list envelope (`{"data": [...], "has_more": bool}`).
      *
      * Items may be bare resource arrays or single-resource envelopes returned
@@ -502,6 +688,22 @@ final class Fixtures
                 'type' => $type,
                 'attributes' => array_replace_recursive($attributes, $overrides),
             ],
+        ];
+    }
+
+    /**
+     * Build a FLAT single-object envelope (`['data' => ['id' => ..., ...]]`),
+     * as the v3 QR and Payment Links APIs return, applying overrides onto
+     * the object itself (an `id` override replaces the id).
+     *
+     * @param  array<string, mixed>  $fields
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    private static function flat(string $id, array $fields, array $overrides): array
+    {
+        return [
+            'data' => array_replace_recursive(array_merge(['id' => $id], $fields), $overrides),
         ];
     }
 

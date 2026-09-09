@@ -68,6 +68,30 @@ final class PaymongoClient
     }
 
     /**
+     * POST with the body sent as-is, without the `data.attributes` envelope.
+     *
+     * Newer PayMongo APIs (Payment Links, the v3 QR API) expect flat JSON
+     * bodies. Auth, retry, and idempotency semantics match {@see post()};
+     * an empty body sends no request body at all.
+     *
+     * @param  array<string, mixed>  $body
+     *
+     * @throws PaymongoException
+     */
+    public function postFlat(string $path, array $body = [], ?string $idempotencyKey = null): ApiResponse
+    {
+        $idempotencyKey ??= $this->config->autoIdempotency ? (string) Str::uuid() : null;
+
+        return $this->request(
+            'POST',
+            $path,
+            $this->flatBodyOptions($body),
+            retryable: $idempotencyKey !== null,
+            idempotencyKey: $idempotencyKey,
+        );
+    }
+
+    /**
      * @param  array<string, mixed>  $attributes
      *
      * @throws PaymongoException
@@ -85,6 +109,18 @@ final class PaymongoClient
     public function patch(string $path, array $attributes = []): ApiResponse
     {
         return $this->request('PATCH', $path, $this->bodyOptions($attributes), retryable: false);
+    }
+
+    /**
+     * PATCH with the body sent as-is, without the `data.attributes` envelope.
+     *
+     * @param  array<string, mixed>  $body
+     *
+     * @throws PaymongoException
+     */
+    public function patchFlat(string $path, array $body = []): ApiResponse
+    {
+        return $this->request('PATCH', $path, $this->flatBodyOptions($body), retryable: false);
     }
 
     /**
@@ -167,6 +203,22 @@ final class PaymongoClient
         }
 
         return ['json' => ['data' => ['attributes' => $this->normalizeEnums($attributes)]]];
+    }
+
+    /**
+     * Send a flat body verbatim (enum-normalized, no envelope).
+     * An empty body produces no request body at all.
+     *
+     * @param  array<string, mixed>  $body
+     * @return array<string, mixed>
+     */
+    private function flatBodyOptions(array $body): array
+    {
+        if ($body === []) {
+            return [];
+        }
+
+        return ['json' => $this->normalizeEnums($body)];
     }
 
     /**

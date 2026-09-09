@@ -7,11 +7,22 @@ use Illuminate\Support\Facades\Http;
 use Luigel\Paymongo\Data\CheckoutSession;
 use Luigel\Paymongo\Data\CustomerPaymentMethod;
 use Luigel\Paymongo\Data\Link;
+use Luigel\Paymongo\Data\MpmQr;
+use Luigel\Paymongo\Data\Payment;
 use Luigel\Paymongo\Data\PaymentIntent;
+use Luigel\Paymongo\Data\PaymentLink;
+use Luigel\Paymongo\Data\Payout;
+use Luigel\Paymongo\Data\PayoutSchedule;
+use Luigel\Paymongo\Data\PayoutTransaction;
 use Luigel\Paymongo\Data\Plan;
+use Luigel\Paymongo\Data\QrExecution;
+use Luigel\Paymongo\Data\StaticQr;
 use Luigel\Paymongo\Data\Subscription;
+use Luigel\Paymongo\Enums\PaymentLinkStatus;
+use Luigel\Paymongo\Enums\QrMode;
 use Luigel\Paymongo\Exceptions\ResourceNotFoundException;
 use Luigel\Paymongo\Facades\Paymongo;
+use Luigel\Paymongo\Pagination\CursorTokenPage;
 use Luigel\Paymongo\Testing\Fixtures;
 
 it('fakes payment intent creation and echoes the request attributes', function () {
@@ -162,3 +173,140 @@ it('throws a resource not found error for unrouted paths under the base url', fu
 
     Paymongo::client()->get('/nonexistent');
 })->throws(ResourceNotFoundException::class, 'No fake PayMongo route matches [GET /nonexistent].');
+
+it('fakes MPM QR generation and execution with flat echoes', function () {
+    Paymongo::fake();
+
+    $qr = Paymongo::qrph()->generate([
+        'nation' => 'ph',
+        'mode' => 'p2p',
+        'transaction_amount' => 7500,
+    ]);
+
+    expect($qr)->toBeInstanceOf(MpmQr::class)
+        ->and($qr->id)->toStartWith('qr_')
+        ->and($qr->mode)->toBe(QrMode::P2p)
+        ->and($qr->transactionAmount)->toBe(7500);
+
+    $execution = Paymongo::qrph()->execute([
+        'qr_string' => '00020101021228_example',
+        'amount' => 7500,
+        'reference_number' => 'QR-FAKE-1',
+    ]);
+
+    expect($execution)->toBeInstanceOf(QrExecution::class)
+        ->and($execution->id)->toStartWith('qrx_')
+        ->and($execution->amount)->toBe(7500)
+        ->and($execution->referenceNumber)->toBe('QR-FAKE-1');
+
+    Paymongo::assertSent(function (Request $request): bool {
+        return $request->method() === 'POST'
+            && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/generate'
+            && ! array_key_exists('data', $request->data());
+    });
+});
+
+it('routes v3 QR retrieval and expiry through the origin catch-all', function () {
+    Paymongo::fake();
+
+    $qr = Paymongo::qrph()->retrieve('qr_fake_123', qrString: true);
+
+    expect($qr->id)->toBe('qr_fake_123');
+
+    $expired = Paymongo::qrph()->expire('qr_fake_123');
+
+    expect($expired->id)->toBe('qr_fake_123');
+});
+
+it('fakes static QR Ph generation with an enveloped echo', function () {
+    Paymongo::fake();
+
+    $code = Paymongo::qrph()->generateStatic([
+        'kind' => 'instore',
+        'mobile_number' => '+639998887766',
+    ]);
+
+    expect($code)->toBeInstanceOf(StaticQr::class)
+        ->and($code->id)->toStartWith('qrph_')
+        ->and($code->type)->toBe('code')
+        ->and($code->mobileNumber)->toBe('+639998887766');
+});
+
+it('fakes payment link creation and update with flat echoes', function () {
+    Paymongo::fake();
+
+    $link = Paymongo::paymentLinks()->create([
+        'amount' => 25000,
+        'currency' => 'PHP',
+        'description' => 'Faked payment link',
+    ]);
+
+    expect($link)->toBeInstanceOf(PaymentLink::class)
+        ->and($link->id)->toStartWith('plink_')
+        ->and($link->amount)->toBe(25000)
+        ->and($link->description)->toBe('Faked payment link');
+
+    $archived = Paymongo::paymentLinks()->archive('plink_fake_123');
+
+    expect($archived->id)->toBe('plink_fake_123')
+        ->and($archived->status)->toBe(PaymentLinkStatus::Archived);
+});
+
+it('lists payment links as a flat list and retrieves one by id', function () {
+    Paymongo::fake();
+
+    $page = Paymongo::paymentLinks()->list();
+
+    expect($page->items)->toHaveCount(1)
+        ->and($page->hasMore)->toBeFalse()
+        ->and($page->items[0])->toBeInstanceOf(PaymentLink::class)
+        ->and($page->items[0]->id)->toStartWith('plink_');
+
+    expect(Paymongo::paymentLinks()->retrieve('plink_fake_456')->id)->toBe('plink_fake_456');
+});
+
+it('routes payment link payments and refunds', function () {
+    Paymongo::fake();
+
+    $payments = Paymongo::paymentLinks()->payments('plink_fake_123');
+
+    expect($payments->items)->toHaveCount(1)
+        ->and($payments->items[0])->toBeInstanceOf(Payment::class)
+        ->and($payments->items[0]->id)->toStartWith('pay_');
+
+    $refund = Paymongo::paymentLinks()->refund('plink_fake_123', ['reason' => 'others']);
+
+    expect($refund)->toBe(['reason' => 'others']);
+});
+
+it('fakes payout listing, retrieval and transactions with token pagination', function () {
+    Paymongo::fake();
+
+    $page = Paymongo::payouts()->list();
+
+    expect($page)->toBeInstanceOf(CursorTokenPage::class)
+        ->and($page->items)->toHaveCount(1)
+        ->and($page->items[0])->toBeInstanceOf(Payout::class)
+        ->and($page->items[0]->id)->toStartWith('po_')
+        ->and($page->nextCursor)->toBeNull()
+        ->and($page->meta['total_records'] ?? null)->toBe(1);
+
+    expect(Paymongo::payouts()->retrieve('po_fake_123')->id)->toBe('po_fake_123');
+
+    $transactions = Paymongo::payouts()->transactions('po_fake_123');
+
+    expect($transactions->items)->toHaveCount(1)
+        ->and($transactions->items[0])->toBeInstanceOf(PayoutTransaction::class)
+        ->and($transactions->items[0]->transactionType())->toBe('payment')
+        ->and($transactions->nextCursor)->toBeNull();
+});
+
+it('fakes the payout schedule endpoint', function () {
+    Paymongo::fake();
+
+    $schedule = Paymongo::payouts()->schedule('org_fake_123');
+
+    expect($schedule)->toBeInstanceOf(PayoutSchedule::class)
+        ->and($schedule->scheduleType)->toBe('automatic')
+        ->and($schedule->options)->toContain('automatic');
+});

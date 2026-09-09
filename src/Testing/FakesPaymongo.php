@@ -23,13 +23,14 @@ trait FakesPaymongo
      * Fake every PayMongo API call.
      *
      * User stubs (URL pattern => response) are registered first, so they win
-     * over the default catch-all. The catch-all routes requests under the
-     * configured base URL by method + path onto {@see Fixtures}: POST creates
-     * echo the request's `data.attributes` into the fixture, retrievals echo
-     * the requested id, list endpoints return a single-item list, and action
-     * endpoints (attach, capture, cancel, expire, archive, enable, ...)
-     * return their parent resource. Unrouted paths under the base URL get a
-     * PayMongo-style 404 error response.
+     * over the default catch-all. The catch-all covers the whole API origin
+     * (so the `/v3` QR endpoints are routable alongside `/v1`) and routes
+     * requests by method + path onto {@see Fixtures}: POST creates echo the
+     * request's `data.attributes` (or flat body) into the fixture,
+     * retrievals echo the requested id, list endpoints return a single-item
+     * list, and action endpoints (attach, capture, cancel, expire, archive,
+     * enable, ...) return their parent resource. Unrouted paths under the
+     * origin get a PayMongo-style 404 error response.
      *
      * @param  array<string, mixed>  $stubs
      */
@@ -39,10 +40,10 @@ trait FakesPaymongo
             $this->http->fake($stubs);
         }
 
-        $baseUrl = rtrim($this->client()->config()->baseUrl, '/');
+        $origin = rtrim($this->client()->config()->origin(), '/');
 
         $this->http->fake([
-            $baseUrl.'/*' => fn (Request $request): PromiseInterface => $this->fakePaymongoResponse($request, $baseUrl),
+            $origin.'/*' => fn (Request $request): PromiseInterface => $this->fakePaymongoResponse($request, $origin),
         ]);
     }
 
@@ -67,10 +68,23 @@ trait FakesPaymongo
     /**
      * Route a faked request by method + path onto a fixture response.
      */
-    private function fakePaymongoResponse(Request $request, string $baseUrl): PromiseInterface
+    private function fakePaymongoResponse(Request $request, string $origin): PromiseInterface
     {
         $method = strtoupper($request->method());
-        $segments = $this->fakePaymongoSegments($request->url(), $baseUrl);
+        $segments = $this->fakePaymongoSegments($request->url(), $origin);
+
+        // Shift the API version prefix (`/v1/...`, `/v3/...`) off the path.
+        $version = null;
+
+        if (isset($segments[0]) && preg_match('/^v\d+$/', $segments[0]) === 1) {
+            $version = array_shift($segments);
+        }
+
+        // The v3 QR API is routed before the v1 matchers.
+        if ($version === 'v3') {
+            return $this->fakePaymongoV3Response($request, $method, $segments);
+        }
+
         $attributes = $this->fakePaymongoAttributes($request);
 
         $count = count($segments);
@@ -90,6 +104,24 @@ trait FakesPaymongo
         }
 
         return match (true) {
+            // Payment Links v2 (flat bodies and objects), routed before the
+            // generic matchers so they never fall through to legacy links.
+            $method === 'POST' && $count === 1 && $root === 'payment_links' => Factory::response(Fixtures::paymentLink($this->fakePaymongoFlatBody($request))),
+            $method === 'GET' && $count === 1 && $root === 'payment_links' => Factory::response(Fixtures::flatList([Fixtures::paymentLink()])),
+            $method === 'GET' && $count === 2 && $root === 'payment_links' => Factory::response(Fixtures::paymentLink(['id' => $id])),
+            $method === 'PATCH' && $count === 2 && $root === 'payment_links' => Factory::response(Fixtures::paymentLink(array_merge($this->fakePaymongoFlatBody($request), ['id' => $id]))),
+            $method === 'GET' && $count === 3 && $root === 'payment_links' && $action === 'payments' => Factory::response(Fixtures::list([Fixtures::payment()])),
+            $method === 'POST' && $count === 3 && $root === 'payment_links' && $action === 'refunds' => Factory::response(['data' => $this->fakePaymongoFlatBody($request)]),
+
+            // Static QR Ph (normal v1 envelope).
+            $method === 'POST' && $count === 2 && $root === 'qrph' && $id === 'generate' => Factory::response(Fixtures::staticQr($attributes)),
+
+            // Payouts (read-only, token pagination) and payout schedules.
+            $method === 'GET' && $count === 1 && $root === 'payouts' => Factory::response(Fixtures::payoutList([Fixtures::payout()])),
+            $method === 'GET' && $count === 2 && $root === 'payouts' => Factory::response(Fixtures::payout(['id' => $id])),
+            $method === 'GET' && $count === 3 && $root === 'payouts' && $action === 'transactions' => Factory::response(Fixtures::payoutList([Fixtures::payoutTransaction()])),
+            $method === 'GET' && $count === 3 && $root === 'merchants' && $action === 'schedules' => Factory::response(Fixtures::payoutSchedule()),
+
             // Payment intents.
             $method === 'POST' && $count === 1 && $root === 'payment_intents' => Factory::response(Fixtures::paymentIntent($attributes)),
             $method === 'GET' && $count === 2 && $root === 'payment_intents' => Factory::response(Fixtures::paymentIntent(['id' => $id])),
@@ -151,16 +183,41 @@ trait FakesPaymongo
     }
 
     /**
-     * The request path relative to the base URL, split into segments.
+     * Route a faked v3 QR API request (flat bodies and objects).
+     *
+     * @param  list<string>  $segments
+     */
+    private function fakePaymongoV3Response(Request $request, string $method, array $segments): PromiseInterface
+    {
+        $count = count($segments);
+        $root = $segments[0] ?? '';
+        $id = $segments[1] ?? '';
+        $action = $segments[2] ?? '';
+
+        if ($root === 'qr') {
+            return match (true) {
+                $method === 'POST' && $count === 3 && $id === 'mpm' && $action === 'generate' => Factory::response(Fixtures::mpmQr($this->fakePaymongoFlatBody($request))),
+                $method === 'POST' && $count === 3 && $id === 'mpm' && $action === 'execute' => Factory::response(Fixtures::qrExecution($this->fakePaymongoFlatBody($request))),
+                $method === 'GET' && $count === 2 => Factory::response(Fixtures::mpmQr(['id' => $id])),
+                $method === 'POST' && $count === 3 && $action === 'expire' => Factory::response(Fixtures::mpmQr(['id' => $id])),
+                default => $this->fakePaymongoNotFound($method, $segments),
+            };
+        }
+
+        return $this->fakePaymongoNotFound($method, $segments);
+    }
+
+    /**
+     * The request path relative to the origin, split into segments.
      *
      * @return list<string>
      */
-    private function fakePaymongoSegments(string $url, string $baseUrl): array
+    private function fakePaymongoSegments(string $url, string $origin): array
     {
         $path = parse_url($url, PHP_URL_PATH);
         $path = is_string($path) ? $path : '';
 
-        $basePath = parse_url($baseUrl, PHP_URL_PATH);
+        $basePath = parse_url($origin, PHP_URL_PATH);
         $basePath = is_string($basePath) ? rtrim($basePath, '/') : '';
 
         if ($basePath !== '' && str_starts_with($path, $basePath)) {
@@ -190,6 +247,20 @@ trait FakesPaymongo
         $attributes = $data['attributes'] ?? null;
 
         return is_array($attributes) ? $attributes : [];
+    }
+
+    /**
+     * The flat JSON body of the faked request, if any (for the endpoints
+     * that skip the `data.attributes` envelope).
+     *
+     * @return array<string, mixed>
+     */
+    private function fakePaymongoFlatBody(Request $request): array
+    {
+        /** @var array<string, mixed> $body */
+        $body = $request->data();
+
+        return $body;
     }
 
     /**
