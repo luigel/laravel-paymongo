@@ -1,65 +1,70 @@
 ---
-sidebar_position: 8
+sidebar_position: 7
 slug: /links
 id: links
 ---
 
 # Links
 
-## Create Link
+A payment link is a shareable URL for a one-off payment — no code on the paying side needed.
 
-Creates a payment link. A payment link that can be used for one-time payments.
+All methods live on `Paymongo::links()` and return `Luigel\Paymongo\Data\Link` DTOs. See the [PayMongo documentation](https://developers.paymongo.com/reference/links-resource) for payload guidelines.
 
-### Payload
-
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference/links-resource) for payload guidelines.
-
-### Sample
+## Create
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$link = Paymongo::link()->create([
-    'amount' => 100.00,
-    'description' => 'Link Test',
-    'remarks' => 'laravel-paymongo'
+$link = Paymongo::links()->create([
+    'amount' => 150050, // PHP 1,500.50 in centavos
+    'description' => 'Invoice #1234',
+    'remarks' => 'laravel-paymongo',
 ]);
+
+$link->checkoutUrl;     // share this with your customer
+$link->referenceNumber; // short reference, e.g. "WTmSJbV"
 ```
 
-## Get Link
+## Retrieve
 
-Retrieve a payment link by passing the id or the reference number to the `find($id)` method.
-
-### Sample
+By id, or by the short reference number printed on the link:
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
+$link = Paymongo::links()->retrieve('link_wWaibr22CzEnficNhQNPUdoo');
 
-$link = Paymongo::link()->find('link_wWaibr22CzEnficNhQNPUdoo');
-$linkbyReference = Paymongo::link()->find('WTmSJbV');
+$link = Paymongo::links()->retrieveByReference('WTmSJbV'); // ?Link — null when nothing matches
+
+$link->status;   // ?LinkStatus (Unpaid | Paid | Archived)
+$link->payments; // list<Payment> made against the link
+$link->money()->format(); // "₱1,500.50"
 ```
 
-## Archive Link
-
-Archive a payment link by using the `find($id)` method and chaining the `->archive()` method.
-
-### Sample
+## List
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
+$page = Paymongo::links()->list(['limit' => 10]); // CursorPage<Link>
 
-$link = Paymongo::link()->find('link_wWaibr22CzEnficNhQNPUdoo')->archive();
+foreach ($page as $link) {
+    // ...
+}
+
+// Every link, all pages, lazily:
+Paymongo::links()->list()->lazy()->each(function ($link) {
+    // ...
+});
 ```
 
-## Unarchive Link
+Supported list parameters: `limit`, `before`, `after`.
 
-Unarchive a payment link by using the `find($id)` method and chaining the `->unarchive()` method.
+## Archive and unarchive
 
-### Sample
+Archived links can no longer be paid:
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$link = Paymongo::link()->find('link_wWaibr22CzEnficNhQNPUdoo')->unarchive();
+$link = Paymongo::links()->archive('link_wWaibr22CzEnficNhQNPUdoo');
+$link = Paymongo::links()->unarchive('link_wWaibr22CzEnficNhQNPUdoo');
 ```
 
+## Knowing when it was paid
+
+Listen for the `link.payment.paid` webhook event (`Luigel\Paymongo\Events\LinkPaymentPaid`) — see [Webhooks](./webhooks.md).

@@ -16,114 +16,168 @@ id: getting-started
 [![Daily Downloads](https://poser.pugx.org/luigel/laravel-paymongo/d/daily)](//packagist.org/packages/luigel/laravel-paymongo)
 [![License](https://poser.pugx.org/luigel/laravel-paymongo/license)](//packagist.org/packages/luigel/laravel-paymongo)
 
-A PHP Library for [Paymongo](https://paymongo.com).
+A Laravel client for the [PayMongo](https://paymongo.com) API — typed responses, first-class webhooks, and built-in testing fakes.
 
-This package is not affiliated with [Paymongo](https://paymongo.com). The package requires PHP 7.2+
+This package is not affiliated with PayMongo.
+
+:::info Upgrading from 2.x?
+v3 is a rewrite. Follow the [upgrade guide](https://github.com/luigel/laravel-paymongo/blob/3.x/UPGRADE.md) — it maps every v2 call to its v3 equivalent.
+:::
+
+## Requirements
+
+- PHP 8.2 or newer (Laravel 13 itself requires PHP 8.3+)
+- Laravel 11, 12, or 13
 
 ## Installation
 
-You can install the package via composer:
+Install the package via composer:
 
 ```bash
 composer require luigel/laravel-paymongo
 ```
 
-**Laravel 6 and up** uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
+The service provider and the `Paymongo` facade alias are auto-discovered.
 
-Put your `Secret Key` and `Public Key` and the `Webhook secret` in your `.env` file.
+Put your keys in `.env`. You can get them from the [PayMongo dashboard](https://dashboard.paymongo.com/developers):
 
 ```env
-# Paymongo
-PAYMONGO_SECRET_KEY=
-PAYMONGO_PUBLIC_KEY=
-# This is the secret from the webhook you created.
-PAYMONGO_WEBHOOK_SIG=
-
+PAYMONGO_SECRET_KEY=sk_test_...
+PAYMONGO_PUBLIC_KEY=pk_test_...
+# The secret_key of the webhook endpoint you registered (see the Webhooks page).
+PAYMONGO_WEBHOOK_SECRET=whsk_...
 ```
-## Compatibility and Supported Versions
-
-Laravel-Paymongo supports Laravel 6.x and up.
-
-Laravel  | Package
-:---------|:----------
-5.8.x              | 1.x
-6.x.x              | 1.x
-7.x.x              | 1.x
-8.x.x (PHP 7.4)    | 1.x
-8.x.x (PHP 8.0)    | 2.x
 
 ## Configuring the package
-You can publish the config file by running: 
+
+Publish the config file if you want to change defaults:
+
 ```bash
-php artisan vendor:publish --provider="Luigel\Paymongo\PaymongoServiceProvider" --tag=config
+php artisan vendor:publish --tag=paymongo-config
 ```
 
-This is the contents of the file that will be published at `config/paymongo.php`:
+This writes `config/paymongo.php`:
+
 ```php
 <?php
 
 return [
-
+    'secret_key' => env('PAYMONGO_SECRET_KEY'),
+    'public_key' => env('PAYMONGO_PUBLIC_KEY'),
+    'base_url' => env('PAYMONGO_BASE_URL', 'https://api.paymongo.com/v1'),
     'livemode' => env('PAYMONGO_LIVEMODE', false),
 
-    /**
-     * Public and Secret keys from Paymongo. You can get the keys here https://dashboard.paymongo.com/developers.
-     */
-
-    /**
-     * Public keys are meant to be used for any requests coming from the frontend, such as generating tokens or sources,
-     * either using Javascript or through the mobile SDKs.
-     * Public keys cannot be used to trigger payments or modify any part of the transaction flow.
-     * They have the prefix pk_live_ for live mode and pk_test_ for test mode.
-     */
-    'public_key' => env('PAYMONGO_PUBLIC_KEY', null),
-
-    /**
-     * Secret keys, on the other hand, are for triggering or modifying payments. Never share your secret keys anywhere
-     * that is publicly accessible: Github, client-side Javascript code, your website or even chat rooms.
-     * The prefixes for the secret keys are sk_live_ for live mode and sk_test_ for test mode.
-     */
-    'secret_key' => env('PAYMONGO_SECRET_KEY', null),
-
-    /**
-     * Paymongo's team continuously adding more features and integrations to the API.
-     * Currently, the API supports doing payments via debit and credit cards issued by Visa and Mastercard.
-     */
-    'version' => env('PAYMONGO_VERSION', '2019-08-05'),
-
-    /*
-     * This class is responsible for calculating the signature that will be added to
-     * the headers of the webhook request. A webhook client can use the signature
-     * to verify the request hasn't been tampered with.
-     */
-    'signer' => \Luigel\Paymongo\Signer\DefaultSigner::class,
-
-    /**
-     * Paymongo webhooks signature secret.
-     */
-    'webhook_signatures' => [
-        'payment_paid' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_PAID', env('PAYMONGO_WEBHOOK_SIG')),
-        'payment_failed' => env('PAYMONGO_WEBHOOK_SIG_PAYMENT_FAILED', env('PAYMONGO_WEBHOOK_SIG')),
-        'source_chargeable' => env('PAYMONGO_WEBHOOK_SIG_SOURCE_CHARGABLE', env('PAYMONGO_WEBHOOK_SIG')),
+    'http' => [
+        'timeout' => (int) env('PAYMONGO_TIMEOUT', 30),
+        'retries' => (int) env('PAYMONGO_RETRIES', 2),
+        'retry_delay' => (int) env('PAYMONGO_RETRY_DELAY', 200),
     ],
 
-    /**
-     * Webhook signature configuration for backwards compatibility.
-     */
-    'webhook_signature' => env('PAYMONGO_WEBHOOK_SIG'),
+    'idempotency' => [
+        'auto' => (bool) env('PAYMONGO_AUTO_IDEMPOTENCY', true),
+    ],
 
-    /*
-     * This is the name of the header where the signature will be added.
-     */
-    'signature_header_name' => env('PAYMONGO_SIG_HEADER', 'paymongo-signature'),
-
-    /**
-     * This is the amount type to automatically convert the amount in your payload.
-     * The default is Paymongo::AMOUNT_TYPE_FLOAT.
-     *
-     * Choices are: Paymongo::AMOUNT_TYPE_FLOAT, or Paymongo::AMOUNT_TYPE_INT
-     */
-    'amount_type' => \Luigel\Paymongo\Paymongo::AMOUNT_TYPE_FLOAT,
+    'webhooks' => [
+        // Default signing secret (webhook endpoint's secret_key from PayMongo).
+        'secret' => env('PAYMONGO_WEBHOOK_SECRET'),
+        // Named secrets for multiple endpoints: ['orders' => env(...)]
+        'secrets' => [],
+        // Max allowed clock drift for the signature timestamp, seconds. 0 disables the check.
+        'tolerance' => (int) env('PAYMONGO_WEBHOOK_TOLERANCE', 300),
+        'dedupe' => [
+            'enabled' => (bool) env('PAYMONGO_WEBHOOK_DEDUPE', true),
+            'ttl' => 86400,
+            'store' => env('PAYMONGO_WEBHOOK_DEDUPE_STORE'),
+        ],
+    ],
 ];
-
 ```
+
+## A first payment
+
+```php
+use Luigel\Paymongo\Enums\PaymentIntentStatus;
+use Luigel\Paymongo\Facades\Paymongo;
+
+// Amounts are integer centavos: 150050 = PHP 1,500.50
+$intent = Paymongo::paymentIntents()->create([
+    'amount' => 150050,
+    'currency' => 'PHP',
+    'payment_method_allowed' => ['card', 'gcash'],
+    'description' => 'Order #1234',
+]);
+
+$method = Paymongo::paymentMethods()->create([
+    'type' => 'card',
+    'details' => [
+        'card_number' => '4343434343434345',
+        'exp_month' => 12,
+        'exp_year' => 34,
+        'cvc' => '123',
+    ],
+]);
+
+$intent = Paymongo::paymentIntents()->attach($intent->id, $method->id);
+
+if ($intent->status === PaymentIntentStatus::Succeeded) {
+    $intent->money()->format(); // "₱1,500.50"
+}
+```
+
+See [Payment Intents](./Usage/payment-intents.md) for the full lifecycle including e-wallet redirects.
+
+## Amounts are centavos
+
+Every amount this package sends or returns is an **integer number of centavos** (`150050`, never `1500.50`), exactly as the PayMongo API expects. For display, amount-bearing resources expose `money()`, returning a `Luigel\Paymongo\Support\Money` value object:
+
+```php
+$intent->money()->format();    // "₱1,500.50"
+$intent->money()->toDecimal(); // "1500.50"
+$intent->money()->centavos();  // 150050
+```
+
+## Reading responses
+
+Services return immutable DTOs from `Luigel\Paymongo\Data` with typed readonly properties. Enum-valued fields use native enums from `Luigel\Paymongo\Enums` (unknown future API values map to `null`; the raw string stays available). The raw payload is always reachable:
+
+```php
+$intent->status;            // ?PaymentIntentStatus (enum)
+$intent->attributes;        // full raw attributes array
+$intent->attribute('payment_method_options.card.request_three_d_secure');
+$intent->toArray();         // ['id' => ..., 'type' => ..., 'attributes' => [...]]
+$intent->createdAt();       // ?CarbonImmutable
+```
+
+## Handling errors
+
+Failed API calls throw subclasses of `Luigel\Paymongo\Exceptions\PaymongoException`:
+
+```php
+use Luigel\Paymongo\Exceptions\InvalidRequestException;
+
+try {
+    Paymongo::paymentIntents()->create(['amount' => 50]);
+} catch (InvalidRequestException $e) {
+    $e->status;               // 400
+    $e->firstError()?->code;  // PayMongo error code
+    $e->firstError()?->detail;
+}
+```
+
+The full tree: `AuthenticationException` (401), `PaymentDeclinedException` (402), `ResourceNotFoundException` (404), `RateLimitException` (429, with `->retryAfter`), `ServerException` (5xx), `InvalidRequestException` (other 4xx), `ConnectionException` (network), and `InvalidWebhookSignatureException` (inbound webhooks).
+
+## Multiple accounts
+
+```php
+$merchant = Paymongo::withSecretKey($tenant->paymongo_secret_key);
+
+$merchant->paymentIntents()->create([...]);
+```
+
+## Compatibility and supported versions
+
+| Package | Laravel | PHP | Status |
+|:--------|:--------|:----|:-------|
+| 3.x | 11.x – 13.x | 8.2+ (8.3+ for Laravel 13) | Active |
+| 2.x | 8.x – 13.x | 8.0+ | Maintenance only |
+| 1.x | 5.8 – 8.x | 7.2+ | End of life |

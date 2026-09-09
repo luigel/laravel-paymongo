@@ -1,41 +1,48 @@
 ---
-sidebar_position: 3
+sidebar_position: 11
 slug: /sources
 id: sources
 ---
 
-# Sources
+# Sources (deprecated)
 
-## Create Source
+:::caution Deprecated
+The PayMongo **Sources API is deprecated**. For GCash, GrabPay, and other e-wallets, use [payment intents](./payment-intents.md) with an e-wallet payment method and a `return_url` — the redirect happens through `$intent->nextAction->url` and the payment is created automatically on authorization.
 
-Creates a source to let the user pay using their [Gcash Accounts](https://www.gcash.com) or [Grab Pay Accounts](https://www.grab.com/ph/pay/).
+`Paymongo::sources()` remains for existing integrations only.
+:::
 
-### Payload
+## Create
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference/the-sources-object) for payload guidelines.
-
-### Sample
+Amounts are integer centavos. `type` is `gcash` or `grab_pay`; both redirect URLs are required:
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$gcashSource = Paymongo::source()->create([
+$source = Paymongo::sources()->create([
     'type' => 'gcash',
-    'amount' => 100.00,
+    'amount' => 150050,
     'currency' => 'PHP',
     'redirect' => [
-        'success' => 'https://your-domain.com/success',
-        'failed' => 'https://your-domain.com/failed'
-    ]
+        'success' => 'https://example.com/payments/success',
+        'failed' => 'https://example.com/payments/failed',
+    ],
 ]);
 
-$grabCarSource = Paymongo::source()->create([
-    'type' => 'grab_pay',
-    'amount' => 100.00,
-    'currency' => 'PHP',
-    'redirect' => [
-        'success' => 'https://your-domain.com/success',
-        'failed' => 'https://your-domain.com/failed'
-    ]
-]);
+return redirect()->away($source->redirect->checkoutUrl);
 ```
+
+## Retrieve
+
+```php
+$source = Paymongo::sources()->retrieve('src_hsJNpsRFU1LxgVbxW4YJHRs6');
+
+$source->sourceType;         // ?PaymentMethodType — gcash or grab_pay
+$source->status;             // "pending" | "chargeable" | "consumed" | ...
+$source->redirect?->success;
+$source->money()->format();  // "₱1,500.50"
+```
+
+## The legacy flow
+
+A chargeable source still needs a payment created against it. Listen for the `source.chargeable` webhook (`Luigel\Paymongo\Events\SourceChargeable`) — but note that v3 provides no `payments()->create()`; completing this legacy flow requires a raw API call. That is intentional: migrate to the [payment intent workflow](./payment-intents.md) instead, where PayMongo creates the payment for you.

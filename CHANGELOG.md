@@ -2,6 +2,43 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
+## 3.0.0-dev (unreleased)
+
+Complete rewrite. See [UPGRADE.md](UPGRADE.md) for the full v2 to v3 migration guide.
+
+### Added
+- Per-resource services on the `Paymongo` facade (`paymentIntents()`, `paymentMethods()`, `payments()`, `refunds()`, `webhooks()`, `checkoutSessions()`, `links()`, `customers()`, `plans()`, `subscriptions()`, deprecated `sources()`) returning typed, immutable DTOs with enum-typed fields.
+- Subscriptions support: plans CRUD plus subscription create, list, cancel, change plan, change payment method, and test-cycle trigger.
+- Payment intent `capture()` (full and partial) and `retrieveUsingClientKey()` (public-key retrieval).
+- Cursor pagination for list endpoints: `CursorPage` with `nextPage()`, `lazy()`, iteration, and counting.
+- `Money` value object for integer-centavo amounts (`toDecimal()`, `format()`, arithmetic) and a `money()` helper on amount-bearing resources.
+- Exception tree rooted at `PaymongoException` (`AuthenticationException`, `PaymentDeclinedException`, `ResourceNotFoundException`, `RateLimitException` with `retryAfter`, `ServerException`, `InvalidRequestException`, `ConnectionException`, `InvalidWebhookSignatureException`) carrying parsed `ApiError`s.
+- Automatic `Idempotency-Key` on POST requests and automatic retries (429/5xx/connection errors) for idempotent requests; configurable via `paymongo.http.*` and `paymongo.idempotency.*`.
+- First-class inbound webhooks: `Route::paymongoWebhooks()` macro, `paymongo.signature` middleware verifying the `Paymongo-Signature` header (with timestamp tolerance), cache-based event deduplication, and dispatched Laravel events — generic `WebhookReceived` plus 17 typed event classes.
+- Multi-account support via `Paymongo::withSecretKey()`.
+- Testing utilities: `Paymongo::fake()`, `Paymongo::assertSent()`, `Paymongo::assertNothingSent()`, and `Luigel\Paymongo\Testing\Fixtures` factories for every resource; interoperable with plain `Http::fake()`.
+- Artisan commands `paymongo:webhook:create`, `paymongo:webhook:list`, `paymongo:webhook:toggle`.
+- Opt-in contract test suite against the real test-mode API (`PAYMONGO_CONTRACT_TESTS=1`).
+
+### Changed
+- Amounts are now integer centavos everywhere (v2 auto-converted float pesos; `amount_type` removed).
+- Facade calls moved from fluent modules (`Paymongo::paymentIntent()->create()`) to services (`Paymongo::paymentIntents()->create()`); `find()` became `retrieve()`, `all()` became `list()`.
+- Responses expose typed readonly properties instead of magic getters (`getStatus()` is now `->status`, an enum).
+- Config file source moved from `config/config.php` to `config/paymongo.php` (publish tag `paymongo-config`) with a new shape: `base_url`, `http.*`, `idempotency.*`, and per-endpoint `webhooks.secret`/`webhooks.secrets` replacing per-event `webhook_signatures`.
+- Webhook middleware parameter now names an endpoint secret (`paymongo.signature:orders`) instead of an event.
+- HTTP is sent through Laravel's HTTP client (fakeable) instead of raw Guzzle.
+- Requires PHP 8.2+ and Laravel 11–13.
+
+### Removed
+- Tokens API (`Paymongo::token()`), removed upstream by PayMongo.
+- Magic getters (`getData()`, `get*()`), `BaseModel`, model-side actions (`$intent->cancel()`, `$link->archive()`, ...).
+- `Paymongo::payment()->create()` — payments are created by attaching payment intents.
+- v2 exceptions (`BadRequestException`, `UnauthorizedException`, `NotFoundException`, `PaymentErrorException`, `MethodNotFoundException`, `AmountTypeNotSupportedException`).
+- Config keys `amount_type`, `version`, `signer`, `signature_header_name`, `webhook_signature(s)`.
+
+### Security
+- Removed the real test-mode API key that was committed to the repository; the test suite now runs fully faked with placeholder keys and `Http::preventStrayRequests()`, so no credentials live in the codebase.
+
 ## 2.4.0 (2023-04-30)
 
 ### Added

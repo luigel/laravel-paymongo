@@ -1,85 +1,71 @@
 ---
-sidebar_position: 7
+sidebar_position: 5
 slug: /customers
 id: customers
 ---
 
 # Customers
 
-## Create Customer
+A customer holds contact details and vaulted payment methods, and is required for [subscriptions](./subscriptions.md).
 
-Creates a customer record that holds billing information and is useful for card vaulting purposes.
+All methods live on `Paymongo::customers()` and return `Luigel\Paymongo\Data\Customer` DTOs. See the [PayMongo documentation](https://developers.paymongo.com/reference/customer-resource) for payload guidelines.
 
-### Payload
-
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference/customer-resource) for payload guidelines.
-
-### Sample
+## Create
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$customer = Paymongo::customer()->create([
+$customer = Paymongo::customers()->create([
     'first_name' => 'Juan',
-    'last_name' => 'Doe',
-    'phone' => '+639123456789',
-    'email' => 'customer@email.com',
-    'default_device' => 'phone'
+    'last_name' => 'dela Cruz',
+    'phone' => '+639171234567',
+    'email' => 'juan@example.com',
+    'default_device' => 'phone', // or 'email' (enum Luigel\Paymongo\Enums\DefaultDevice)
+]);
+
+$customer->id; // "cus_b9ENKVqcHBfQQmv26uDYDCsD"
+```
+
+## Retrieve
+
+```php
+$customer = Paymongo::customers()->retrieve('cus_b9ENKVqcHBfQQmv26uDYDCsD');
+
+$customer->firstName;
+$customer->email;
+$customer->defaultDevice;          // ?DefaultDevice
+$customer->defaultPaymentMethodId; // "pm_..." when one is set
+```
+
+## Update
+
+```php
+$customer = Paymongo::customers()->update('cus_b9ENKVqcHBfQQmv26uDYDCsD', [
+    'first_name' => 'Jane',
 ]);
 ```
 
-## Get Customer
-
-Retrieve a customer by passing the customer id to the `find($id)` method.
-
-### Sample
+## Delete
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$customer = Paymongo::customer()->find('cus_b9ENKVqcHBfQQmv26uDYDCsD');
+Paymongo::customers()->delete('cus_b9ENKVqcHBfQQmv26uDYDCsD'); // returns true; throws on failure
 ```
 
-## Edit Customer
+## Saved payment methods
 
-Edit a customer by using the `find($id)` method and chaining the `->update()` method. Or by chaning `->update()` to your existing instance.
-
-### Sample
+List the payment methods vaulted against a customer — returned as `Luigel\Paymongo\Data\CustomerPaymentMethod` (resource type `customer_payment_method`):
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
+$saved = Paymongo::customers()->paymentMethods('cus_b9ENKVqcHBfQQmv26uDYDCsD');
 
-$customer = Paymongo::customer()
-                    ->find('cus_b9ENKVqcHBfQQmv26uDYDCsD')
-                    ->update([
-                        'first_name' => 'Jane'
-                    ]);
+foreach ($saved as $item) {
+    $item->paymentMethodId;   // the underlying "pm_..." id
+    $item->paymentMethodType; // "card", "gcash", ...
+}
 ```
 
-## Delete Customer
-
-Delete a customer by using the `find($id)` method and chaining the `->delete()` method. Or by chaning `->delete()` to your existing instance.
-
-### Sample
+Remove one:
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$link = Paymongo::customer()
-                ->find('cus_b9ENKVqcHBfQQmv26uDYDCsD')
-                ->delete();
-```
-
-## Retrieve Customer's Payment Methods
-
-Retrieve the customer's payment methods by using the `find($id)` method and chaining the `->paymentMethods()` method. Or by chaning `->paymentMethods()` to your existing instance.
-
-### Sample
-
-```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$link = Paymongo::customer()
-                ->find('cus_b9ENKVqcHBfQQmv26uDYDCsD')
-                ->paymentMethods();
+Paymongo::customers()->deletePaymentMethod('cus_b9ENKVqcHBfQQmv26uDYDCsD', 'pm_wr98R2gwWroVxfkcNVZBuXg2');
 ```

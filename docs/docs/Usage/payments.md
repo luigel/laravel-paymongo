@@ -1,57 +1,53 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 slug: /payments
 id: payments
 ---
 
 # Payments
 
-## Create Payment
+A payment is the money movement itself. You do not create payments directly — PayMongo creates one when a [payment intent](./payment-intents.md) succeeds (or when a checkout session or link is paid). This service is read-only.
 
-Creates a payment using source.
+All methods live on `Paymongo::payments()` and return `Luigel\Paymongo\Data\Payment` DTOs.
 
-### Payload
-
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference/payment-source) for payload guidelines.
-
-### Sample
+## Retrieve
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$payment = Paymongo::payment()
-    ->create([
-        'amount' => 100.00,
-        'currency' => 'PHP',
-        'description' => 'Testing payment',
-        'statement_descriptor' => 'Test Paymongo',
-        'source' => [
-            'id' => $source->id,
-            'type' => 'source'
-        ]
-    ]);
+$payment = Paymongo::payments()->retrieve('pay_i35wBzLNdX8i9nKEPaSKWGib');
+
+$payment->amount;            // 150050 (centavos)
+$payment->money()->format(); // "₱1,500.50"
+$payment->status;            // ?PaymentStatus (Pending | Paid | Failed | Refunded | PartiallyRefunded)
+$payment->fee;               // PayMongo fee in centavos
+$payment->netAmount;         // what you receive, in centavos
+$payment->paymentIntentId;   // "pi_..."
+$payment->billing?->email;
+$payment->paidAt();          // ?CarbonImmutable
 ```
 
-## Get Payment
+## List
 
-You can retrieve a Payment by providing a payment ID. The prefix for the id is `pay_` followed by a unique hash representing the payment. Just pass the payment id to `find($paymentId)` method.
-
-### Sample
+Listing is cursor-paginated and returns a `CursorPage<Payment>`:
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
+$page = Paymongo::payments()->list(['limit' => 25]);
 
-$payment = Paymongo::payment()->find('pay_i35wBzLNdX8i9nKEPaSKWGib');
+foreach ($page as $payment) {
+    // ...
+}
+
+$page->hasMore;             // bool
+$next = $page->nextPage();  // ?CursorPage — fetched with the `after` cursor
 ```
 
-## Get All Payments
-
-Returns all the payments you previously created, with the most recent payments returned first. Currently, all payments are returned as one batch. We will be introducing pagination and limits in the next iteration of the API.
-
-### Sample
+Walk every payment across all pages lazily (one request per page):
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$payments = Paymongo::payment()->all();
+Paymongo::payments()->list()->lazy()->each(function ($payment) {
+    // ...
+});
 ```
+
+Supported list parameters: `limit`, `before`, `after`.

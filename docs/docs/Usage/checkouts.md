@@ -1,82 +1,69 @@
 ---
-sidebar_position: 10
+sidebar_position: 6
 slug: /checkout-sessions
 id: checkout-sessions
 ---
 
-# Checkouts
+# Checkout Sessions
 
-## Create Checkout
+A checkout session is a PayMongo-hosted payment page: you send line items and allowed payment method types, redirect the customer to the returned `checkoutUrl`, and PayMongo handles the rest.
 
-Creates a checkout session. A checkout session is a customizable checkout page from Paymongo.
+All methods live on `Paymongo::checkoutSessions()` and return `Luigel\Paymongo\Data\CheckoutSession` DTOs. See the [PayMongo documentation](https://developers.paymongo.com/reference/checkout-session-resource) for payload guidelines.
 
-### Payload
+## Create
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference/checkout-session-resource) for payload guidelines.
-
-### Sample
+Line item amounts are integer centavos **per unit**:
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$checkout = Paymongo::checkout()->create([
-    'cancel_url' => 'https://paymongo.rigelkentcarbonel.com/',
-    'billing' => [
-        'name' => 'Juan Doe',
-        'email' => 'juan@doe.com',
-        'phone' => '+639123456789',
-    ],
-    'description' => 'My checkout session description',
+$session = Paymongo::checkoutSessions()->create([
     'line_items' => [
         [
-            'amount' => 10000,
-            'currency' => 'PHP',
-            'description' => 'Something of a product.',
-            'images' => [
-                'https://images.unsplash.com/photo-1613243555988-441166d4d6fd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80'
-            ],
             'name' => 'A payment card',
-            'quantity' => 1
-        ]
+            'amount' => 10000,      // PHP 100.00 each
+            'currency' => 'PHP',
+            'quantity' => 2,
+            'description' => 'Something of a product.',
+            'images' => ['https://example.com/product.png'],
+        ],
     ],
-    'payment_method_types' => [
-        'atome',
-        'billease',
-        'card',
-        'dob',
-        'dob_ubp',
-        'gcash',
-        'grab_pay', 
-        'paymaya'
-    ],
-    'success_url' => 'https://paymongo.rigelkentcarbonel.com/',
-    'statement_descriptor' => 'Laravel Paymongo Library',
-    'metadata' => [
-        'Key' => 'Value'
-    ]
+    'payment_method_types' => ['card', 'gcash', 'paymaya', 'grab_pay'],
+    'success_url' => 'https://example.com/checkout/success',
+    'cancel_url' => 'https://example.com/checkout/cancel',
+    'reference_number' => 'ORDER-1234',
+    'description' => 'Order #1234',
+    'send_email_receipt' => true,
+    'show_line_items' => true,
+    'metadata' => ['order_id' => '1234'],
 ]);
+
+return redirect()->away($session->checkoutUrl);
 ```
 
-## Get Checkout
+Create accepts an optional idempotency key: `Paymongo::checkoutSessions()->create($attributes, idempotencyKey: $order->uuid)`.
 
-Retrieve a checkout session by passing the id to the `find($id)` method.
-
-### Sample
+## Retrieve
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
+$session = Paymongo::checkoutSessions()->retrieve('cs_CbFCTDfxvMFNjwjVi26Uzhtj');
 
-$checkout = Paymongo::checkout()->find('cs_CbFCTDfxvMFNjwjVi26Uzhtj');
+$session->status;         // ?CheckoutSessionStatus (Active | Expired)
+$session->checkoutUrl;
+$session->referenceNumber;
+$session->lineItems;      // list<LineItem> — each with money(), name, quantity, ...
+$session->paymentIntent;  // ?PaymentIntent created behind the session
+$session->payments;       // list<Payment> once paid
 ```
 
-## Expire Checkout
+## Expire
 
-Expire a checkout session by using the `find($id)` method and chaining the `->expire()` method.
-
-### Sample
+Expire an active session so it can no longer be paid:
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$checkout = Paymongo::checkout()->find('cs_CbFCTDfxvMFNjwjVi26Uzhtj')->expire();
+$session = Paymongo::checkoutSessions()->expire('cs_CbFCTDfxvMFNjwjVi26Uzhtj');
 ```
+
+## Knowing when it was paid
+
+Listen for the `checkout_session.payment.paid` webhook event (`Luigel\Paymongo\Events\CheckoutSessionPaymentPaid`) rather than polling — see [Webhooks](./webhooks.md).
