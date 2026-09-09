@@ -23,19 +23,17 @@ it('creates a source and maps the response onto the DTO', function () {
         ],
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/sources'
-            && $request->data() === ['data' => ['attributes' => [
-                'amount' => 150050,
-                'currency' => 'PHP',
-                'type' => 'gcash',
-                'redirect' => [
-                    'success' => 'https://example.com/payments/success',
-                    'failed' => 'https://example.com/payments/failed',
-                ],
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/sources'
+        && $request->data() === ['data' => ['attributes' => [
+            'amount' => 150050,
+            'currency' => 'PHP',
+            'type' => 'gcash',
+            'redirect' => [
+                'success' => 'https://example.com/payments/success',
+                'failed' => 'https://example.com/payments/failed',
+            ],
+        ]]]);
 
     expect($source)->toBeInstanceOf(Source::class)
         ->and($source->id)->toBe('src_hE2Fx8sBoGrVjqZQY6nDdT4c')
@@ -58,11 +56,9 @@ it('retrieves a source', function () {
 
     $source = Paymongo::sources()->retrieve('src_hE2Fx8sBoGrVjqZQY6nDdT4c');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/sources/src_hE2Fx8sBoGrVjqZQY6nDdT4c'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/sources/src_hE2Fx8sBoGrVjqZQY6nDdT4c'
+        && $request->body() === '');
 
     expect($source->id)->toBe('src_hE2Fx8sBoGrVjqZQY6nDdT4c')
         ->and($source->sourceType)->toBe(PaymentMethodType::Gcash);

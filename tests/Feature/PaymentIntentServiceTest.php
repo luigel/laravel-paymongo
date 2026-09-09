@@ -22,17 +22,15 @@ it('creates a payment intent and maps the response onto the DTO', function () {
         'capture_type' => 'automatic',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents'
-            && $request->data() === ['data' => ['attributes' => [
-                'amount' => 150050,
-                'currency' => 'PHP',
-                'payment_method_allowed' => ['card', 'gcash', 'paymaya'],
-                'capture_type' => 'automatic',
-            ]]]
-            && $request->hasHeader('Idempotency-Key');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents'
+        && $request->data() === ['data' => ['attributes' => [
+            'amount' => 150050,
+            'currency' => 'PHP',
+            'payment_method_allowed' => ['card', 'gcash', 'paymaya'],
+            'capture_type' => 'automatic',
+        ]]]
+        && $request->hasHeader('Idempotency-Key'));
 
     expect($intent)->toBeInstanceOf(PaymentIntent::class)
         ->and($intent->id)->toBe('pi_UWL2ZP2rBjMPS9UfnqAROSXg')
@@ -60,9 +58,7 @@ it('sends an explicit idempotency key when creating', function () {
 
     Paymongo::paymentIntents()->create(['amount' => 150050, 'currency' => 'PHP'], 'pi-idem-123');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->hasHeader('Idempotency-Key', 'pi-idem-123');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Idempotency-Key', 'pi-idem-123'));
 });
 
 it('retrieves a payment intent', function () {
@@ -70,11 +66,9 @@ it('retrieves a payment intent', function () {
 
     $intent = Paymongo::paymentIntents()->retrieve('pi_UWL2ZP2rBjMPS9UfnqAROSXg');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg'
+        && $request->body() === '');
 
     expect($intent->id)->toBe('pi_UWL2ZP2rBjMPS9UfnqAROSXg');
 });
@@ -85,11 +79,9 @@ it('retrieves using the client key with public-key authentication', function () 
     $clientKey = 'pi_UWL2ZP2rBjMPS9UfnqAROSXg_client_hVvMV6nHFvpaXV2EYVMTLNSZ';
     $intent = Paymongo::paymentIntents()->retrieveUsingClientKey('pi_UWL2ZP2rBjMPS9UfnqAROSXg', $clientKey);
 
-    Http::assertSent(function (Request $request) use ($clientKey): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg?client_key='.$clientKey
-            && $request->hasHeader('Authorization', 'Basic '.base64_encode('pk_test_fake:'));
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg?client_key='.$clientKey
+        && $request->hasHeader('Authorization', 'Basic '.base64_encode('pk_test_fake:')));
 
     expect($intent)->toBeInstanceOf(PaymentIntent::class);
 });
@@ -100,14 +92,12 @@ it('does not switch the manager client to the public key permanently', function 
     Paymongo::paymentIntents()->retrieveUsingClientKey('pi_UWL2ZP2rBjMPS9UfnqAROSXg', 'ck_test');
     Paymongo::paymentIntents()->retrieve('pi_UWL2ZP2rBjMPS9UfnqAROSXg');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg'
-            && $request->hasHeader('Authorization', 'Basic '.base64_encode('sk_test_fake:'));
-    });
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg'
+        && $request->hasHeader('Authorization', 'Basic '.base64_encode('sk_test_fake:')));
 });
 
 it('throws a clear authentication exception when no public key is configured', function () {
-    config()->set('paymongo.public_key', null);
+    config()->set('paymongo.public_key');
 
     try {
         Paymongo::paymentIntents()->retrieveUsingClientKey('pi_123', 'ck_test');
@@ -125,13 +115,11 @@ it('attaches a payment method with only the payment method id', function () {
 
     Paymongo::paymentIntents()->attach('pi_UWL2ZP2rBjMPS9UfnqAROSXg', 'pm_ZzVPFGwGe31eR2vDcPuS9tsA');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/attach'
-            && $request->data() === ['data' => ['attributes' => [
-                'payment_method' => 'pm_ZzVPFGwGe31eR2vDcPuS9tsA',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/attach'
+        && $request->data() === ['data' => ['attributes' => [
+            'payment_method' => 'pm_ZzVPFGwGe31eR2vDcPuS9tsA',
+        ]]]);
 });
 
 it('attaches with a return url and client key when given', function () {
@@ -144,15 +132,13 @@ it('attaches with a return url and client key when given', function () {
         'ck_test_123',
     );
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/attach'
-            && $request->data() === ['data' => ['attributes' => [
-                'payment_method' => 'pm_ZzVPFGwGe31eR2vDcPuS9tsA',
-                'return_url' => 'https://example.com/return',
-                'client_key' => 'ck_test_123',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/attach'
+        && $request->data() === ['data' => ['attributes' => [
+            'payment_method' => 'pm_ZzVPFGwGe31eR2vDcPuS9tsA',
+            'return_url' => 'https://example.com/return',
+            'client_key' => 'ck_test_123',
+        ]]]);
 });
 
 it('captures a partial amount with the amount in the body', function () {
@@ -160,11 +146,9 @@ it('captures a partial amount with the amount in the body', function () {
 
     Paymongo::paymentIntents()->capture('pi_UWL2ZP2rBjMPS9UfnqAROSXg', 5000);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/capture'
-            && $request->data() === ['data' => ['attributes' => ['amount' => 5000]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/capture'
+        && $request->data() === ['data' => ['attributes' => ['amount' => 5000]]]);
 });
 
 it('captures fully with no request body when the amount is omitted', function () {
@@ -172,11 +156,9 @@ it('captures fully with no request body when the amount is omitted', function ()
 
     Paymongo::paymentIntents()->capture('pi_UWL2ZP2rBjMPS9UfnqAROSXg');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/capture'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/capture'
+        && $request->body() === '');
 });
 
 it('cancels a payment intent with no request body', function () {
@@ -184,11 +166,9 @@ it('cancels a payment intent with no request body', function () {
 
     Paymongo::paymentIntents()->cancel('pi_UWL2ZP2rBjMPS9UfnqAROSXg');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/cancel'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/cancel'
+        && $request->body() === '');
 });
 
 it('memoizes the service on the manager and rebuilds it after withSecretKey', function () {

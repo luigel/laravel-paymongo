@@ -20,16 +20,16 @@ use Traversable;
  * @implements IteratorAggregate<int, T>
  * @implements Arrayable<int, T>
  */
-final class CursorPage implements Arrayable, Countable, IteratorAggregate
+final readonly class CursorPage implements Arrayable, Countable, IteratorAggregate
 {
     /**
      * @param  list<T>  $items
      * @param  (Closure(): self<T>)|null  $next  Resolver that fetches the next page.
      */
     public function __construct(
-        public readonly array $items,
-        public readonly bool $hasMore,
-        private readonly ?Closure $next = null,
+        public array $items,
+        public bool $hasMore,
+        private ?Closure $next = null,
     ) {}
 
     /**

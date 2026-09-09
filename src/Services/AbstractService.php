@@ -71,7 +71,7 @@ abstract class AbstractService
 
         if ($hasMore && $items !== []) {
             $after = $items[array_key_last($items)]->id;
-            $next = fn () => $this->page($class, $path, array_merge($params, ['after' => $after]), $mapQuery);
+            $next = fn (): CursorPage => $this->page($class, $path, array_merge($params, ['after' => $after]), $mapQuery);
         }
 
         return new CursorPage($items, $hasMore, $next);

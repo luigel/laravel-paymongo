@@ -25,19 +25,17 @@ it('generates an MPM QR with a flat body against the absolute v3 URL', function 
         'expiry_seconds' => 1800,
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/generate'
-            && ! array_key_exists('data', $request->data())
-            && $request->data() === [
-                'nation' => 'ph',
-                'mode' => 'p2m',
-                'type' => 'dynamic',
-                'transaction_currency' => 'PHP',
-                'transaction_amount' => 150050,
-                'expiry_seconds' => 1800,
-            ];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/generate'
+        && ! array_key_exists('data', $request->data())
+        && $request->data() === [
+            'nation' => 'ph',
+            'mode' => 'p2m',
+            'type' => 'dynamic',
+            'transaction_currency' => 'PHP',
+            'transaction_amount' => 150050,
+            'expiry_seconds' => 1800,
+        ]);
 
     expect($qr)->toBeInstanceOf(MpmQr::class)
         ->and($qr->id)->toBe('qr_2vDcPuS9tsAZzVPFGwGe31eR')
@@ -83,16 +81,14 @@ it('executes an MPM QR string with a flat body', function () {
         'reference_number' => 'QR-REF-10101',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/execute'
-            && ! array_key_exists('data', $request->data())
-            && $request->data() === [
-                'qr_string' => '00020101021228_example',
-                'amount' => 150050,
-                'reference_number' => 'QR-REF-10101',
-            ];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/execute'
+        && ! array_key_exists('data', $request->data())
+        && $request->data() === [
+            'qr_string' => '00020101021228_example',
+            'amount' => 150050,
+            'reference_number' => 'QR-REF-10101',
+        ]);
 
     expect($execution)->toBeInstanceOf(QrExecution::class)
         ->and($execution->id)->toBe('qrx_8q1M4moJnVq5cCzKFFV1yvhs')
@@ -108,11 +104,9 @@ it('retrieves a QR without query flags by default', function () {
 
     Paymongo::qrph()->retrieve('qr_2vDcPuS9tsAZzVPFGwGe31eR');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v3/qr/qr_2vDcPuS9tsAZzVPFGwGe31eR'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v3/qr/qr_2vDcPuS9tsAZzVPFGwGe31eR'
+        && $request->body() === '');
 });
 
 it('retrieves a QR with the qr_string and qr_image query flags', function () {
@@ -120,10 +114,8 @@ it('retrieves a QR with the qr_string and qr_image query flags', function () {
 
     $qr = Paymongo::qrph()->retrieve('qr_2vDcPuS9tsAZzVPFGwGe31eR', qrString: true, qrImage: true);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v3/qr/qr_2vDcPuS9tsAZzVPFGwGe31eR?qr_string=true&qr_image=true';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v3/qr/qr_2vDcPuS9tsAZzVPFGwGe31eR?qr_string=true&qr_image=true');
 
     expect($qr->id)->toBe('qr_2vDcPuS9tsAZzVPFGwGe31eR');
 });
@@ -133,11 +125,9 @@ it('expires a QR with an empty POST body', function () {
 
     $qr = Paymongo::qrph()->expire('qr_2vDcPuS9tsAZzVPFGwGe31eR');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v3/qr/qr_2vDcPuS9tsAZzVPFGwGe31eR/expire'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v3/qr/qr_2vDcPuS9tsAZzVPFGwGe31eR/expire'
+        && $request->body() === '');
 
     expect($qr->status)->toBe(QrStatus::Expired);
 });
@@ -151,15 +141,13 @@ it('generates a static QR Ph through the enveloped v1 endpoint', function () {
         'notes' => 'Counter 1',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/qrph/generate'
-            && $request->data() === ['data' => ['attributes' => [
-                'kind' => 'instore',
-                'mobile_number' => '+639171234567',
-                'notes' => 'Counter 1',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/qrph/generate'
+        && $request->data() === ['data' => ['attributes' => [
+            'kind' => 'instore',
+            'mobile_number' => '+639171234567',
+            'notes' => 'Counter 1',
+        ]]]);
 
     expect($code)->toBeInstanceOf(StaticQr::class)
         ->and($code->id)->toBe('qrph_Tn9EyxduZ9gV8WHhSGYqBihv')

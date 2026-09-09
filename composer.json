@@ -35,7 +35,10 @@
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.13",
         "orchestra/testbench": "^9.0|^10.0|^11.0",
-        "pestphp/pest": "^3.7|^4.0"
+        "pestphp/pest": "^3.7|^4.0",
+        "pestphp/pest-plugin-type-coverage": "^3.0|^4.0",
+        "phpmd/phpmd": "^2.15",
+        "rector/rector": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -48,9 +51,47 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/pest",
-        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
-        "format": "vendor/bin/pint"
+        "test": "vendor/bin/pest tests/Unit tests/Feature tests/Arch",
+        "test:unit": "vendor/bin/pest tests/Unit",
+        "test:feature": "vendor/bin/pest tests/Feature",
+        "test:arch": "vendor/bin/pest tests/Arch",
+        "test:coverage": "vendor/bin/pest tests/Unit tests/Feature tests/Arch --coverage --min=100",
+        "test:types": "php -d memory_limit=1G vendor/bin/pest --type-coverage --min=100",
+        "test:all": [
+            "@test",
+            "@test:types"
+        ],
+        "lint": [
+            "@lint:pint",
+            "@lint:phpstan",
+            "@lint:phpmd"
+        ],
+        "lint:pint": "vendor/bin/pint --test",
+        "lint:phpstan": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "lint:phpmd": "vendor/bin/phpmd src text phpmd.xml",
+        "analyse": "@lint:phpstan",
+        "format": "vendor/bin/pint",
+        "refactor": [
+            "vendor/bin/rector process",
+            "@format"
+        ],
+        "refactor:dry": "vendor/bin/rector process --dry-run",
+        "check": [
+            "@lint",
+            "@refactor:dry",
+            "@test:all"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Run the unit, feature and architecture suites",
+        "test:coverage": "Run the suites with line coverage enforced at 100% (needs pcov or xdebug)",
+        "test:types": "Enforce 100% type coverage on src",
+        "test:all": "Run the suites plus type coverage",
+        "lint": "Pint in check mode, then PHPStan (Larastan level 8), then PHPMD",
+        "format": "Fix code style with Pint",
+        "refactor": "Apply Rector's refactorings, then Pint",
+        "refactor:dry": "Show what Rector would change without writing anything",
+        "check": "Everything CI runs: lint, refactor:dry and test:all"
     },
     "config": {
         "sort-packages": true,

@@ -20,17 +20,15 @@ it('creates a customer normalizing the default device enum and maps the DTO', fu
         'default_device' => DefaultDevice::Phone,
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/customers'
-            && $request->data() === ['data' => ['attributes' => [
-                'first_name' => 'Juan',
-                'last_name' => 'dela Cruz',
-                'phone' => '+639171234567',
-                'email' => 'juan@example.com',
-                'default_device' => 'phone',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/customers'
+        && $request->data() === ['data' => ['attributes' => [
+            'first_name' => 'Juan',
+            'last_name' => 'dela Cruz',
+            'phone' => '+639171234567',
+            'email' => 'juan@example.com',
+            'default_device' => 'phone',
+        ]]]);
 
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->id)->toBe('cus_hcjuejWKpU1YZi3sBDGGpx8M')
@@ -49,11 +47,9 @@ it('retrieves a customer', function () {
 
     $customer = Paymongo::customers()->retrieve('cus_hcjuejWKpU1YZi3sBDGGpx8M');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M'
+        && $request->body() === '');
 
     expect($customer->id)->toBe('cus_hcjuejWKpU1YZi3sBDGGpx8M');
 });
@@ -66,14 +62,12 @@ it('updates a customer via PATCH with the envelope', function () {
         'email' => 'juan.delacruz@example.com',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'PATCH'
-            && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M'
-            && $request->data() === ['data' => ['attributes' => [
-                'default_device' => 'email',
-                'email' => 'juan.delacruz@example.com',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'PATCH'
+        && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M'
+        && $request->data() === ['data' => ['attributes' => [
+            'default_device' => 'email',
+            'email' => 'juan.delacruz@example.com',
+        ]]]);
 
     expect($customer)->toBeInstanceOf(Customer::class);
 });
@@ -83,11 +77,9 @@ it('deletes a customer and returns true', function () {
 
     $deleted = Paymongo::customers()->delete('cus_hcjuejWKpU1YZi3sBDGGpx8M');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'DELETE'
-            && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'DELETE'
+        && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M'
+        && $request->body() === '');
 
     expect($deleted)->toBeTrue();
 });
@@ -97,11 +89,9 @@ it('lists the payment methods of a customer as DTOs', function () {
 
     $paymentMethods = Paymongo::customers()->paymentMethods('cus_hcjuejWKpU1YZi3sBDGGpx8M');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M/payment_methods'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M/payment_methods'
+        && $request->body() === '');
 
     expect($paymentMethods)->toBeArray()
         ->and($paymentMethods)->toHaveCount(2)
@@ -128,11 +118,9 @@ it('deletes a customer payment method and returns true', function () {
 
     $deleted = Paymongo::customers()->deletePaymentMethod('cus_hcjuejWKpU1YZi3sBDGGpx8M', 'pm_ZzVPFGwGe31eR2vDcPuS9tsA');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'DELETE'
-            && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M/payment_methods/pm_ZzVPFGwGe31eR2vDcPuS9tsA'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'DELETE'
+        && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M/payment_methods/pm_ZzVPFGwGe31eR2vDcPuS9tsA'
+        && $request->body() === '');
 
     expect($deleted)->toBeTrue();
 });

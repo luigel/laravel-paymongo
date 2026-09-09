@@ -68,11 +68,9 @@ it('records requests for assertSent', function () {
 
     Paymongo::paymentIntents()->create(['amount' => 10000, 'currency' => 'PHP']);
 
-    Paymongo::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents'
-            && $request->data() === ['data' => ['attributes' => ['amount' => 10000, 'currency' => 'PHP']]];
-    });
+    Paymongo::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents'
+        && $request->data() === ['data' => ['attributes' => ['amount' => 10000, 'currency' => 'PHP']]]);
 });
 
 it('passes assertNothingSent when no request was made', function () {
@@ -162,10 +160,8 @@ it('answers the subscription test cycle endpoint with an empty body', function (
 
     Paymongo::subscriptions()->triggerTestCycle('sub_fake_123');
 
-    Paymongo::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_fake_123/test_cycle';
-    });
+    Paymongo::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_fake_123/test_cycle');
 });
 
 it('throws a resource not found error for unrouted paths under the base url', function () {
@@ -199,11 +195,9 @@ it('fakes MPM QR generation and execution with flat echoes', function () {
         ->and($execution->amount)->toBe(7500)
         ->and($execution->referenceNumber)->toBe('QR-FAKE-1');
 
-    Paymongo::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/generate'
-            && ! array_key_exists('data', $request->data());
-    });
+    Paymongo::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/generate'
+        && ! array_key_exists('data', $request->data()));
 });
 
 it('routes v3 QR retrieval and expiry through the origin catch-all', function () {

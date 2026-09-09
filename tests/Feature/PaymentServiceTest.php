@@ -28,11 +28,9 @@ it('retrieves a payment and maps the response onto the DTO', function () {
 
     $payment = Paymongo::payments()->retrieve('pay_hvTn9EyxduZ9gV8WHhSGYqBi');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payments/pay_hvTn9EyxduZ9gV8WHhSGYqBi'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payments/pay_hvTn9EyxduZ9gV8WHhSGYqBi'
+        && $request->body() === '');
 
     expect($payment)->toBeInstanceOf(Payment::class)
         ->and($payment->id)->toBe('pay_hvTn9EyxduZ9gV8WHhSGYqBi')
@@ -56,11 +54,9 @@ it('lists payments passing the query parameters through', function () {
 
     $page = Paymongo::payments()->list(['limit' => 10, 'before' => 'pay_zzz']);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payments?limit=10&before=pay_zzz'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payments?limit=10&before=pay_zzz'
+        && $request->body() === '');
 
     expect($page)->toBeInstanceOf(CursorPage::class)
         ->and($page)->toHaveCount(2)
@@ -83,13 +79,9 @@ it('propagates the after cursor from the last item when fetching the next page',
 
     $next = $page->nextPage();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->url() === 'https://api.paymongo.com/v1/payments?limit=2';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.paymongo.com/v1/payments?limit=2');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->url() === 'https://api.paymongo.com/v1/payments?limit=2&after=pay_Mw7qLcJk2ZtR5yXbA8sVdN3e';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.paymongo.com/v1/payments?limit=2&after=pay_Mw7qLcJk2ZtR5yXbA8sVdN3e');
 
     Http::assertSentCount(2);
 

@@ -34,15 +34,13 @@ it('creates a link and maps the response onto the DTO', function () {
         'remarks' => 'Facebook order',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/links'
-            && $request->data() === ['data' => ['attributes' => [
-                'amount' => 150050,
-                'description' => 'Payment for Order #10101',
-                'remarks' => 'Facebook order',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/links'
+        && $request->data() === ['data' => ['attributes' => [
+            'amount' => 150050,
+            'description' => 'Payment for Order #10101',
+            'remarks' => 'Facebook order',
+        ]]]);
 
     expect($link)->toBeInstanceOf(Link::class)
         ->and($link->id)->toBe('link_NYWZmp6b6emCHo9uWmrBiJTx')
@@ -66,11 +64,9 @@ it('retrieves a link', function () {
 
     $link = Paymongo::links()->retrieve('link_NYWZmp6b6emCHo9uWmrBiJTx');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/links/link_NYWZmp6b6emCHo9uWmrBiJTx'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/links/link_NYWZmp6b6emCHo9uWmrBiJTx'
+        && $request->body() === '');
 
     expect($link->id)->toBe('link_NYWZmp6b6emCHo9uWmrBiJTx');
 });
@@ -80,11 +76,9 @@ it('retrieves a link by reference number returning the first match', function ()
 
     $link = Paymongo::links()->retrieveByReference('JCUV9NF');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/links?reference_number=JCUV9NF'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/links?reference_number=JCUV9NF'
+        && $request->body() === '');
 
     expect($link)->toBeInstanceOf(Link::class)
         ->and($link?->id)->toBe('link_NYWZmp6b6emCHo9uWmrBiJTx')
@@ -96,9 +90,7 @@ it('returns null when no link matches the reference number', function () {
 
     $link = Paymongo::links()->retrieveByReference('MISSING1');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->url() === 'https://api.paymongo.com/v1/links?reference_number=MISSING1';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.paymongo.com/v1/links?reference_number=MISSING1');
 
     expect($link)->toBeNull();
 });
@@ -108,11 +100,9 @@ it('lists links and unwraps each payment from its data envelope', function () {
 
     $page = Paymongo::links()->list(['limit' => 10]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/links?limit=10'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/links?limit=10'
+        && $request->body() === '');
 
     expect($page)->toBeInstanceOf(CursorPage::class)
         ->and($page)->toHaveCount(2)
@@ -136,13 +126,9 @@ it('propagates the after cursor from the last link when fetching the next page',
 
     $next = $page->nextPage();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->url() === 'https://api.paymongo.com/v1/links?limit=2';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.paymongo.com/v1/links?limit=2');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->url() === 'https://api.paymongo.com/v1/links?limit=2&after=link_Xp4vTn8RkQw2ZyBmCsDe6Fgh';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.paymongo.com/v1/links?limit=2&after=link_Xp4vTn8RkQw2ZyBmCsDe6Fgh');
 
     Http::assertSentCount(2);
 
@@ -162,11 +148,9 @@ it('archives a link with an empty POST body', function () {
 
     $link = Paymongo::links()->archive('link_NYWZmp6b6emCHo9uWmrBiJTx');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/links/link_NYWZmp6b6emCHo9uWmrBiJTx/archive'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/links/link_NYWZmp6b6emCHo9uWmrBiJTx/archive'
+        && $request->body() === '');
 
     expect($link->archived)->toBeTrue()
         ->and($link->status)->toBe(LinkStatus::Archived);
@@ -177,11 +161,9 @@ it('unarchives a link with an empty POST body', function () {
 
     $link = Paymongo::links()->unarchive('link_NYWZmp6b6emCHo9uWmrBiJTx');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/links/link_NYWZmp6b6emCHo9uWmrBiJTx/unarchive'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/links/link_NYWZmp6b6emCHo9uWmrBiJTx/unarchive'
+        && $request->body() === '');
 
     expect($link->archived)->toBeFalse();
 });

@@ -9,12 +9,14 @@
         <testsuite name="default">
             <directory>tests/Unit</directory>
             <directory>tests/Feature</directory>
+            <directory>tests/Arch</directory>
         </testsuite>
         <!-- Real-API smoke tests; run explicitly via the contract testsuite. See tests/Contract/README.md. -->
         <testsuite name="contract">
             <directory>tests/Contract</directory>
         </testsuite>
     </testsuites>
+    <!-- Coverage is limited to src/: tests/, docs/ and the local e2e sandbox are never measured. -->
     <source>
         <include>
             <directory>src</directory>

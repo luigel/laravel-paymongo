@@ -32,15 +32,13 @@ it('creates a subscription from a customer and plan id and maps the DTO', functi
 
     $subscription = Paymongo::subscriptions()->create('cus_hcjuejWKpU1YZi3sBDGGpx8M', 'plan_Ho5Fp9vJkTqW2xYzB3cD4eFg');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions'
-            && $request->data() === ['data' => ['attributes' => [
-                'customer_id' => 'cus_hcjuejWKpU1YZi3sBDGGpx8M',
-                'plan_id' => 'plan_Ho5Fp9vJkTqW2xYzB3cD4eFg',
-            ]]]
-            && $request->hasHeader('Idempotency-Key');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions'
+        && $request->data() === ['data' => ['attributes' => [
+            'customer_id' => 'cus_hcjuejWKpU1YZi3sBDGGpx8M',
+            'plan_id' => 'plan_Ho5Fp9vJkTqW2xYzB3cD4eFg',
+        ]]]
+        && $request->hasHeader('Idempotency-Key'));
 
     expect($subscription)->toBeInstanceOf(Subscription::class)
         ->and($subscription->id)->toBe('sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh')
@@ -77,11 +75,9 @@ it('retrieves a subscription', function () {
 
     $subscription = Paymongo::subscriptions()->retrieve('sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh'
+        && $request->body() === '');
 
     expect($subscription->id)->toBe('sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh');
 });
@@ -94,11 +90,9 @@ it('lists subscriptions passing the query parameters through', function () {
 
     $page = Paymongo::subscriptions()->list(['limit' => 5, 'before' => 'sub_zzz']);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions?limit=5&before=sub_zzz'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions?limit=5&before=sub_zzz'
+        && $request->body() === '');
 
     expect($page)->toBeInstanceOf(CursorPage::class)
         ->and($page)->toHaveCount(1)
@@ -112,13 +106,11 @@ it('cancels a subscription with an enum reason and maps the cancelled state', fu
 
     $subscription = Paymongo::subscriptions()->cancel('sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh', CancellationReason::Unused);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/cancel'
-            && $request->data() === ['data' => ['attributes' => [
-                'cancellation_reason' => 'unused',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/cancel'
+        && $request->data() === ['data' => ['attributes' => [
+            'cancellation_reason' => 'unused',
+        ]]]);
 
     expect($subscription->status)->toBe(SubscriptionStatus::Cancelled)
         ->and($subscription->cancellationReason)->toBe(CancellationReason::Unused)
@@ -130,13 +122,11 @@ it('cancels a subscription with a plain string reason', function () {
 
     Paymongo::subscriptions()->cancel('sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh', 'too_expensive');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/cancel'
-            && $request->data() === ['data' => ['attributes' => [
-                'cancellation_reason' => 'too_expensive',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/cancel'
+        && $request->data() === ['data' => ['attributes' => [
+            'cancellation_reason' => 'too_expensive',
+        ]]]);
 });
 
 it('changes the plan via PUT with the plan id in the body', function () {
@@ -144,13 +134,11 @@ it('changes the plan via PUT with the plan id in the body', function () {
 
     $subscription = Paymongo::subscriptions()->changePlan('sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh', 'plan_Yr8SnWq3ZuTxC5vD7sE2fGh6');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'PUT'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/plan'
-            && $request->data() === ['data' => ['attributes' => [
-                'plan_id' => 'plan_Yr8SnWq3ZuTxC5vD7sE2fGh6',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'PUT'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/plan'
+        && $request->data() === ['data' => ['attributes' => [
+            'plan_id' => 'plan_Yr8SnWq3ZuTxC5vD7sE2fGh6',
+        ]]]);
 
     expect($subscription)->toBeInstanceOf(Subscription::class);
 });
@@ -160,13 +148,11 @@ it('changes the payment method via PUT with only the payment method id', functio
 
     Paymongo::subscriptions()->changePaymentMethod('sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh', 'pm_Bq6TnVr9ZuWxC3yD7sE2fGh5');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'PUT'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/payment_method'
-            && $request->data() === ['data' => ['attributes' => [
-                'payment_method_id' => 'pm_Bq6TnVr9ZuWxC3yD7sE2fGh5',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'PUT'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/payment_method'
+        && $request->data() === ['data' => ['attributes' => [
+            'payment_method_id' => 'pm_Bq6TnVr9ZuWxC3yD7sE2fGh5',
+        ]]]);
 });
 
 it('changes the payment method including the redirect url when given', function () {
@@ -178,14 +164,12 @@ it('changes the payment method including the redirect url when given', function 
         'https://example.com/billing',
     );
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'PUT'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/payment_method'
-            && $request->data() === ['data' => ['attributes' => [
-                'payment_method_id' => 'pm_Bq6TnVr9ZuWxC3yD7sE2fGh5',
-                'redirect_url' => 'https://example.com/billing',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'PUT'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/payment_method'
+        && $request->data() === ['data' => ['attributes' => [
+            'payment_method_id' => 'pm_Bq6TnVr9ZuWxC3yD7sE2fGh5',
+            'redirect_url' => 'https://example.com/billing',
+        ]]]);
 });
 
 it('triggers a test cycle with an empty POST body and returns nothing', function () {
@@ -193,11 +177,9 @@ it('triggers a test cycle with an empty POST body and returns nothing', function
 
     Paymongo::subscriptions()->triggerTestCycle('sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/test_cycle'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/test_cycle'
+        && $request->body() === '');
 
     Http::assertSentCount(1);
 

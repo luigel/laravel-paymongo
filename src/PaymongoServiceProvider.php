@@ -6,7 +6,6 @@ namespace Luigel\Paymongo;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
@@ -39,11 +38,13 @@ final class PaymongoServiceProvider extends ServiceProvider
     {
         $this->app->make(Router::class)->aliasMiddleware('paymongo.signature', VerifyWebhookSignature::class);
 
-        Router::macro('paymongoWebhooks', function (string $uri = 'paymongo/webhook', ?string $secret = null): Route {
+        $csrfMiddleware = self::csrfMiddleware();
+
+        Router::macro('paymongoWebhooks', function (string $uri = 'paymongo/webhook', ?string $secret = null) use ($csrfMiddleware): Route {
             /** @var Router $this */
             return $this->post($uri, WebhookController::class)
                 ->middleware($secret === null ? 'paymongo.signature' : "paymongo.signature:{$secret}")
-                ->withoutMiddleware([ValidateCsrfToken::class])
+                ->withoutMiddleware($csrfMiddleware)
                 ->name('paymongo.webhooks');
         });
 

@@ -13,12 +13,12 @@ use Luigel\Paymongo\Exceptions\InvalidWebhookSignatureException;
  * webhook endpoint's secret key; `te` carries the test-mode signature and
  * `li` the live-mode one.
  */
-final class SignatureVerifier
+final readonly class SignatureVerifier
 {
     /**
      * @param  int  $tolerance  Max allowed clock drift for `t`, in seconds. 0 disables the check.
      */
-    public function __construct(private readonly int $tolerance = 300) {}
+    public function __construct(private int $tolerance = 300) {}
 
     /**
      * @throws InvalidWebhookSignatureException

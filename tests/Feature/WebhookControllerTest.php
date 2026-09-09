@@ -22,15 +22,11 @@ it('dispatches the generic event and the mapped typed event', function () {
         ->assertOk()
         ->assertExactJson(['received' => true]);
 
-    Event::assertDispatched(WebhookReceived::class, function (WebhookReceived $event): bool {
-        return $event->event->id === 'evt_Jk8VbF2c9sQmXhT4wLpNyRd6'
-            && $event->event->type === 'payment.paid';
-    });
+    Event::assertDispatched(WebhookReceived::class, fn (WebhookReceived $event): bool => $event->event->id === 'evt_Jk8VbF2c9sQmXhT4wLpNyRd6'
+        && $event->event->type === 'payment.paid');
 
-    Event::assertDispatched(PaymentPaid::class, function (PaymentPaid $event): bool {
-        return $event->event->resourceId() === 'pay_hvTn9EyxduZ9gV8WHhSGYqBi'
-            && $event->event->resourceAttribute('amount') === 150050;
-    });
+    Event::assertDispatched(PaymentPaid::class, fn (PaymentPaid $event): bool => $event->event->resourceId() === 'pay_hvTn9EyxduZ9gV8WHhSGYqBi'
+        && $event->event->resourceAttribute('amount') === 150050);
 });
 
 it('dispatches only the generic event for unknown event types', function () {

@@ -17,14 +17,12 @@ it('creates a webhook normalizing enum events and maps the DTO', function () {
         WebhookEventType::PaymentFailed,
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks'
-            && $request->data() === ['data' => ['attributes' => [
-                'url' => 'https://example.com/paymongo/webhook',
-                'events' => ['payment.paid', 'payment.failed'],
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks'
+        && $request->data() === ['data' => ['attributes' => [
+            'url' => 'https://example.com/paymongo/webhook',
+            'events' => ['payment.paid', 'payment.failed'],
+        ]]]);
 
     expect($webhook)->toBeInstanceOf(Webhook::class)
         ->and($webhook->id)->toBe('hook_Vq5cCzKFFV1yvhs8q1M4moJn')
@@ -46,11 +44,9 @@ it('lists webhooks as an array of DTOs', function () {
 
     $webhooks = Paymongo::webhooks()->list();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks'
+        && $request->body() === '');
 
     expect($webhooks)->toBeArray()
         ->and($webhooks)->toHaveCount(2)
@@ -65,11 +61,9 @@ it('retrieves a webhook', function () {
 
     $webhook = Paymongo::webhooks()->retrieve('hook_Vq5cCzKFFV1yvhs8q1M4moJn');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn'
+        && $request->body() === '');
 
     expect($webhook->id)->toBe('hook_Vq5cCzKFFV1yvhs8q1M4moJn');
 });
@@ -82,14 +76,12 @@ it('updates a webhook via PUT with the envelope', function () {
         'events' => ['payment.paid'],
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'PUT'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn'
-            && $request->data() === ['data' => ['attributes' => [
-                'url' => 'https://example.com/new-hook',
-                'events' => ['payment.paid'],
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'PUT'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn'
+        && $request->data() === ['data' => ['attributes' => [
+            'url' => 'https://example.com/new-hook',
+            'events' => ['payment.paid'],
+        ]]]);
 });
 
 it('enables a webhook with an empty POST body', function () {
@@ -97,11 +89,9 @@ it('enables a webhook with an empty POST body', function () {
 
     Paymongo::webhooks()->enable('hook_Vq5cCzKFFV1yvhs8q1M4moJn');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn/enable'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn/enable'
+        && $request->body() === '');
 });
 
 it('disables a webhook with an empty POST body', function () {
@@ -109,9 +99,7 @@ it('disables a webhook with an empty POST body', function () {
 
     Paymongo::webhooks()->disable('hook_Vq5cCzKFFV1yvhs8q1M4moJn');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn/disable'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn/disable'
+        && $request->body() === '');
 });
