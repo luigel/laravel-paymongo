@@ -1,0 +1,360 @@
+#!/usr/bin/env bash
+#
+# Build the end-to-end sandbox: a real Laravel app that installs this package
+# from a composer path repository, runs under Docker, and is reachable from the
+# public internet through a tunnel so PayMongo can deliver real webhooks.
+#
+# Safe to re-run: the app is only scaffolded once, everything else is patched
+# in place.
+set -euo pipefail
+
+E2E_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+COMPOSE_FILE="$E2E_DIR/docker-compose.yml"
+WEBHOOK_ID_FILE="$E2E_DIR/.webhook_id"
+WEBHOOK_PATH="paymongo/webhook"
+WEBHOOK_EVENTS=(payment.paid payment.failed payment.refunded)
+
+NO_TUNNEL=0
+
+red() { printf '\033[0;31m%s\033[0m\n' "$*"; }
+info() { printf '\033[0;34m==>\033[0m %s\n' "$*"; }
+die() { red "error: $*" >&2; exit 1; }
+
+usage() {
+    cat <<'USAGE'
+Usage: e2e/bin/setup [--no-tunnel]
+
+  --no-tunnel   Skip the public tunnel and the PayMongo webhook registration.
+                Use it to run only the tests that do not need inbound webhooks.
+  -h, --help    Show this help.
+USAGE
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --no-tunnel) NO_TUNNEL=1 ;;
+        -h|--help) usage; exit 0 ;;
+        *) usage >&2; die "unknown option: $1" ;;
+    esac
+    shift
+done
+
+command -v docker >/dev/null 2>&1 || die 'docker is not installed or not on PATH.'
+docker compose version >/dev/null 2>&1 || die 'docker compose (v2) is required.'
+
+# --- configuration -----------------------------------------------------------
+
+[ -f "$E2E_DIR/.env" ] || die "e2e/.env is missing. Copy e2e/.env.example to e2e/.env and fill in your PayMongo test keys."
+
+set -a
+# shellcheck disable=SC1091
+. "$E2E_DIR/.env"
+set +a
+
+: "${PAYMONGO_SECRET_KEY:=}"
+: "${PAYMONGO_PUBLIC_KEY:=}"
+: "${TUNNEL:=cloudflared}"
+: "${NGROK_AUTHTOKEN:=}"
+: "${NGROK_DOMAIN:=}"
+: "${APP_PORT:=8000}"
+: "${NGROK_WEB_PORT:=4040}"
+
+[ -n "$PAYMONGO_SECRET_KEY" ] || die 'PAYMONGO_SECRET_KEY is not set in e2e/.env.'
+case "$PAYMONGO_SECRET_KEY" in
+    sk_test_*) ;;
+    *) die 'PAYMONGO_SECRET_KEY must be a TEST-mode key (sk_test_...). The e2e suite creates real resources and registers real webhooks; live keys are refused.' ;;
+esac
+[ -n "$PAYMONGO_PUBLIC_KEY" ] || info 'warning: PAYMONGO_PUBLIC_KEY is empty; client-side flows will not work.'
+
+case "$TUNNEL" in
+    cloudflared) ;;
+    ngrok)
+        [ -n "$NGROK_AUTHTOKEN" ] || die 'TUNNEL=ngrok requires NGROK_AUTHTOKEN in e2e/.env.'
+        ;;
+    *) die "TUNNEL must be 'cloudflared' or 'ngrok', got '$TUNNEL'." ;;
+esac
+
+NGROK_EXTRA_ARGS=''
+if [ -n "$NGROK_DOMAIN" ]; then
+    NGROK_EXTRA_ARGS="--url=${NGROK_DOMAIN#https://}"
+fi
+export NGROK_EXTRA_ARGS APP_PORT NGROK_WEB_PORT
+
+dc() { docker compose -f "$COMPOSE_FILE" --project-directory "$E2E_DIR" "$@"; }
+
+# Run a throwaway container of the app service. $1 = working dir, $2 = sh -c script.
+app_run() { dc run --rm --no-deps -T -w "$1" app sh -ec "$2"; }
+
+# patch_env KEY VALUE [KEY VALUE ...] — upsert keys in e2e/app/.env (done inside
+# the container because the generated app is owned by the container user).
+patch_env() {
+    dc run --rm --no-deps -T -w /app/e2e/app app sh -s -- "$@" <<'PATCH'
+set -e
+f=.env
+[ -f "$f" ] || cp .env.example "$f"
+while [ $# -gt 0 ]; do
+    k=$1; v=$2; shift 2
+    awk -v k="$k" -v v="$v" '
+        BEGIN { done = 0 }
+        !done && $0 ~ "^[#[:space:]]*" k "=" { print k "=" v; done = 1; next }
+        { print }
+        END { if (!done) print k "=" v }
+    ' "$f" > "$f.e2e.tmp" && mv "$f.e2e.tmp" "$f"
+done
+PATCH
+}
+
+app_env_value() {
+    [ -f "$E2E_DIR/app/.env" ] || return 0
+    grep -E "^$1=" "$E2E_DIR/app/.env" | head -1 | cut -d= -f2- || true
+}
+
+# --- image -------------------------------------------------------------------
+
+info 'Building the e2e image…'
+dc build app
+
+# --- Laravel skeleton --------------------------------------------------------
+
+if [ ! -f "$E2E_DIR/app/composer.json" ]; then
+    info 'Creating the Laravel skeleton in e2e/app (first run — this takes a few minutes)…'
+    app_run /app/e2e 'rm -rf app && composer create-project laravel/laravel app --no-interaction --prefer-dist'
+else
+    info 'Laravel skeleton already present in e2e/app, skipping create-project.'
+fi
+
+info 'Wiring luigel/laravel-paymongo in as a path dependency…'
+app_run /app/e2e/app '
+composer config repositories.laravel-paymongo --json "{\"type\":\"path\",\"url\":\"../..\",\"options\":{\"symlink\":true}}"
+composer config allow-plugins.pestphp/pest-plugin true
+if [ ! -e vendor/luigel/laravel-paymongo ]; then
+    composer require luigel/laravel-paymongo:@dev --with-all-dependencies --no-interaction
+fi
+if [ ! -x vendor/bin/pest ]; then
+    composer require pestphp/pest --dev --with-all-dependencies --no-interaction
+fi
+'
+
+# --- overlay -----------------------------------------------------------------
+
+[ -d "$E2E_DIR/overlay" ] || die 'e2e/overlay is missing — it holds the app files (routes, listener, migration, tests) copied over the skeleton.'
+info 'Copying e2e/overlay over e2e/app…'
+app_run /app/e2e 'cp -R overlay/. app/'
+
+# --- app .env ----------------------------------------------------------------
+
+# Captured before the patch below blanks it: a secret left over from an
+# earlier run points at a tunnel URL that is already dead, and would make the
+# webhook tests wait for deliveries that can never arrive.
+EXISTING_WEBHOOK_SECRET="$(app_env_value PAYMONGO_WEBHOOK_SECRET)"
+
+info 'Patching e2e/app/.env…'
+patch_env \
+    APP_ENV local \
+    APP_DEBUG true \
+    APP_URL "http://localhost:${APP_PORT}" \
+    DB_CONNECTION sqlite \
+    DB_DATABASE /app/e2e/app/database/database.sqlite \
+    CACHE_STORE database \
+    SESSION_DRIVER database \
+    QUEUE_CONNECTION sync \
+    PAYMONGO_SECRET_KEY "$PAYMONGO_SECRET_KEY" \
+    PAYMONGO_PUBLIC_KEY "$PAYMONGO_PUBLIC_KEY" \
+    PAYMONGO_WEBHOOK_SECRET "" \
+    PAYMONGO_WEBHOOK_TOLERANCE 300
+
+app_run /app/e2e/app '
+grep -qE "^APP_KEY=base64:" .env || php artisan key:generate --force --no-interaction
+mkdir -p database
+touch database/database.sqlite
+php artisan migrate --force --no-interaction
+'
+
+# --- containers --------------------------------------------------------------
+
+info 'Starting the app container…'
+dc up -d app
+
+info 'Waiting for php artisan serve…'
+ready=0
+for _ in $(seq 1 60); do
+    if dc exec -T app curl -sf -o /dev/null http://127.0.0.1:8000 2>/dev/null; then
+        ready=1
+        break
+    fi
+    sleep 1
+done
+[ "$ready" -eq 1 ] || { dc logs --tail 50 app || true; die 'the app never answered on http://app:8000 — see the log above.'; }
+
+if [ "$NO_TUNNEL" -eq 1 ]; then
+    info 'Skipping tunnel and webhook registration (--no-tunnel).'
+    cat <<SUMMARY
+
+  e2e sandbox ready (no tunnel)
+
+  app          http://localhost:${APP_PORT}
+  database     e2e/app/database/database.sqlite (shared with the test runner)
+  webhooks     not registered — tests that need inbound deliveries will skip
+
+  run tests    e2e/bin/test
+  tear down    e2e/bin/teardown
+
+SUMMARY
+    exit 0
+fi
+
+OTHER_TUNNEL=ngrok
+if [ "$TUNNEL" = 'ngrok' ]; then
+    OTHER_TUNNEL=cloudflared
+fi
+dc --profile cloudflared --profile ngrok rm -sf "$OTHER_TUNNEL" >/dev/null 2>&1 || true
+
+info "Starting the $TUNNEL tunnel…"
+dc --profile "$TUNNEL" up -d --force-recreate "$TUNNEL"
+
+# --- tunnel URL --------------------------------------------------------------
+
+TUNNEL_URL=''
+if [ "$TUNNEL" = 'cloudflared' ]; then
+    for _ in $(seq 1 60); do
+        TUNNEL_URL="$(dc logs --no-log-prefix cloudflared 2>/dev/null | grep -oE 'https://[a-z0-9][a-z0-9-]*\.trycloudflare\.com' | tail -1 || true)"
+        if [ -n "$TUNNEL_URL" ]; then
+            break
+        fi
+        sleep 1
+    done
+elif [ -n "$NGROK_DOMAIN" ]; then
+    TUNNEL_URL="https://${NGROK_DOMAIN#https://}"
+else
+    for _ in $(seq 1 60); do
+        api="$(curl -sf --max-time 5 "http://127.0.0.1:${NGROK_WEB_PORT}/api/tunnels" 2>/dev/null || dc exec -T app curl -sf --max-time 5 http://ngrok:4040/api/tunnels 2>/dev/null || true)"
+        TUNNEL_URL="$(printf '%s' "$api" | tr ',' '\n' | grep -oE '"public_url":"https://[^"]+"' | head -1 | cut -d'"' -f4 || true)"
+        if [ -n "$TUNNEL_URL" ]; then
+            break
+        fi
+        sleep 1
+    done
+fi
+
+if [ -z "$TUNNEL_URL" ]; then
+    dc logs --tail 50 "$TUNNEL" || true
+    die "could not determine the public URL of the $TUNNEL tunnel — see the log above."
+fi
+TUNNEL_URL="${TUNNEL_URL%/}"
+info "Tunnel URL: $TUNNEL_URL"
+
+# The tunnel hostname is brand new: the local resolver is often asked for it
+# before Cloudflare has published the record, caches the negative answer for
+# minutes, and then curl keeps failing with "Could not resolve host" long after
+# the tunnel is actually up. So ask a public resolver first, and keep the IP it
+# returns as a --resolve fallback for the probe below.
+TUNNEL_HOST="${TUNNEL_URL#*://}"
+TUNNEL_HOST="${TUNNEL_HOST%%/*}"
+TUNNEL_HOST="${TUNNEL_HOST%%:*}"
+TUNNEL_IP=''
+
+if command -v dig >/dev/null 2>&1; then
+    info "Waiting for DNS to publish $TUNNEL_HOST (asking 1.1.1.1 directly)…"
+    for _ in $(seq 1 60); do
+        TUNNEL_IP="$(dig +short @1.1.1.1 "$TUNNEL_HOST" A 2>/dev/null | grep -E '^[0-9.]+$' | head -1 || true)"
+        if [ -n "$TUNNEL_IP" ]; then
+            break
+        fi
+        sleep 2
+    done
+    if [ -n "$TUNNEL_IP" ]; then
+        info "DNS: $TUNNEL_HOST -> $TUNNEL_IP"
+    else
+        info "warning: 1.1.1.1 still does not resolve $TUNNEL_HOST; probing anyway."
+    fi
+else
+    info 'dig is not installed — skipping the public DNS pre-check.'
+fi
+
+info 'Waiting for the tunnel to reach the app…'
+reachable=0
+code=''
+for _ in $(seq 1 90); do
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$TUNNEL_URL" || true)"
+    # 000 == curl never got a response; most often this machine's resolver is
+    # still serving a cached negative answer for a name that now exists.
+    if [ "$code" = '000' ] && [ -n "$TUNNEL_IP" ]; then
+        code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 \
+            --resolve "$TUNNEL_HOST:443:$TUNNEL_IP" "$TUNNEL_URL" || true)"
+    fi
+    case "$code" in
+        200|301|302) reachable=1; break ;;
+    esac
+    sleep 2
+done
+if [ "$reachable" -ne 1 ]; then
+    info "hint: if the $TUNNEL log shows \"Registered tunnel connection\", the tunnel itself is fine"
+    info '      and only this machine cannot resolve the hostname yet. Flush the resolver cache'
+    info '      (macOS: sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder) and re-run.'
+    die "the tunnel URL $TUNNEL_URL never returned 200/301/302 (last status: ${code:-none})."
+fi
+
+# APP_URL must be the public URL: redirects and links the tests follow go
+# through the tunnel. artisan serve re-reads .env per request, so no restart.
+patch_env APP_URL "$TUNNEL_URL"
+
+# --- webhook -----------------------------------------------------------------
+
+WEBHOOK_URL="$TUNNEL_URL/$WEBHOOK_PATH"
+WEBHOOK_SECRET=''
+WEBHOOK_ID=''
+
+artisan() { dc exec -T -e COLUMNS=200 app php artisan "$@" --no-ansi; }
+
+if [ "$TUNNEL" = 'ngrok' ] && [ -n "$NGROK_DOMAIN" ] && [ -n "$EXISTING_WEBHOOK_SECRET" ]; then
+    info 'Looking for an existing enabled webhook for this URL…'
+    line="$(artisan paymongo:webhook:list 2>/dev/null | grep -F "$WEBHOOK_URL" | grep -F 'enabled' | head -1 || true)"
+    if [ -n "$line" ]; then
+        WEBHOOK_ID="$(printf '%s' "$line" | grep -oE 'hook_[A-Za-z0-9]+' | head -1 || true)"
+        WEBHOOK_SECRET="$EXISTING_WEBHOOK_SECRET"
+        info "Reusing webhook $WEBHOOK_ID."
+    fi
+fi
+
+if [ -z "$WEBHOOK_SECRET" ]; then
+    info "Registering a webhook for ${WEBHOOK_URL}…"
+    events=()
+    for event in "${WEBHOOK_EVENTS[@]}"; do
+        events+=("--event=$event")
+    done
+    if ! out="$(artisan paymongo:webhook:create "$WEBHOOK_URL" "${events[@]}" 2>&1)"; then
+        printf '%s\n' "$out" >&2
+        case "$out" in
+            *AuthenticationException*|*"Authentication is invalid"*)
+                die 'paymongo:webhook:create failed: PayMongo rejected PAYMONGO_SECRET_KEY. Put a real test-mode key (sk_test_...) in e2e/.env and retry.' ;;
+        esac
+        die 'paymongo:webhook:create failed. If a webhook for this URL already exists, disable it in the PayMongo dashboard (or run e2e/bin/teardown) and retry.'
+    fi
+    printf '%s\n' "$out"
+    WEBHOOK_SECRET="$(printf '%s' "$out" | grep -oE 'whsk_[A-Za-z0-9_]+' | head -1 || true)"
+    WEBHOOK_ID="$(printf '%s' "$out" | grep -oE 'hook_[A-Za-z0-9]+' | head -1 || true)"
+    [ -n "$WEBHOOK_SECRET" ] || die 'could not parse the webhook secret (whsk_...) from the command output.'
+fi
+
+patch_env PAYMONGO_WEBHOOK_SECRET "$WEBHOOK_SECRET"
+
+if [ -n "$WEBHOOK_ID" ]; then
+    printf '%s\n' "$WEBHOOK_ID" > "$WEBHOOK_ID_FILE"
+else
+    info 'warning: could not parse the webhook id (hook_...); teardown will not be able to disable it automatically.'
+fi
+
+cat <<SUMMARY
+
+  e2e sandbox ready
+
+  app          http://localhost:${APP_PORT}
+  public URL   ${TUNNEL_URL}   (${TUNNEL})
+  webhook      ${WEBHOOK_URL}
+               id ${WEBHOOK_ID:-unknown}, events $(IFS=,; echo "${WEBHOOK_EVENTS[*]}")
+  database     e2e/app/database/database.sqlite (shared with the test runner)
+
+  run tests    e2e/bin/test
+  tear down    e2e/bin/teardown
+
+SUMMARY

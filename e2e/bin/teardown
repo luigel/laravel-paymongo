@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Disable the webhook registered by bin/setup and stop the sandbox.
+#
+#   --purge   also delete the generated e2e/app directory
+set -euo pipefail
+
+E2E_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+COMPOSE_FILE="$E2E_DIR/docker-compose.yml"
+WEBHOOK_ID_FILE="$E2E_DIR/.webhook_id"
+
+PURGE=0
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --purge) PURGE=1 ;;
+        -h|--help) printf 'Usage: e2e/bin/teardown [--purge]\n'; exit 0 ;;
+        *) printf 'unknown option: %s\n' "$1" >&2; exit 1 ;;
+    esac
+    shift
+done
+
+info() { printf '\033[0;34m==>\033[0m %s\n' "$*"; }
+
+dc() { docker compose -f "$COMPOSE_FILE" --project-directory "$E2E_DIR" "$@"; }
+
+if [ -s "$WEBHOOK_ID_FILE" ] && [ -f "$E2E_DIR/app/artisan" ]; then
+    webhook_id="$(tr -d '[:space:]' < "$WEBHOOK_ID_FILE")"
+    if [ -n "$webhook_id" ]; then
+        info "Disabling webhook ${webhook_id}…"
+        if dc run --rm --no-deps -T app php artisan paymongo:webhook:toggle "$webhook_id" --disable --no-ansi; then
+            rm -f "$WEBHOOK_ID_FILE"
+        else
+            printf '\033[0;33mwarning:\033[0m could not disable %s — disable it from the PayMongo dashboard.\n' "$webhook_id" >&2
+        fi
+    fi
+fi
+
+info 'Stopping containers…'
+dc --profile cloudflared --profile ngrok down --remove-orphans
+
+if [ "$PURGE" -eq 1 ]; then
+    info 'Removing e2e/app…'
+    if ! rm -rf "$E2E_DIR/app" 2>/dev/null; then
+        # The skeleton is created by the container user; fall back to removing
+        # it from inside a container when the host user may not own it.
+        docker run --rm -v "$E2E_DIR/..:/repo" alpine:3 rm -rf /repo/e2e/app
+    fi
+    rm -f "$WEBHOOK_ID_FILE"
+fi
+
+info 'Done.'

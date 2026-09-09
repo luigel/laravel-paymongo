@@ -1,0 +1,9 @@
+# The generated Laravel sandbox app — never committed.
+/app/
+
+# Local secrets and run state.
+.env
+.webhook_id
+
+# The root .gitignore ignores every .env*, keep the template visible.
+!.env.example

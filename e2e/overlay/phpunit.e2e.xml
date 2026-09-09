@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         stopOnFailure="false"
+>
+    <testsuites>
+        <testsuite name="e2e">
+            <directory>tests/E2E</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <!--
+            Deliberately minimal. Everything else (DB_*, CACHE_STORE,
+            SESSION_DRIVER, QUEUE_CONNECTION, PAYMONGO_*) MUST come from the
+            app's .env so that this process talks to the very same SQLite file
+            and cache store as the `php artisan serve` process that receives
+            the real PayMongo webhooks.
+
+            APP_ENV=testing is safe: Laravel only swaps to .env.testing when
+            that file exists, and the E2E setup never writes one.
+        -->
+        <env name="APP_ENV" value="testing"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+    </php>
+</phpunit>
