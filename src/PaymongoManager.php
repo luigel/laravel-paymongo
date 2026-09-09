@@ -7,11 +7,16 @@ namespace Luigel\Paymongo;
 use Illuminate\Http\Client\Factory;
 use Luigel\Paymongo\Client\ClientConfig;
 use Luigel\Paymongo\Client\PaymongoClient;
+use Luigel\Paymongo\Services\CheckoutSessionService;
+use Luigel\Paymongo\Services\CustomerService;
+use Luigel\Paymongo\Services\LinkService;
 use Luigel\Paymongo\Services\PaymentIntentService;
 use Luigel\Paymongo\Services\PaymentMethodService;
 use Luigel\Paymongo\Services\PaymentService;
+use Luigel\Paymongo\Services\PlanService;
 use Luigel\Paymongo\Services\RefundService;
 use Luigel\Paymongo\Services\SourceService;
+use Luigel\Paymongo\Services\SubscriptionService;
 use Luigel\Paymongo\Services\WebhookService;
 
 final class PaymongoManager
@@ -29,6 +34,16 @@ final class PaymongoManager
     private ?WebhookService $webhooks = null;
 
     private ?SourceService $sources = null;
+
+    private ?CheckoutSessionService $checkoutSessions = null;
+
+    private ?LinkService $links = null;
+
+    private ?CustomerService $customers = null;
+
+    private ?PlanService $plans = null;
+
+    private ?SubscriptionService $subscriptions = null;
 
     /**
      * @param  array<string, mixed>  $config  The `paymongo` config array.
@@ -76,6 +91,31 @@ final class PaymongoManager
         return $this->sources ??= new SourceService($this->client());
     }
 
+    public function checkoutSessions(): CheckoutSessionService
+    {
+        return $this->checkoutSessions ??= new CheckoutSessionService($this->client());
+    }
+
+    public function links(): LinkService
+    {
+        return $this->links ??= new LinkService($this->client());
+    }
+
+    public function customers(): CustomerService
+    {
+        return $this->customers ??= new CustomerService($this->client());
+    }
+
+    public function plans(): PlanService
+    {
+        return $this->plans ??= new PlanService($this->client());
+    }
+
+    public function subscriptions(): SubscriptionService
+    {
+        return $this->subscriptions ??= new SubscriptionService($this->client());
+    }
+
     /**
      * Clone the manager with a different secret key (multi-account use).
      */
@@ -100,5 +140,10 @@ final class PaymongoManager
         $this->refunds = null;
         $this->webhooks = null;
         $this->sources = null;
+        $this->checkoutSessions = null;
+        $this->links = null;
+        $this->customers = null;
+        $this->plans = null;
+        $this->subscriptions = null;
     }
 }

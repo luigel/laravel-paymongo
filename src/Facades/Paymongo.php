@@ -15,6 +15,11 @@ use Luigel\Paymongo\PaymongoManager;
  * @method static \Luigel\Paymongo\Services\RefundService refunds()
  * @method static \Luigel\Paymongo\Services\WebhookService webhooks()
  * @method static \Luigel\Paymongo\Services\SourceService sources()
+ * @method static \Luigel\Paymongo\Services\CheckoutSessionService checkoutSessions()
+ * @method static \Luigel\Paymongo\Services\LinkService links()
+ * @method static \Luigel\Paymongo\Services\CustomerService customers()
+ * @method static \Luigel\Paymongo\Services\PlanService plans()
+ * @method static \Luigel\Paymongo\Services\SubscriptionService subscriptions()
  * @method static \Luigel\Paymongo\PaymongoManager withSecretKey(string $secretKey)
  *
  * @see PaymongoManager
