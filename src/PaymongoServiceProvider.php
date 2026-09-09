@@ -6,8 +6,16 @@ namespace Luigel\Paymongo;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Client\Factory;
+use Illuminate\Routing\Route;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use Luigel\Paymongo\Commands\WebhookCreateCommand;
+use Luigel\Paymongo\Commands\WebhookListCommand;
+use Luigel\Paymongo\Commands\WebhookToggleCommand;
+use Luigel\Paymongo\Http\Controllers\WebhookController;
+use Luigel\Paymongo\Http\Middleware\VerifyWebhookSignature;
 
 final class PaymongoServiceProvider extends ServiceProvider
 {
@@ -29,10 +37,26 @@ final class PaymongoServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->app->make(Router::class)->aliasMiddleware('paymongo.signature', VerifyWebhookSignature::class);
+
+        Router::macro('paymongoWebhooks', function (string $uri = 'paymongo/webhook', ?string $secret = null): Route {
+            /** @var Router $this */
+            return $this->post($uri, WebhookController::class)
+                ->middleware($secret === null ? 'paymongo.signature' : "paymongo.signature:{$secret}")
+                ->withoutMiddleware([ValidateCsrfToken::class])
+                ->name('paymongo.webhooks');
+        });
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/paymongo.php' => config_path('paymongo.php'),
             ], 'paymongo-config');
+
+            $this->commands([
+                WebhookCreateCommand::class,
+                WebhookListCommand::class,
+                WebhookToggleCommand::class,
+            ]);
         }
     }
 }
