@@ -1,0 +1,56 @@
+name: e2e
+
+# Manual + nightly only: this suite is slow, needs real PayMongo test-mode
+# credentials and registers webhooks against a shared test account.
+on:
+  workflow_dispatch:
+  schedule:
+    # 18:00 UTC — 02:00 Asia/Manila.
+    - cron: '0 18 * * *'
+
+concurrency:
+  group: paymongo-e2e
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    name: End-to-end sandbox
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Write e2e/.env
+        env:
+          PAYMONGO_SECRET_KEY: ${{ secrets.PAYMONGO_TEST_SECRET_KEY }}
+          PAYMONGO_PUBLIC_KEY: ${{ secrets.PAYMONGO_TEST_PUBLIC_KEY }}
+          NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+          NGROK_DOMAIN: ${{ secrets.NGROK_DOMAIN }}
+        run: |
+          if [ -z "$PAYMONGO_SECRET_KEY" ]; then
+            echo "::error::PAYMONGO_TEST_SECRET_KEY is not configured."
+            exit 1
+          fi
+          tunnel=cloudflared
+          if [ -n "$NGROK_AUTHTOKEN" ]; then
+            tunnel=ngrok
+          fi
+          {
+            echo "PAYMONGO_SECRET_KEY=$PAYMONGO_SECRET_KEY"
+            echo "PAYMONGO_PUBLIC_KEY=$PAYMONGO_PUBLIC_KEY"
+            echo "TUNNEL=$tunnel"
+            echo "NGROK_AUTHTOKEN=$NGROK_AUTHTOKEN"
+            echo "NGROK_DOMAIN=$NGROK_DOMAIN"
+          } > e2e/.env
+
+      - name: Set up the sandbox
+        run: e2e/bin/setup
+
+      - name: Run the e2e suite
+        run: e2e/bin/test
+
+      - name: Tear down
+        if: always()
+        run: e2e/bin/teardown
