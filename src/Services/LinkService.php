@@ -8,6 +8,12 @@ use Luigel\Paymongo\Data\Link;
 use Luigel\Paymongo\Exceptions\PaymongoException;
 use Luigel\Paymongo\Pagination\CursorPage;
 
+/**
+ * The legacy `/links` API (standard v1 envelope, payment-state statuses).
+ *
+ * For the newer `/payment_links` API (flat bodies, ISO 8601 timestamps,
+ * management statuses) see {@see PaymentLinkService}.
+ */
 final class LinkService extends AbstractService
 {
     /**

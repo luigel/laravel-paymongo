@@ -11,9 +11,12 @@ use Luigel\Paymongo\Services\CheckoutSessionService;
 use Luigel\Paymongo\Services\CustomerService;
 use Luigel\Paymongo\Services\LinkService;
 use Luigel\Paymongo\Services\PaymentIntentService;
+use Luigel\Paymongo\Services\PaymentLinkService;
 use Luigel\Paymongo\Services\PaymentMethodService;
 use Luigel\Paymongo\Services\PaymentService;
+use Luigel\Paymongo\Services\PayoutService;
 use Luigel\Paymongo\Services\PlanService;
+use Luigel\Paymongo\Services\QrphService;
 use Luigel\Paymongo\Services\RefundService;
 use Luigel\Paymongo\Services\SourceService;
 use Luigel\Paymongo\Services\SubscriptionService;
@@ -42,11 +45,17 @@ final class PaymongoManager
 
     private ?LinkService $links = null;
 
+    private ?PaymentLinkService $paymentLinks = null;
+
     private ?CustomerService $customers = null;
 
     private ?PlanService $plans = null;
 
     private ?SubscriptionService $subscriptions = null;
+
+    private ?QrphService $qrph = null;
+
+    private ?PayoutService $payouts = null;
 
     /**
      * @param  array<string, mixed>  $config  The `paymongo` config array.
@@ -104,6 +113,11 @@ final class PaymongoManager
         return $this->links ??= new LinkService($this->client());
     }
 
+    public function paymentLinks(): PaymentLinkService
+    {
+        return $this->paymentLinks ??= new PaymentLinkService($this->client());
+    }
+
     public function customers(): CustomerService
     {
         return $this->customers ??= new CustomerService($this->client());
@@ -117,6 +131,16 @@ final class PaymongoManager
     public function subscriptions(): SubscriptionService
     {
         return $this->subscriptions ??= new SubscriptionService($this->client());
+    }
+
+    public function qrph(): QrphService
+    {
+        return $this->qrph ??= new QrphService($this->client());
+    }
+
+    public function payouts(): PayoutService
+    {
+        return $this->payouts ??= new PayoutService($this->client());
     }
 
     /**
@@ -145,8 +169,11 @@ final class PaymongoManager
         $this->sources = null;
         $this->checkoutSessions = null;
         $this->links = null;
+        $this->paymentLinks = null;
         $this->customers = null;
         $this->plans = null;
         $this->subscriptions = null;
+        $this->qrph = null;
+        $this->payouts = null;
     }
 }

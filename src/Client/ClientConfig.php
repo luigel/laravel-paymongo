@@ -41,6 +41,21 @@ final readonly class ClientConfig
         );
     }
 
+    /**
+     * The base URL with a trailing `/v{n}` version segment stripped, e.g.
+     * `https://api.paymongo.com/v1` => `https://api.paymongo.com`.
+     *
+     * Newer PayMongo APIs (such as the v3 QR API) live under a different
+     * version prefix; services build absolute URLs from this origin, which
+     * Laravel's HTTP client uses verbatim instead of the configured base URL.
+     */
+    public function origin(): string
+    {
+        $baseUrl = rtrim($this->baseUrl, '/');
+
+        return preg_replace('#/v\d+$#', '', $baseUrl) ?? $baseUrl;
+    }
+
     public function withSecretKey(string $secretKey): self
     {
         return new self(

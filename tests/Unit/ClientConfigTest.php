@@ -70,6 +70,18 @@ it('clones with a new secret key', function () {
         ->and($config->secretKey)->toBe('sk_test_abc');
 });
 
+it('strips the trailing version segment from the base URL for the origin', function () {
+    expect((new ClientConfig(secretKey: 'sk'))->origin())->toBe('https://api.paymongo.com')
+        ->and((new ClientConfig(secretKey: 'sk', baseUrl: 'https://api.paymongo.com/v1/'))->origin())->toBe('https://api.paymongo.com')
+        ->and((new ClientConfig(secretKey: 'sk', baseUrl: 'https://api.example.test/v12'))->origin())->toBe('https://api.example.test')
+        ->and((new ClientConfig(secretKey: 'sk', baseUrl: 'http://localhost:8080/proxy/v1'))->origin())->toBe('http://localhost:8080/proxy');
+});
+
+it('keeps a base URL without a version segment as the origin', function () {
+    expect((new ClientConfig(secretKey: 'sk', baseUrl: 'https://proxy.test/paymongo'))->origin())->toBe('https://proxy.test/paymongo')
+        ->and((new ClientConfig(secretKey: 'sk', baseUrl: 'https://proxy.test/version1'))->origin())->toBe('https://proxy.test/version1');
+});
+
 it('uses constructor defaults', function () {
     $config = new ClientConfig(secretKey: 'sk_test_abc');
 
