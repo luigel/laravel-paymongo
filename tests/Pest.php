@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use Luigel\Paymongo\Tests\ContractTestCase;
 use Luigel\Paymongo\Tests\TestCase;
 
 uses(TestCase::class)->in('Unit', 'Feature');
+uses(ContractTestCase::class)->in('Contract');
 
 /**
  * Load a fixture array from tests/Fixtures/{name}.php.

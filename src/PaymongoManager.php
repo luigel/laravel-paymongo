@@ -18,9 +18,12 @@ use Luigel\Paymongo\Services\RefundService;
 use Luigel\Paymongo\Services\SourceService;
 use Luigel\Paymongo\Services\SubscriptionService;
 use Luigel\Paymongo\Services\WebhookService;
+use Luigel\Paymongo\Testing\FakesPaymongo;
 
 final class PaymongoManager
 {
+    use FakesPaymongo;
+
     private ?PaymongoClient $client = null;
 
     private ?PaymentIntentService $paymentIntents = null;
