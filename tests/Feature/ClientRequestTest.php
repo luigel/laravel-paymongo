@@ -22,11 +22,9 @@ it('wraps POST attributes in the data.attributes envelope', function () {
         ->and($response->isList())->toBeFalse()
         ->and($response->hasMore())->toBeFalse();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents'
-            && $request->data() === ['data' => ['attributes' => ['amount' => 10000, 'currency' => 'PHP']]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents'
+        && $request->data() === ['data' => ['attributes' => ['amount' => 10000, 'currency' => 'PHP']]]);
 });
 
 it('sends no body when POST attributes are empty', function () {
@@ -34,11 +32,9 @@ it('sends no body when POST attributes are empty', function () {
 
     app('paymongo')->client()->post('/payment_intents/pi_123/cancel');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_123/cancel'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_123/cancel'
+        && $request->body() === '');
 });
 
 it('sends GET query parameters without a body', function () {
@@ -55,11 +51,9 @@ it('sends GET query parameters without a body', function () {
         ->and($response->isList())->toBeTrue()
         ->and($response->hasMore())->toBeTrue();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payments?limit=10&after=pay_0'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payments?limit=10&after=pay_0'
+        && $request->body() === '');
 });
 
 it('wraps PUT and PATCH attributes in the envelope', function () {
@@ -69,17 +63,13 @@ it('wraps PUT and PATCH attributes in the envelope', function () {
     $client->put('/webhooks/hook_1', ['url' => 'https://example.com/hook']);
     $client->patch('/customers/cus_1', ['first_name' => 'Juan']);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'PUT'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_1'
-            && $request->data() === ['data' => ['attributes' => ['url' => 'https://example.com/hook']]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'PUT'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_1'
+        && $request->data() === ['data' => ['attributes' => ['url' => 'https://example.com/hook']]]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'PATCH'
-            && $request->url() === 'https://api.paymongo.com/v1/customers/cus_1'
-            && $request->data() === ['data' => ['attributes' => ['first_name' => 'Juan']]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'PATCH'
+        && $request->url() === 'https://api.paymongo.com/v1/customers/cus_1'
+        && $request->data() === ['data' => ['attributes' => ['first_name' => 'Juan']]]);
 });
 
 it('sends DELETE requests without a body', function () {
@@ -87,11 +77,9 @@ it('sends DELETE requests without a body', function () {
 
     app('paymongo')->client()->delete('/customers/cus_1');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'DELETE'
-            && $request->url() === 'https://api.paymongo.com/v1/customers/cus_1'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'DELETE'
+        && $request->url() === 'https://api.paymongo.com/v1/customers/cus_1'
+        && $request->body() === '');
 });
 
 it('authenticates with the secret key as basic auth username', function () {
@@ -99,9 +87,7 @@ it('authenticates with the secret key as basic auth username', function () {
 
     app('paymongo')->client()->get('/payments');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->hasHeader('Authorization', 'Basic '.base64_encode('sk_test_fake:'));
-    });
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Authorization', 'Basic '.base64_encode('sk_test_fake:')));
 });
 
 it('sends the exact package user agent', function () {
@@ -109,9 +95,7 @@ it('sends the exact package user agent', function () {
 
     app('paymongo')->client()->get('/payments');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->hasHeader('User-Agent', 'luigel/laravel-paymongo v3 (php '.PHP_VERSION.')');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('User-Agent', 'luigel/laravel-paymongo v3 (php '.PHP_VERSION.')'));
 });
 
 it('sends and accepts JSON', function () {
@@ -119,10 +103,8 @@ it('sends and accepts JSON', function () {
 
     app('paymongo')->client()->post('/payment_intents', ['amount' => 10000]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->hasHeader('Content-Type', 'application/json')
-            && $request->hasHeader('Accept', 'application/json');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Content-Type', 'application/json')
+        && $request->hasHeader('Accept', 'application/json'));
 });
 
 it('normalizes backed enums recursively in outgoing payloads', function () {
@@ -137,16 +119,14 @@ it('normalizes backed enums recursively in outgoing payloads', function () {
         ],
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->data() === ['data' => ['attributes' => [
-            'capture_type' => 'manual',
-            'payment_method_allowed' => ['card', 'gcash'],
-            'metadata' => [
-                'nested' => ['method' => 'card'],
-                'priority' => 5,
-            ],
-        ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->data() === ['data' => ['attributes' => [
+        'capture_type' => 'manual',
+        'payment_method_allowed' => ['card', 'gcash'],
+        'metadata' => [
+            'nested' => ['method' => 'card'],
+            'priority' => 5,
+        ],
+    ]]]);
 });
 
 enum ClientRequestTestMethod: string

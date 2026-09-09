@@ -13,7 +13,7 @@ use Luigel\Paymongo\Enums\WebhookEventType;
  * Built from the event envelope PayMongo posts to your endpoint:
  * `{"data": {"id", "type": "event", "attributes": {"type", "livemode", "data": {...resource}, "created_at"}}}`.
  */
-final class WebhookEvent
+final readonly class WebhookEvent
 {
     /**
      * @param  string  $id  The event id (`evt_...`).
@@ -22,12 +22,12 @@ final class WebhookEvent
      * @param  array<array-key, mixed>  $raw  The unmodified request payload.
      */
     public function __construct(
-        public readonly string $id,
-        public readonly string $type,
-        public readonly bool $livemode,
-        public readonly array $data,
-        public readonly ?CarbonImmutable $timestamp,
-        public readonly array $raw,
+        public string $id,
+        public string $type,
+        public bool $livemode,
+        public array $data,
+        public ?CarbonImmutable $timestamp,
+        public array $raw,
     ) {}
 
     /**

@@ -22,7 +22,7 @@ use Traversable;
  * @implements IteratorAggregate<int, T>
  * @implements Arrayable<int, T>
  */
-final class CursorTokenPage implements Arrayable, Countable, IteratorAggregate
+final readonly class CursorTokenPage implements Arrayable, Countable, IteratorAggregate
 {
     /**
      * @param  list<T>  $items
@@ -30,11 +30,11 @@ final class CursorTokenPage implements Arrayable, Countable, IteratorAggregate
      * @param  (Closure(): self<T>)|null  $next  Resolver that fetches the next page.
      */
     public function __construct(
-        public readonly array $items,
-        public readonly ?string $nextCursor,
-        public readonly ?string $prevCursor = null,
-        public readonly array $meta = [],
-        private readonly ?Closure $next = null,
+        public array $items,
+        public ?string $nextCursor,
+        public ?string $prevCursor = null,
+        public array $meta = [],
+        private ?Closure $next = null,
     ) {}
 
     /**

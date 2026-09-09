@@ -50,11 +50,9 @@ it('lists payouts with the documented query parameters', function () {
         'order' => 'desc',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payouts?limit=10&payout_status=deposited&provider=paymongo_central_hub&created_at.between=2024-09-01..2024-09-30&sort_by=created_at&order=desc'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payouts?limit=10&payout_status=deposited&provider=paymongo_central_hub&created_at.between=2024-09-01..2024-09-30&sort_by=created_at&order=desc'
+        && $request->body() === '');
 
     expect($page)->toBeInstanceOf(CursorTokenPage::class)
         ->and($page)->toHaveCount(2)
@@ -74,13 +72,9 @@ it('follows the next_cursor token when fetching the next payout page', function 
 
     $next = $page->nextPage();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->url() === 'https://api.paymongo.com/v1/payouts?limit=2';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.paymongo.com/v1/payouts?limit=2');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->url() === 'https://api.paymongo.com/v1/payouts?limit=2&after=cursor_opaque_token_abc123';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.paymongo.com/v1/payouts?limit=2&after=cursor_opaque_token_abc123');
 
     Http::assertSentCount(2);
 
@@ -119,11 +113,9 @@ it('retrieves a payout and maps the amounts onto the DTO', function () {
 
     $payout = Paymongo::payouts()->retrieve('po_2fdKBqNAKMvUXTUAvhZDdXbW');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payouts/po_2fdKBqNAKMvUXTUAvhZDdXbW'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payouts/po_2fdKBqNAKMvUXTUAvhZDdXbW'
+        && $request->body() === '');
 
     expect($payout)->toBeInstanceOf(Payout::class)
         ->and($payout->id)->toBe('po_2fdKBqNAKMvUXTUAvhZDdXbW')
@@ -149,11 +141,9 @@ it('lists payout transactions exposing the kind through the resource type', func
 
     $page = Paymongo::payouts()->transactions('po_2fdKBqNAKMvUXTUAvhZDdXbW', ['limit' => 5]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payouts/po_2fdKBqNAKMvUXTUAvhZDdXbW/transactions?limit=5'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payouts/po_2fdKBqNAKMvUXTUAvhZDdXbW/transactions?limit=5'
+        && $request->body() === '');
 
     expect($page)->toBeInstanceOf(CursorTokenPage::class)
         ->and($page)->toHaveCount(1)
@@ -173,11 +163,9 @@ it('retrieves the payout schedule of a merchant', function () {
 
     $schedule = Paymongo::payouts()->schedule('org_9NxTZ8ZDVQpZC3bDMSKtwEXA');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/merchants/org_9NxTZ8ZDVQpZC3bDMSKtwEXA/schedules'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/merchants/org_9NxTZ8ZDVQpZC3bDMSKtwEXA/schedules'
+        && $request->body() === '');
 
     expect($schedule)->toBeInstanceOf(PayoutSchedule::class)
         ->and($schedule->scheduleType)->toBe('automatic')

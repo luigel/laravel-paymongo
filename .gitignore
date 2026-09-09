@@ -5,3 +5,9 @@ coverage
 .env*
 .idea
 .phpunit.cache/
+.rector-cache/
+
+# End-to-end sandbox: generated app and local secrets.
+/e2e/app
+/e2e/.env
+/e2e/.webhook_id

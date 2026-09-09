@@ -90,7 +90,7 @@ it('looks up a named secret from paymongo.webhooks.secrets', function () {
 });
 
 it('fails with a 500 when the webhook secret is not configured', function () {
-    config()->set('paymongo.webhooks.secret', null);
+    config()->set('paymongo.webhooks.secret');
 
     $body = '{"data":{"id":"evt_1"}}';
 

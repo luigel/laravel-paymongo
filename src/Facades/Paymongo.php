@@ -5,25 +5,40 @@ declare(strict_types=1);
 namespace Luigel\Paymongo\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Luigel\Paymongo\Client\PaymongoClient;
 use Luigel\Paymongo\PaymongoManager;
+use Luigel\Paymongo\Services\CheckoutSessionService;
+use Luigel\Paymongo\Services\CustomerService;
+use Luigel\Paymongo\Services\LinkService;
+use Luigel\Paymongo\Services\PaymentIntentService;
+use Luigel\Paymongo\Services\PaymentLinkService;
+use Luigel\Paymongo\Services\PaymentMethodService;
+use Luigel\Paymongo\Services\PaymentService;
+use Luigel\Paymongo\Services\PayoutService;
+use Luigel\Paymongo\Services\PlanService;
+use Luigel\Paymongo\Services\QrphService;
+use Luigel\Paymongo\Services\RefundService;
+use Luigel\Paymongo\Services\SourceService;
+use Luigel\Paymongo\Services\SubscriptionService;
+use Luigel\Paymongo\Services\WebhookService;
 
 /**
- * @method static \Luigel\Paymongo\Client\PaymongoClient client()
- * @method static \Luigel\Paymongo\Services\PaymentIntentService paymentIntents()
- * @method static \Luigel\Paymongo\Services\PaymentMethodService paymentMethods()
- * @method static \Luigel\Paymongo\Services\PaymentService payments()
- * @method static \Luigel\Paymongo\Services\RefundService refunds()
- * @method static \Luigel\Paymongo\Services\WebhookService webhooks()
- * @method static \Luigel\Paymongo\Services\SourceService sources()
- * @method static \Luigel\Paymongo\Services\CheckoutSessionService checkoutSessions()
- * @method static \Luigel\Paymongo\Services\LinkService links()
- * @method static \Luigel\Paymongo\Services\PaymentLinkService paymentLinks()
- * @method static \Luigel\Paymongo\Services\CustomerService customers()
- * @method static \Luigel\Paymongo\Services\PlanService plans()
- * @method static \Luigel\Paymongo\Services\SubscriptionService subscriptions()
- * @method static \Luigel\Paymongo\Services\QrphService qrph()
- * @method static \Luigel\Paymongo\Services\PayoutService payouts()
- * @method static \Luigel\Paymongo\PaymongoManager withSecretKey(string $secretKey)
+ * @method static PaymongoClient client()
+ * @method static PaymentIntentService paymentIntents()
+ * @method static PaymentMethodService paymentMethods()
+ * @method static PaymentService payments()
+ * @method static RefundService refunds()
+ * @method static WebhookService webhooks()
+ * @method static SourceService sources()
+ * @method static CheckoutSessionService checkoutSessions()
+ * @method static LinkService links()
+ * @method static PaymentLinkService paymentLinks()
+ * @method static CustomerService customers()
+ * @method static PlanService plans()
+ * @method static SubscriptionService subscriptions()
+ * @method static QrphService qrph()
+ * @method static PayoutService payouts()
+ * @method static PaymongoManager withSecretKey(string $secretKey)
  * @method static void fake(array<string, mixed> $stubs = [])
  * @method static void assertSent(callable $callback)
  * @method static void assertNothingSent()

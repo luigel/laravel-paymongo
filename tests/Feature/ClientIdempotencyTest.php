@@ -11,9 +11,7 @@ it('auto-generates a UUID idempotency key on POST', function () {
 
     app('paymongo')->client()->post('/payment_intents', ['amount' => 10000]);
 
-    Http::assertSent(function (Request $request): bool {
-        return Str::isUuid($request->header('Idempotency-Key')[0] ?? '');
-    });
+    Http::assertSent(fn (Request $request): bool => Str::isUuid($request->header('Idempotency-Key')[0] ?? ''));
 });
 
 it('sends the idempotency key on a POST without a body', function () {
@@ -21,10 +19,8 @@ it('sends the idempotency key on a POST without a body', function () {
 
     app('paymongo')->client()->post('/payment_intents/pi_1/cancel');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->body() === ''
-            && Str::isUuid($request->header('Idempotency-Key')[0] ?? '');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->body() === ''
+        && Str::isUuid($request->header('Idempotency-Key')[0] ?? ''));
 });
 
 it('prefers an explicit idempotency key over the auto-generated one', function () {
@@ -32,9 +28,7 @@ it('prefers an explicit idempotency key over the auto-generated one', function (
 
     app('paymongo')->client()->post('/payment_intents', ['amount' => 10000], 'order-42-attempt-1');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->hasHeader('Idempotency-Key', 'order-42-attempt-1');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Idempotency-Key', 'order-42-attempt-1'));
 });
 
 it('sends no idempotency key when auto idempotency is disabled', function () {
@@ -44,9 +38,7 @@ it('sends no idempotency key when auto idempotency is disabled', function () {
 
     app('paymongo')->client()->post('/payment_intents', ['amount' => 10000]);
 
-    Http::assertSent(function (Request $request): bool {
-        return ! $request->hasHeader('Idempotency-Key');
-    });
+    Http::assertSent(fn (Request $request): bool => ! $request->hasHeader('Idempotency-Key'));
 });
 
 it('still sends an explicit idempotency key when auto idempotency is disabled', function () {
@@ -56,9 +48,7 @@ it('still sends an explicit idempotency key when auto idempotency is disabled', 
 
     app('paymongo')->client()->post('/payment_intents', ['amount' => 10000], 'order-42-attempt-1');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->hasHeader('Idempotency-Key', 'order-42-attempt-1');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Idempotency-Key', 'order-42-attempt-1'));
 });
 
 it('never sends an idempotency key on GET, PUT, PATCH, or DELETE', function () {

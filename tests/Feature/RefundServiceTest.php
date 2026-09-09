@@ -21,17 +21,15 @@ it('creates a refund normalizing the enum reason and maps the DTO', function () 
         'notes' => 'Customer returned the item.',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/refunds'
-            && $request->data() === ['data' => ['attributes' => [
-                'amount' => 50000,
-                'payment_id' => 'pay_hvTn9EyxduZ9gV8WHhSGYqBi',
-                'reason' => 'duplicate',
-                'notes' => 'Customer returned the item.',
-            ]]]
-            && $request->hasHeader('Idempotency-Key');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/refunds'
+        && $request->data() === ['data' => ['attributes' => [
+            'amount' => 50000,
+            'payment_id' => 'pay_hvTn9EyxduZ9gV8WHhSGYqBi',
+            'reason' => 'duplicate',
+            'notes' => 'Customer returned the item.',
+        ]]]
+        && $request->hasHeader('Idempotency-Key'));
 
     expect($refund)->toBeInstanceOf(Refund::class)
         ->and($refund->id)->toBe('ref_9K2Wf3mLpQvXsTzYbNcVdGhJ')
@@ -54,9 +52,7 @@ it('sends an explicit idempotency key when creating', function () {
 
     Paymongo::refunds()->create(['amount' => 50000, 'payment_id' => 'pay_x', 'reason' => 'others'], 'ref-idem-9');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->hasHeader('Idempotency-Key', 'ref-idem-9');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Idempotency-Key', 'ref-idem-9'));
 });
 
 it('retrieves a refund', function () {
@@ -64,11 +60,9 @@ it('retrieves a refund', function () {
 
     $refund = Paymongo::refunds()->retrieve('ref_9K2Wf3mLpQvXsTzYbNcVdGhJ');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/refunds/ref_9K2Wf3mLpQvXsTzYbNcVdGhJ'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/refunds/ref_9K2Wf3mLpQvXsTzYbNcVdGhJ'
+        && $request->body() === '');
 
     expect($refund->id)->toBe('ref_9K2Wf3mLpQvXsTzYbNcVdGhJ');
 });
@@ -83,11 +77,9 @@ it('lists refunds with the payment_id filter in the query', function () {
 
     $page = Paymongo::refunds()->list(['limit' => 5, 'payment_id' => 'pay_hvTn9EyxduZ9gV8WHhSGYqBi']);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/refunds?limit=5&payment_id=pay_hvTn9EyxduZ9gV8WHhSGYqBi'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/refunds?limit=5&payment_id=pay_hvTn9EyxduZ9gV8WHhSGYqBi'
+        && $request->body() === '');
 
     expect($page)->toBeInstanceOf(CursorPage::class)
         ->and($page)->toHaveCount(1)

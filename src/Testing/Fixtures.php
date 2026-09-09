@@ -601,7 +601,7 @@ final class Fixtures
     public static function payoutList(array $items, ?string $nextCursor = null): array
     {
         return [
-            'data' => array_map(static fn (array $item): array => self::unwrap($item), array_values($items)),
+            'data' => array_map(self::unwrap(...), array_values($items)),
             'pagination' => [
                 'next_cursor' => $nextCursor,
                 'prev_cursor' => null,
@@ -621,7 +621,7 @@ final class Fixtures
     public static function flatList(array $items, bool $hasMore = false): array
     {
         return [
-            'data' => array_map(static fn (array $item): array => self::unwrap($item), array_values($items)),
+            'data' => array_map(self::unwrap(...), array_values($items)),
             'has_more' => $hasMore,
         ];
     }
@@ -638,7 +638,7 @@ final class Fixtures
     public static function list(array $items, bool $hasMore = false): array
     {
         return [
-            'data' => array_map(static fn (array $item): array => self::unwrap($item), array_values($items)),
+            'data' => array_map(self::unwrap(...), array_values($items)),
             'has_more' => $hasMore,
         ];
     }

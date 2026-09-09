@@ -14,14 +14,12 @@ it('creates a webhook subscribed to the default events', function () {
         ->expectsOutputToContain('enabled')
         ->assertSuccessful();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks'
-            && $request->data() === ['data' => ['attributes' => [
-                'url' => 'https://example.com/paymongo/webhook',
-                'events' => ['payment.paid', 'payment.failed'],
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks'
+        && $request->data() === ['data' => ['attributes' => [
+            'url' => 'https://example.com/paymongo/webhook',
+            'events' => ['payment.paid', 'payment.failed'],
+        ]]]);
 });
 
 it('creates a webhook subscribed to explicitly passed events', function () {
@@ -32,14 +30,12 @@ it('creates a webhook subscribed to explicitly passed events', function () {
         '--event' => ['source.chargeable', 'payment.refunded'],
     ])->assertSuccessful();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks'
-            && $request->data() === ['data' => ['attributes' => [
-                'url' => 'https://example.com/paymongo/webhook',
-                'events' => ['source.chargeable', 'payment.refunded'],
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks'
+        && $request->data() === ['data' => ['attributes' => [
+            'url' => 'https://example.com/paymongo/webhook',
+            'events' => ['source.chargeable', 'payment.refunded'],
+        ]]]);
 });
 
 it('lists webhooks as a table', function () {
@@ -59,10 +55,8 @@ it('lists webhooks as a table', function () {
         ])
         ->assertSuccessful();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks');
 });
 
 it('reports when no webhooks are registered', function () {
@@ -80,11 +74,9 @@ it('enables a webhook with --enable', function () {
         ->expectsOutputToContain('is now enabled')
         ->assertSuccessful();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn/enable'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn/enable'
+        && $request->body() === '');
 });
 
 it('disables a webhook with --disable', function () {
@@ -97,11 +89,9 @@ it('disables a webhook with --disable', function () {
         ->expectsOutputToContain('is now disabled')
         ->assertSuccessful();
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn/disable'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn/disable'
+        && $request->body() === '');
 });
 
 it('errors when both --enable and --disable are passed', function () {

@@ -28,21 +28,19 @@ it('creates a checkout session and maps the response onto the DTO', function () 
         'description' => 'Order #10101 checkout',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions'
-            && $request->data() === ['data' => ['attributes' => [
-                'line_items' => [
-                    ['amount' => 150050, 'currency' => 'PHP', 'name' => 'Leather Wallet', 'quantity' => 1],
-                ],
-                'payment_method_types' => ['card', 'gcash', 'paymaya'],
-                'success_url' => 'https://example.com/success',
-                'cancel_url' => 'https://example.com/cancel',
-                'reference_number' => 'ORDER-10101',
-                'description' => 'Order #10101 checkout',
-            ]]]
-            && $request->hasHeader('Idempotency-Key');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions'
+        && $request->data() === ['data' => ['attributes' => [
+            'line_items' => [
+                ['amount' => 150050, 'currency' => 'PHP', 'name' => 'Leather Wallet', 'quantity' => 1],
+            ],
+            'payment_method_types' => ['card', 'gcash', 'paymaya'],
+            'success_url' => 'https://example.com/success',
+            'cancel_url' => 'https://example.com/cancel',
+            'reference_number' => 'ORDER-10101',
+            'description' => 'Order #10101 checkout',
+        ]]]
+        && $request->hasHeader('Idempotency-Key'));
 
     expect($session)->toBeInstanceOf(CheckoutSession::class)
         ->and($session->id)->toBe('cs_iVf3gnCsp7EFjE9q2SemiH6z')
@@ -105,9 +103,7 @@ it('sends an explicit idempotency key when creating', function () {
 
     Paymongo::checkoutSessions()->create(['payment_method_types' => ['card']], 'cs-idem-123');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->hasHeader('Idempotency-Key', 'cs-idem-123');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Idempotency-Key', 'cs-idem-123'));
 });
 
 it('retrieves a checkout session', function () {
@@ -115,11 +111,9 @@ it('retrieves a checkout session', function () {
 
     $session = Paymongo::checkoutSessions()->retrieve('cs_iVf3gnCsp7EFjE9q2SemiH6z');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions/cs_iVf3gnCsp7EFjE9q2SemiH6z'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions/cs_iVf3gnCsp7EFjE9q2SemiH6z'
+        && $request->body() === '');
 
     expect($session->id)->toBe('cs_iVf3gnCsp7EFjE9q2SemiH6z');
 });
@@ -132,11 +126,9 @@ it('expires a checkout session with an empty POST body', function () {
 
     $session = Paymongo::checkoutSessions()->expire('cs_iVf3gnCsp7EFjE9q2SemiH6z');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions/cs_iVf3gnCsp7EFjE9q2SemiH6z/expire'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions/cs_iVf3gnCsp7EFjE9q2SemiH6z/expire'
+        && $request->body() === '');
 
     expect($session)->toBeInstanceOf(CheckoutSession::class)
         ->and($session->status)->toBe(CheckoutSessionStatus::Expired);

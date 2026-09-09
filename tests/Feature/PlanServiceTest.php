@@ -23,20 +23,18 @@ it('creates a plan under /subscriptions/plans and maps the DTO', function () {
         'cycle_count' => 12,
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans'
-            && $request->data() === ['data' => ['attributes' => [
-                'name' => 'Premium Monthly',
-                'description' => 'Premium tier billed monthly',
-                'amount' => 150050,
-                'currency' => 'PHP',
-                'interval' => 'monthly',
-                'interval_count' => 1,
-                'cycle_count' => 12,
-            ]]]
-            && $request->hasHeader('Idempotency-Key');
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans'
+        && $request->data() === ['data' => ['attributes' => [
+            'name' => 'Premium Monthly',
+            'description' => 'Premium tier billed monthly',
+            'amount' => 150050,
+            'currency' => 'PHP',
+            'interval' => 'monthly',
+            'interval_count' => 1,
+            'cycle_count' => 12,
+        ]]]
+        && $request->hasHeader('Idempotency-Key'));
 
     expect($plan)->toBeInstanceOf(Plan::class)
         ->and($plan->id)->toBe('plan_Ho5Fp9vJkTqW2xYzB3cD4eFg')
@@ -58,11 +56,9 @@ it('retrieves a plan from /subscriptions/plans/{id}', function () {
 
     $plan = Paymongo::plans()->retrieve('plan_Ho5Fp9vJkTqW2xYzB3cD4eFg');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans/plan_Ho5Fp9vJkTqW2xYzB3cD4eFg'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans/plan_Ho5Fp9vJkTqW2xYzB3cD4eFg'
+        && $request->body() === '');
 
     expect($plan->id)->toBe('plan_Ho5Fp9vJkTqW2xYzB3cD4eFg');
 });
@@ -74,13 +70,11 @@ it('updates a plan via PATCH with the envelope', function () {
         'name' => 'Premium Monthly v2',
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'PATCH'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans/plan_Ho5Fp9vJkTqW2xYzB3cD4eFg'
-            && $request->data() === ['data' => ['attributes' => [
-                'name' => 'Premium Monthly v2',
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'PATCH'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans/plan_Ho5Fp9vJkTqW2xYzB3cD4eFg'
+        && $request->data() === ['data' => ['attributes' => [
+            'name' => 'Premium Monthly v2',
+        ]]]);
 
     expect($plan)->toBeInstanceOf(Plan::class);
 });
@@ -93,11 +87,9 @@ it('lists plans from /subscriptions/plans passing the query parameters through',
 
     $page = Paymongo::plans()->list(['limit' => 5]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans?limit=5'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans?limit=5'
+        && $request->body() === '');
 
     expect($page)->toBeInstanceOf(CursorPage::class)
         ->and($page)->toHaveCount(1)

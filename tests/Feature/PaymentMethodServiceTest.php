@@ -23,20 +23,18 @@ it('creates a payment method and maps the response onto the DTO', function () {
         'billing' => ['name' => 'Juan Dela Cruz', 'email' => 'juan.delacruz@example.com'],
     ]);
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_methods'
-            && $request->data() === ['data' => ['attributes' => [
-                'type' => 'card',
-                'details' => [
-                    'card_number' => '4343434343434345',
-                    'exp_month' => 12,
-                    'exp_year' => 2030,
-                    'cvc' => '123',
-                ],
-                'billing' => ['name' => 'Juan Dela Cruz', 'email' => 'juan.delacruz@example.com'],
-            ]]];
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_methods'
+        && $request->data() === ['data' => ['attributes' => [
+            'type' => 'card',
+            'details' => [
+                'card_number' => '4343434343434345',
+                'exp_month' => 12,
+                'exp_year' => 2030,
+                'cvc' => '123',
+            ],
+            'billing' => ['name' => 'Juan Dela Cruz', 'email' => 'juan.delacruz@example.com'],
+        ]]]);
 
     expect($method)->toBeInstanceOf(PaymentMethod::class)
         ->and($method->id)->toBe('pm_ZzVPFGwGe31eR2vDcPuS9tsA')
@@ -62,11 +60,9 @@ it('retrieves a payment method', function () {
 
     $method = Paymongo::paymentMethods()->retrieve('pm_ZzVPFGwGe31eR2vDcPuS9tsA');
 
-    Http::assertSent(function (Request $request): bool {
-        return $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v1/payment_methods/pm_ZzVPFGwGe31eR2vDcPuS9tsA'
-            && $request->body() === '';
-    });
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->url() === 'https://api.paymongo.com/v1/payment_methods/pm_ZzVPFGwGe31eR2vDcPuS9tsA'
+        && $request->body() === '');
 
     expect($method->id)->toBe('pm_ZzVPFGwGe31eR2vDcPuS9tsA')
         ->and($method->methodType)->toBe(PaymentMethodType::Card);

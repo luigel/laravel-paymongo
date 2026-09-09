@@ -61,9 +61,7 @@ it('routes a correctly signed request through the middleware to the controller',
         ->assertExactJson(['received' => true]);
 
     Event::assertDispatched(WebhookReceived::class);
-    Event::assertDispatched(PaymentPaid::class, function (PaymentPaid $event): bool {
-        return $event->event->resourceId() === 'pay_hvTn9EyxduZ9gV8WHhSGYqBi';
-    });
+    Event::assertDispatched(PaymentPaid::class, fn (PaymentPaid $event): bool => $event->event->resourceId() === 'pay_hvTn9EyxduZ9gV8WHhSGYqBi');
 });
 
 it('rejects an unsigned request to the macro route', function () {

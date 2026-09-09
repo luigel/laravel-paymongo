@@ -50,12 +50,33 @@ jobs:
           composer update --prefer-dist --no-interaction
 
       - name: Execute tests
-        run: vendor/bin/pest
+        run: vendor/bin/pest tests/Unit tests/Feature tests/Arch
 
-  lint:
+  # One job per quality gate, sharing a single setup (PHP 8.3, latest Laravel
+  # the constraints allow). Each entry is a composer script from composer.json,
+  # so `composer check` locally runs exactly what CI runs.
+  quality:
     runs-on: ubuntu-latest
 
-    name: Pint
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Coverage
+            script: test:coverage
+            coverage: pcov
+          - name: Type coverage
+            script: test:types
+          - name: PHPStan
+            script: lint:phpstan
+          - name: Pint
+            script: lint:pint
+          - name: PHPMD
+            script: lint:phpmd
+          - name: Rector
+            script: refactor:dry
+
+    name: ${{ matrix.name }}
 
     steps:
       - name: Checkout code
@@ -65,33 +86,12 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          coverage: none
+          extensions: dom, curl, libxml, mbstring, zip
+          coverage: ${{ matrix.coverage || 'none' }}
           tools: composer:v2
 
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction
 
-      - name: Run Pint
-        run: vendor/bin/pint --test
-
-  static:
-    runs-on: ubuntu-latest
-
-    name: PHPStan
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          coverage: none
-          tools: composer:v2
-
-      - name: Install dependencies
-        run: composer update --prefer-dist --no-interaction
-
-      - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --no-progress
+      - name: Run ${{ matrix.name }}
+        run: composer ${{ matrix.script }}

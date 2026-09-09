@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="laravel-paymongo"
+         xmlns="http://pmd.sf.net/ruleset/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
+         xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+    <description>
+        PHPMD rules for luigel/laravel-paymongo. Run with `composer lint:phpmd` (targets src/ only).
+
+        Thresholds follow the shape of the package: typed DTOs mirror PayMongo resources
+        attribute-for-attribute, PaymongoManager memoizes one service per API, Fixtures
+        exposes one factory per resource, and one event class exists per webhook event.
+        Where a threshold is raised, the class that needs it is named next to it.
+    </description>
+
+    <!--
+        Path exclusions (PDepend semantics: `*` is a wildcard, matched anywhere in the path).
+        tests/ and vendor/ are only reachable when someone runs `phpmd .` by hand.
+    -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    <!--
+        FakesPaymongo routes every faked request through one `match (true)` table with
+        ~50 arms. That is the readable shape for a request router, but no sane cyclomatic
+        or NPath threshold fits it (CCN ~50, NPath in the thousands). The trait is covered
+        line-for-line by the test suite and by PHPStan. To bring it back under PHPMD, add
+        @SuppressWarnings(PHPMD.CyclomaticComplexity) and (PHPMD.NPathComplexity) to
+        fakePaymongoResponse() and delete this pattern.
+    -->
+    <exclude-pattern>*/src/Testing/FakesPaymongo.php</exclude-pattern>
+
+    <!-- Clean code ==================================================== -->
+    <rule ref="rulesets/cleancode.xml">
+        <!-- Facades, Carbon, Str, enum ::tryFrom() and the DTOs' own static factories are the idiom here. -->
+        <exclude name="StaticAccess"/>
+        <!-- verify(..., bool $livemode) and retrieve($id, qrString: true) mirror the API surface. -->
+        <exclude name="BooleanArgumentFlag"/>
+        <!-- Imports are kept tidy by Rector (import names + remove unused) and Pint. -->
+        <exclude name="MissingImport"/>
+        <!-- Kept: ElseExpression (src has no else), IfStatementAssignment, DuplicatedArrayKey,
+             ErrorControlOperator, UndefinedVariable. -->
+    </rule>
+
+    <!-- Code size ===================================================== -->
+    <rule ref="rulesets/codesize.xml">
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="ExcessiveMethodLength"/>
+        <exclude name="ExcessiveParameterList"/>
+        <exclude name="TooManyFields"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="TooManyPublicMethods"/>
+        <exclude name="ExcessiveClassComplexity"/>
+        <!-- Kept at defaults: ExcessiveClassLength (1000), ExcessivePublicCount (45). -->
+    </rule>
+    <rule ref="rulesets/codesize.xml/CyclomaticComplexity">
+        <properties>
+            <!-- Reports at >= reportLevel. Highest in src today: ClientConfig::fromArray() and SignatureVerifier::verify() at 10. -->
+            <property name="reportLevel" value="15"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/codesize.xml/NPathComplexity">
+        <properties>
+            <!-- Reports at >= minimum. SignatureVerifier::verify() (five guard clauses) sits at 216. -->
+            <property name="minimum" value="250"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/codesize.xml/ExcessiveMethodLength">
+        <properties>
+            <!-- Reports at >= minimum, counting executable lines only (comments and blank lines are free). -->
+            <property name="minimum" value="120"/>
+            <property name="ignore-whitespace" value="true"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/codesize.xml/ExcessiveParameterList">
+        <properties>
+            <!-- Reports at >= minimum. DTO constructors enumerate PayMongo attributes as named,
+                 readonly parameters; the largest (CheckoutSession) takes 19. Non-DTO methods take
+                 at most 5, so anything near this limit outside src/Data is still a smell. -->
+            <property name="minimum" value="25"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/codesize.xml/TooManyFields">
+        <properties>
+            <!-- Reports at > maxfields. PaymongoManager memoizes one field per service (15 today). -->
+            <property name="maxfields" value="20"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/codesize.xml/TooManyMethods">
+        <properties>
+            <!-- Reports at > maxmethods. Testing\Fixtures: 23 factories + 3 private helpers = 26. -->
+            <property name="maxmethods" value="30"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/codesize.xml/TooManyPublicMethods">
+        <properties>
+            <!-- Reports at > maxmethods. Testing\Fixtures has 23 public factories (one per resource);
+                 PaymongoManager has 16 once with*() is ignored by the default ignorepattern. -->
+            <property name="maxmethods" value="25"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/codesize.xml/ExcessiveClassComplexity">
+        <properties>
+            <!-- Reports at >= maximum (sum of the methods' cyclomatic complexity). -->
+            <property name="maximum" value="80"/>
+        </properties>
+    </rule>
+
+    <!-- Controversial ================================================= -->
+    <!-- Superglobals plus the CamelCase class/property/method/parameter/variable rules, all at defaults. -->
+    <rule ref="rulesets/controversial.xml"/>
+
+    <!-- Design ======================================================== -->
+    <rule ref="rulesets/design.xml">
+        <exclude name="NumberOfChildren"/>
+        <exclude name="CouplingBetweenObjects"/>
+        <exclude name="DevelopmentCodeFragment"/>
+        <!-- Kept at defaults: ExitExpression, EvalExpression, GotoStatement, DepthOfInheritance (6),
+             EmptyCatchBlock, CountInLoopExpression. -->
+    </rule>
+    <rule ref="rulesets/design.xml/NumberOfChildren">
+        <properties>
+            <!-- Reports at >= minimum (the property is misnamed upstream). Events\WebhookReceived has
+                 25 typed subclasses, one per PayMongo webhook event, and Data\Resource ~20 DTOs. -->
+            <property name="minimum" value="40"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/design.xml/CouplingBetweenObjects">
+        <properties>
+            <!-- Reports at >= maximum. PaymongoManager wires 14 services plus the client, its config
+                 and the HTTP factory (17). -->
+            <property name="maximum" value="25"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/design.xml/DevelopmentCodeFragment">
+        <properties>
+            <!-- Laravel's dd()/dump() helpers are the debug leftovers most likely to slip through. -->
+            <property name="unwanted-functions" value="var_dump,print_r,debug_zval_dump,debug_print_backtrace,dd,dump"/>
+        </properties>
+    </rule>
+
+    <!-- Naming ======================================================== -->
+    <rule ref="rulesets/naming.xml">
+        <exclude name="ShortVariable"/>
+        <exclude name="LongVariable"/>
+        <exclude name="ShortMethodName"/>
+        <!-- Kept at defaults: ShortClassName (3), LongClassName (40), ConstructorWithNameAsEnclosingClass,
+             ConstantNamingConventions (PHP 8.1 enum cases are not constants to PDepend), BooleanGetMethodName. -->
+    </rule>
+    <rule ref="rulesets/naming.xml/ShortVariable">
+        <properties>
+            <property name="minimum" value="3"/>
+            <!-- $id is the resource id everywhere; t/te/li are the Paymongo-Signature header
+                 components; $e the conventional exception; $qr a QR Ph code. -->
+            <property name="exceptions" value="id,t,te,li,e,qr"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/naming.xml/LongVariable">
+        <properties>
+            <!-- API attribute names are long by nature ($externalReferenceNumber, $defaultPaymentMethodId). -->
+            <property name="maximum" value="30"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/naming.xml/ShortMethodName">
+        <properties>
+            <property name="minimum" value="3"/>
+            <!-- Value-object style factories and predicates. -->
+            <property name="exceptions" value="to,of,is"/>
+        </properties>
+    </rule>
+
+    <!-- Unused code =================================================== -->
+    <rule ref="rulesets/unusedcode.xml">
+        <!-- PHPMD only counts private-method calls made on $this/self/static. PaymongoManager::withSecretKey()
+             calls flushMemoized() on a clone ($manager->flushMemoized()), which PHPMD reports as unused.
+             PHPStan (level 4+; this package runs 8) and Rector's dead-code set report unused private
+             methods with real type inference, so nothing is lost. -->
+        <exclude name="UnusedPrivateMethod"/>
+        <!-- Kept: UnusedPrivateField, UnusedLocalVariable, UnusedFormalParameter. -->
+    </rule>
+</ruleset>

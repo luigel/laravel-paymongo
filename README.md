@@ -666,6 +666,22 @@ If you discover any security related issues, please email rigel20.kent@gmail.com
 -   [Rigel Kent Carbonel](https://github.com/luigel)
 -   [All Contributors](../../contributors)
 
+## Development
+
+Everything runs in Docker — the image ships PHP 8.3 with pcov, so nothing is needed on the host. Prefix any script with `docker compose run --rm php` (first `docker compose run --rm php composer install`):
+
+| Script | What it does |
+|---|---|
+| `composer test` | Unit, feature and architecture suites (`test:unit`, `test:feature`, `test:arch` run one) |
+| `composer test:coverage` | The same suites with line coverage enforced at 100% |
+| `composer test:types` | Type coverage of `src` enforced at 100% |
+| `composer lint` | `lint:pint` (style check), `lint:phpstan` (Larastan level 8), `lint:phpmd` (`phpmd.xml`) |
+| `composer format` | Fix code style with Pint |
+| `composer refactor:dry` / `composer refactor` | Preview / apply Rector (`rector.php`), then Pint |
+| `composer check` | Everything CI runs: `lint`, `refactor:dry`, `test:all` |
+
+For example: `docker compose run --rm php composer test:unit`. The opt-in contract suite against the real test-mode API is described in `tests/Contract/README.md`.
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

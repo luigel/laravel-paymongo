@@ -15,15 +15,15 @@ use Luigel\Paymongo\Exceptions\ConnectionException;
 use Luigel\Paymongo\Exceptions\PaymongoException;
 use Throwable;
 
-final class PaymongoClient
+final readonly class PaymongoClient
 {
     use HandlesApiErrors;
 
     private const USER_AGENT = 'luigel/laravel-paymongo v3 (php '.PHP_VERSION.')';
 
     public function __construct(
-        private readonly Factory $http,
-        private readonly ClientConfig $config,
+        private Factory $http,
+        private ClientConfig $config,
     ) {}
 
     /**
@@ -168,7 +168,7 @@ final class PaymongoClient
         }
 
         if ($retryable) {
-            $request = $request->retry(
+            return $request->retry(
                 $this->config->retries,
                 $this->config->retryDelay,
                 fn (Throwable $exception): bool => $this->shouldRetry($exception),
