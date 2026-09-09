@@ -9,6 +9,12 @@ use Luigel\Paymongo\PaymongoManager;
 
 /**
  * @method static \Luigel\Paymongo\Client\PaymongoClient client()
+ * @method static \Luigel\Paymongo\Services\PaymentIntentService paymentIntents()
+ * @method static \Luigel\Paymongo\Services\PaymentMethodService paymentMethods()
+ * @method static \Luigel\Paymongo\Services\PaymentService payments()
+ * @method static \Luigel\Paymongo\Services\RefundService refunds()
+ * @method static \Luigel\Paymongo\Services\WebhookService webhooks()
+ * @method static \Luigel\Paymongo\Services\SourceService sources()
  * @method static \Luigel\Paymongo\PaymongoManager withSecretKey(string $secretKey)
  *
  * @see PaymongoManager

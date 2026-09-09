@@ -49,7 +49,7 @@
     },
     "scripts": {
         "test": "vendor/bin/pest",
-        "analyse": "vendor/bin/phpstan analyse",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
         "format": "vendor/bin/pint"
     },
     "config": {
