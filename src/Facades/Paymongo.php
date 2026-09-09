@@ -21,6 +21,9 @@ use Luigel\Paymongo\PaymongoManager;
  * @method static \Luigel\Paymongo\Services\PlanService plans()
  * @method static \Luigel\Paymongo\Services\SubscriptionService subscriptions()
  * @method static \Luigel\Paymongo\PaymongoManager withSecretKey(string $secretKey)
+ * @method static void fake(array<string, mixed> $stubs = [])
+ * @method static void assertSent(callable $callback)
+ * @method static void assertNothingSent()
  *
  * @see PaymongoManager
  */
