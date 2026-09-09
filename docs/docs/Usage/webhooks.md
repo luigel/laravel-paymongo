@@ -1,158 +1,176 @@
 ---
-sidebar_position: 6
+sidebar_position: 9
 slug: /webhooks
 id: webhooks
 ---
 
 # Webhooks
 
-## Create Webhook
+Two halves: **registering endpoints** with PayMongo (outbound API calls), and **receiving events** on those endpoints (signature verification, deduplication, Laravel events).
 
-Creates a webhook.
+## Registering endpoints
 
-### Payload
+Methods live on `Paymongo::webhooks()` and return `Luigel\Paymongo\Data\Webhook` DTOs.
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference#post_webhooks-1) for payload guidelines.
-
-### Sample
+### Create
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$webhook = Paymongo::webhook()->create([
-    'url' => 'http://your-domain/webhook/source-chargeable',
-    'events' => [
-        'source.chargeable'
-    ]
+$webhook = Paymongo::webhooks()->create('https://example.com/paymongo/webhook', [
+    'payment.paid',
+    'payment.failed',
 ]);
+
+$webhook->id;        // "hook_9VrvpRkkYqK6twbhuvcVTtjM"
+$webhook->secretKey; // "whsk_..." — save as PAYMONGO_WEBHOOK_SECRET, shown only here
 ```
 
-## List all Webhooks
+Event names may also be passed as `Luigel\Paymongo\Enums\WebhookEventType` cases.
 
-Returns all the webhooks you previously created, with the most recent webhooks returned first.
-
-### Sample
+### List, retrieve, update, enable, disable
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
+$all = Paymongo::webhooks()->list(); // list<Webhook>
 
-$webhook = Paymongo::webhook()->all();
-```
+$webhook = Paymongo::webhooks()->retrieve('hook_9VrvpRkkYqK6twbhuvcVTtjM');
 
-## Enable or Disable Webhooks
-
-Set the webhook enable or disable.
-
-### Sample
-
-```php
-use Luigel\Paymongo\Facades\Paymongo;
-// Enable webhook
-$webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->enable();
-
-// Disable webhook
-$webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->disable();
-```
-
-## Update Webhook
-
-Updates a specific webhook
-
-### Sample
-
-```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$webhook = Paymongo::webhook()->find('hook_9VrvpRkkYqK6twbhuvcVTtjM')->update([
-    'url' => 'https://update-domain.com/webhook'
+$webhook = Paymongo::webhooks()->update('hook_9VrvpRkkYqK6twbhuvcVTtjM', [
+    'url' => 'https://example.com/webhooks/paymongo',
+    'events' => ['payment.paid', 'payment.failed', 'payment.refunded'],
 ]);
+
+$webhook = Paymongo::webhooks()->disable('hook_9VrvpRkkYqK6twbhuvcVTtjM');
+$webhook = Paymongo::webhooks()->enable('hook_9VrvpRkkYqK6twbhuvcVTtjM');
+
+$webhook->status; // ?WebhookStatus (Enabled | Disabled)
+$webhook->events; // list<string>
 ```
 
-## Webhook Middleware
+### Artisan commands
 
- Laravel paymongo has a middleware for protecting your webhook, suggested by Paymongo. Check the link here. [**Securing a Webhook. Optional but highly recommended.**](https://developers.paymongo.com/docs/webhooks#3-securing-a-webhook-optional-but-highly-recommended)
- You can put your webhook in the `api.php` like so.
+```bash
+php artisan paymongo:webhook:create https://example.com/paymongo/webhook --event=payment.paid --event=payment.failed
+php artisan paymongo:webhook:list
+php artisan paymongo:webhook:toggle hook_9VrvpRkkYqK6twbhuvcVTtjM --enable
+php artisan paymongo:webhook:toggle hook_9VrvpRkkYqK6twbhuvcVTtjM --disable
+```
+
+`paymongo:webhook:create` subscribes to `payment.paid` and `payment.failed` when no `--event` options are given, and prints the endpoint's `secret_key`.
+
+## Receiving events
+
+### 1. Configure the secret
+
+Put the endpoint's `secret_key` in `.env`:
+
+```env
+PAYMONGO_WEBHOOK_SECRET=whsk_...
+```
+
+### 2. Register the route
 
 ```php
-/** @var \Route $router */
-$router->group(
-    [
-        'namespace' => 'Paymongo',
-        'as' => 'paymongo.',
-        'middleware' => 'paymongo.signature' // If you want to have only one signature key add this middleware in the group route where your webhook routes are defined.
-    ],
-    function () use ($router) {
-    // This example is for different signature key for each webhook.
-        $router->post(
-            '/source-chargeable',
-            'PaymongoCallbackController@sourceChargeable'
-        )
-            ->middleware('paymongo.signature:source_chargeable')
-            ->name('source-chargeable');
+// routes/api.php (or routes/web.php — CSRF is excluded automatically)
+use Illuminate\Support\Facades\Route;
 
-        $router->post(
-            '/payment-paid',
-            'PaymongoCallbackController@paymentPaid'
-        )
-            ->middleware('paymongo.signature:payment_paid')
-            ->name('payment-paid');
+Route::paymongoWebhooks();
+```
 
-        $router->post(
-            '/payment-failed',
-            'PaymongoCallbackController@paymentFailed'
-        )
-            ->middleware('paymongo.signature:payment_failed')
-            ->name('payment-failed');
-            
-        $router->post(
-            '/payment-refunded',
-            'PaymongoCallbackController@paymentRefunded'
-        )
-            ->middleware('paymongo.signature:payment_refunded')
-            ->name('payment-refunded');
-                    
-        $router->post(
-            '/payment-refund-updated',
-            'PaymongoCallbackController@paymentRefundUpdated'
-        )
-            ->middleware('paymongo.signature:payment_refund_updated')
-            ->name('payment-refund-updated');
+This registers `POST /paymongo/webhook` (route name `paymongo.webhooks`) pointing at the package controller, protected by the signature middleware. Customize the URI: `Route::paymongoWebhooks('webhooks/paymongo')`.
+
+### 3. Listen for events
+
+The controller verifies, deduplicates, and dispatches Laravel events. Typed classes exist for the common event names; everything dispatches the generic `Luigel\Paymongo\Events\WebhookReceived` as well:
+
+```php
+namespace App\Listeners;
+
+use Luigel\Paymongo\Events\PaymentPaid;
+
+class FulfillOrder
+{
+    public function handle(PaymentPaid $event): void
+    {
+        $webhookEvent = $event->event; // Luigel\Paymongo\Webhooks\WebhookEvent
+
+        $webhookEvent->resourceId();                          // "pay_..."
+        $webhookEvent->resourceAttribute('amount');           // centavos
+        $webhookEvent->resourceAttribute('metadata.order_id');
+        $webhookEvent->type;      // "payment.paid"
+        $webhookEvent->livemode;  // bool
+        $webhookEvent->timestamp; // ?CarbonImmutable
+        $webhookEvent->data;      // the full embedded resource array
+        $webhookEvent->raw;       // the untouched request payload
     }
-);
-
-# then add this to you .env file
-
-PAYMONGO_WEBHOOK_SIG_PAYMENT_PAID=<payment_paid-secret_key>
-PAYMONGO_WEBHOOK_SIG_PAYMENT_FAILED=<payment_failed-secret_key>
-PAYMONGO_WEBHOOK_SIG_SOURCE_CHARGABLE=<source_chargeable-secret_key>.
-PAYMONGO_WEBHOOK_SIG_PAYMENT_REFUNDED=<payment_refunded-secret_key>.
-PAYMONGO_WEBHOOK_SIG_PAYMENT_REFUND_UPDATED=<payment_refund_updated-secret_key>.
-
-# you can get secret key when creating an webhook
-
+}
 ```
 
-## Artisan Commands
+Laravel auto-discovers listeners with type-hinted `handle()` methods; nothing else to register.
 
-We can list, add, and toggle the `webhooks` using the artisan commands out of the box.
+### Event classes
 
-- #### Adding webhook.
-```bash
-php artisan paymongo:webhook
+| Event name | Class (`Luigel\Paymongo\Events\...`) |
+|---|---|
+| `payment.paid` | `PaymentPaid` |
+| `payment.failed` | `PaymentFailed` |
+| `payment.refunded` | `PaymentRefunded` |
+| `payment.refund.updated` | `PaymentRefundUpdated` |
+| `payment_intent.succeeded` | `PaymentIntentSucceeded` |
+| `payment_intent.awaiting_payment_method` | `PaymentIntentAwaitingPaymentMethod` |
+| `checkout_session.payment.paid` | `CheckoutSessionPaymentPaid` |
+| `link.payment.paid` | `LinkPaymentPaid` |
+| `source.chargeable` | `SourceChargeable` |
+| `refund.succeeded` | `RefundSucceeded` |
+| `qrph.expired` | `QrphExpired` |
+| `subscription.activated` | `SubscriptionActivated` |
+| `subscription.past_due` | `SubscriptionPastDue` |
+| `subscription.unpaid` | `SubscriptionUnpaid` |
+| `subscription.updated` | `SubscriptionUpdated` |
+| `subscription.invoice.paid` | `SubscriptionInvoicePaid` |
+| `subscription.invoice.payment_failed` | `SubscriptionInvoicePaymentFailed` |
+
+Every typed class extends `WebhookReceived`, so a `WebhookReceived` listener sees all events. Names without a typed class (`subscription.invoice.created`, `subscription.invoice.finalized`, `qr.paid`, `qr.expired`, `dispute.created`, `dispute.resolved`, `payout.deposited`, `payout.returned`, and future ones) arrive as `WebhookReceived` only — match on `$event->event->type` or `$event->event->eventType()` (`?WebhookEventType`).
+
+### Signature verification
+
+The `paymongo.signature` middleware (`Luigel\Paymongo\Http\Middleware\VerifyWebhookSignature`) recomputes the HMAC-SHA256 of the raw body against your webhook secret and rejects mismatches with a 401. Timestamps older than `paymongo.webhooks.tolerance` seconds (default 300; `0` disables) are rejected to block replays. Use it on your own routes too:
+
+```php
+Route::post('my/custom/handler', MyWebhookController::class)
+    ->middleware('paymongo.signature');
 ```
-- #### List webhooks
-```bash
-php artisan paymongo:list-webhooks
+
+### Deduplication
+
+PayMongo retries deliveries (up to 12 times) until it gets a 2xx, so the same event can arrive more than once. The controller remembers each event id in your cache — key `paymongo:webhook:{event_id}`, 24 hour TTL — and skips dispatching duplicates. Configure with `PAYMONGO_WEBHOOK_DEDUPE` (on by default), `PAYMONGO_WEBHOOK_DEDUPE_STORE` (a cache store name; your default store otherwise), and `paymongo.webhooks.dedupe.ttl`.
+
+:::caution
+Use a shared cache store (redis, memcached, database) in multi-server deployments so all servers see the same event ids.
+:::
+
+### Multiple endpoints
+
+Each PayMongo endpoint has its own secret. Name the extra secrets in `config/paymongo.php`:
+
+```php
+'webhooks' => [
+    'secret' => env('PAYMONGO_WEBHOOK_SECRET'),
+    'secrets' => [
+        'orders' => env('PAYMONGO_WEBHOOK_SECRET_ORDERS'),
+    ],
+],
 ```
-- #### Enable webhook with webhook id
-```bash
-php artisan paymongo:toggle-webhook {webhook_id} --enable
+
+Then pass the name as the macro's second argument (or as a middleware parameter):
+
+```php
+Route::paymongoWebhooks();                            // verifies with webhooks.secret
+Route::paymongoWebhooks('webhooks/orders', 'orders'); // verifies with webhooks.secrets.orders
+
+Route::post('custom', MyController::class)->middleware('paymongo.signature:orders');
 ```
-- #### Disable webhook with webhook id
-```bash
-php artisan paymongo:toggle-webhook {webhook_id} --disable
-```
-- #### Or you can just run paymongo:toggle-webhook and input needed data on runtime.
-```bash
-php artisan paymongo:toggle-webhook
-```
+
+### Local development
+
+Expose your local app with a tunnel (e.g. `ngrok http 8000`), register a test-mode webhook against the tunnel URL with `paymongo:webhook:create`, and put the printed `secret_key` in `.env`. For feature tests, build event payloads with `Fixtures::event()` — see [Testing](./testing.md).

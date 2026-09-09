@@ -1,58 +1,64 @@
 ---
-sidebar_position: 9
+sidebar_position: 4
 slug: /refunds
 id: refunds
 ---
 
 # Refunds
 
-## Create Refund
+Refund a paid payment, fully or partially, back to the original payment method.
 
-Performs a refund to a customer's paid payments in full or a partial amount to the original payment method used. 
+All methods live on `Paymongo::refunds()` and return `Luigel\Paymongo\Data\Refund` DTOs. See the [PayMongo documentation](https://developers.paymongo.com/reference/refund-resource) for payload guidelines.
 
-### Payload
+## Create
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference/refund-resource) for payload guidelines.
-
-### Sample
-
-Here are the possible values of the reasons.
-- \Luigel\Paymongo\Models\Refund::REASON_DUPLICATE
-- \Luigel\Paymongo\Models\Refund::REASON_FRAUDULENT
-- \Luigel\Paymongo\Models\Refund::REASON_REQUESTED_BY_CUSTOMER
-- \Luigel\Paymongo\Models\Refund::REASON_OTHERS
+The amount is integer centavos; the reason is required and must be one of the `Luigel\Paymongo\Enums\RefundReason` cases — `Duplicate` (`duplicate`), `Fraudulent` (`fraudulent`), or `Others` (`others`). Enum or plain string both work:
 
 ```php
+use Luigel\Paymongo\Enums\RefundReason;
 use Luigel\Paymongo\Facades\Paymongo;
 
-$refund = Paymongo::refund()->create([
-   'amount' => 10,
-   'notes' => 'test refund',
-   'payment_id' => $payment->id,
-   'reason' => \Luigel\Paymongo\Models\Refund::REASON_DUPLICATE,
+$refund = Paymongo::refunds()->create([
+    'amount' => 50050, // partial refund of PHP 500.50
+    'payment_id' => 'pay_i35wBzLNdX8i9nKEPaSKWGib',
+    'reason' => RefundReason::Duplicate,
+    'notes' => 'Customer was charged twice',
 ]);
 ```
 
-## Get Refund
-
-You can retrieve a Refund by providing a refund ID. The prefix for the id is `ref_` followed by a unique hash representing the payment. Just pass the refund id to `find($refundId)` method.
-
-### Sample
+Like all creates, refunds send an automatic `Idempotency-Key`; pass your own as the second argument when you want retry-safety tied to your own identifier:
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$payment = Paymongo::refund()->find('ref_rBCmgwgMXZ9VH4YS2eRooPVL');
+$refund = Paymongo::refunds()->create($attributes, idempotencyKey: "refund-{$order->uuid}");
 ```
 
-## Get All Refunds
-
-Returns all the refunds you previously created, with the most recent refunds returned first.
-
-### Sample
+## Retrieve
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
+$refund = Paymongo::refunds()->retrieve('ref_rBCmgwgMXZ9VH4YS2eRooPVL');
 
-$payments = Paymongo::refund()->all();
+$refund->status;   // ?RefundStatus (Pending | Succeeded | Failed)
+$refund->reason;   // ?RefundReason
+$refund->paymentId;
+$refund->money()->format(); // "₱500.50"
+$refund->refundedAt();      // ?CarbonImmutable
 ```
+
+## List
+
+Returns a `CursorPage<Refund>`; filter by payment with `payment_id`:
+
+```php
+$page = Paymongo::refunds()->list(['payment_id' => 'pay_i35wBzLNdX8i9nKEPaSKWGib']);
+
+foreach ($page as $refund) {
+    // ...
+}
+
+// All refunds, lazily, across pages:
+Paymongo::refunds()->list()->lazy()->each(function ($refund) {
+    // ...
+});
+```
+
+Supported list parameters: `limit`, `before`, `after`, `payment_id`.

@@ -1,113 +1,119 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
 slug: /payment-intents
 id: payment-intents
 ---
 
 # Payment Intents
 
-## Create Payment Intent
+A payment intent tracks one payment from creation through authorization to success, across card 3DS flows and e-wallet redirects alike. It is the primary way to charge with PayMongo.
 
-A payment intent is designed to handle a complex payment process. To compare payment intents with tokens, tokens have a straight forward credit card payment process where it does not check if 3DS is required to fulfill a payment while payment intent is designed to handle such process.
+All methods live on `Paymongo::paymentIntents()` and return `Luigel\Paymongo\Data\PaymentIntent` DTOs. Refer to the [PayMongo documentation](https://developers.paymongo.com/reference/the-payment-intent-object) for every accepted attribute.
 
-### Payload
+## Create
 
-Refer to [Paymongo documentation](https://developers.paymongo.com/reference/the-payment-intent-object) for payload guidelines.
-
-### Sample
+Amounts are integer centavos (`150050` = PHP 1,500.50), minimum `100`.
 
 ```php
 use Luigel\Paymongo\Facades\Paymongo;
 
-$paymentIntent = Paymongo::paymentIntent()->create([
-    'amount' => 100,
-    'payment_method_allowed' => [
-        'card'
-    ],
+$intent = Paymongo::paymentIntents()->create([
+    'amount' => 150050,
+    'currency' => 'PHP',
+    'payment_method_allowed' => ['card', 'gcash', 'paymaya'],
     'payment_method_options' => [
-        'card' => [
-            'request_three_d_secure' => 'automatic'
-        ]
+        'card' => ['request_three_d_secure' => 'automatic'],
     ],
-    'description' => 'This is a test payment intent',
+    'description' => 'Order #1234',
     'statement_descriptor' => 'LUIGEL STORE',
-    'currency' => "PHP",
+    'metadata' => ['order_id' => '1234'],
 ]);
+
+$intent->id;        // "pi_hsJNpsRFU1LxgVbxW4YJHRs6"
+$intent->clientKey; // pass to your frontend for client-side confirmation
 ```
 
-## Cancel Payment Intent
-
-Cancels the payment intent.
-
-### Sample
+Pass your own idempotency key to make retries safe end-to-end (one is auto-generated otherwise):
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
-$cancelledPaymentIntent = $paymentIntent->cancel();
+$intent = Paymongo::paymentIntents()->create($attributes, idempotencyKey: $order->uuid);
 ```
 
-## Attach Payment Intent
-
-Attach the payment intent.
-
-### Sample
-1. Simple attaching of payment method in payment intent.
-```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
-// Attached the payment method to the payment intent
-$successfulPayment = $paymentIntent->attach('pm_wr98R2gwWroVxfkcNVZBuXg2');
-```
-
-2. Attaching paymaya payment method in payment intent.
-```php 
-$paymentIntent = Paymongo::paymentIntent()
-    ->create([
-        'amount' => 100,
-        'payment_method_allowed' => [
-            'paymaya', 'card'  // <--- Make sure to add paymaya here.
-        ],
-        'payment_method_options' => [
-            'card' => [
-                'request_three_d_secure' => 'automatic',
-            ],
-        ],
-        'description' => 'This is a test payment intent',
-        'statement_descriptor' => 'LUIGEL STORE',
-        'currency' => 'PHP',
-    ]);
-
-$paymentMethod = Paymongo::paymentMethod()
-    ->create([
-        'type' => 'paymaya',  // <--- and payment method type should be paymaya
-        'billing' => [
-            'address' => [
-                'line1' => 'Somewhere there',
-                'city' => 'Cebu City',
-                'state' => 'Cebu',
-                'country' => 'PH',
-                'postal_code' => '6000',
-            ],
-            'name' => 'Rigel Kent Carbonel',
-            'email' => 'rigel20.kent@gmail.com',
-            'phone' => '0935454875545',
-        ],
-    ]);
-
-$attachedPaymentIntent = $paymentIntent->attach($paymentMethod->id, 'http://example.com/success'); // <--- And the second parameter should be the return_url.
-```
-
-## Get Payment Intent
-
-You can retrieve a Payment Intent by providing a payment intent ID. The prefix for the id is `pi_` followed by a unique hash representing the payment. Just pass the payment id to `find($paymentIntentId)` method.
-
-### Sample
+## Retrieve
 
 ```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$paymentIntent = Paymongo::paymentIntent()->find('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
+$intent = Paymongo::paymentIntents()->retrieve('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
 ```
+
+### Retrieve with a client key
+
+For client-side status polling, authenticate with your **public key** and the intent's `client_key` instead of the secret key:
+
+```php
+$intent = Paymongo::paymentIntents()->retrieveUsingClientKey(
+    'pi_hsJNpsRFU1LxgVbxW4YJHRs6',
+    'pi_hsJNpsRFU1LxgVbxW4YJHRs6_client_...'
+);
+```
+
+Requires `PAYMONGO_PUBLIC_KEY` to be configured; throws `AuthenticationException` otherwise.
+
+## Attach a payment method
+
+Attaching triggers the payment attempt:
+
+```php
+$intent = Paymongo::paymentIntents()->attach('pi_hsJNpsRFU1LxgVbxW4YJHRs6', 'pm_wr98R2gwWroVxfkcNVZBuXg2');
+```
+
+### E-wallets need a return URL
+
+For `gcash`, `grab_pay`, `paymaya`, and other redirect-based methods (also `dob` and `billease`), pass `returnUrl` — where the customer lands after authorizing — then send them to the authorization page:
+
+```php
+use Luigel\Paymongo\Enums\PaymentIntentStatus;
+
+$method = Paymongo::paymentMethods()->create(['type' => 'gcash']);
+
+$intent = Paymongo::paymentIntents()->attach(
+    'pi_hsJNpsRFU1LxgVbxW4YJHRs6',
+    $method->id,
+    returnUrl: route('checkout.complete'),
+);
+
+if ($intent->status === PaymentIntentStatus::AwaitingNextAction) {
+    return redirect()->away($intent->nextAction->url);
+}
+```
+
+On your return URL, retrieve the intent again and check `status` — but treat the `payment.paid` webhook as the source of truth (see [Webhooks](./webhooks.md)).
+
+## Capture and cancel
+
+Create the intent with `'capture_type' => 'manual'` to authorize first and capture later:
+
+```php
+// Full capture
+$intent = Paymongo::paymentIntents()->capture('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
+
+// Partial capture (centavos)
+$intent = Paymongo::paymentIntents()->capture('pi_hsJNpsRFU1LxgVbxW4YJHRs6', 100000);
+
+// Cancel an unfinished intent
+$intent = Paymongo::paymentIntents()->cancel('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
+```
+
+## Statuses
+
+`$intent->status` is a `Luigel\Paymongo\Enums\PaymentIntentStatus`:
+
+| Case | Value |
+|---|---|
+| `AwaitingPaymentMethod` | `awaiting_payment_method` |
+| `AwaitingNextAction` | `awaiting_next_action` (redirect the customer to `$intent->nextAction->url`) |
+| `AwaitingCapture` | `awaiting_capture` (manual capture type only) |
+| `Processing` | `processing` |
+| `Succeeded` | `succeeded` |
+| `Cancelled` | `cancelled` |
+
+Useful properties: `amount`, `currency`, `description`, `statementDescriptor`, `clientKey`, `captureType`, `paymentMethodAllowed`, `payments` (the resulting `Payment` DTOs), `nextAction`, `lastPaymentError`, `metadata`, plus `money()` for display.
