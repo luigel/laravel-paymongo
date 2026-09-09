@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 12
 slug: /webhooks
 id: webhooks
 ---
@@ -81,7 +81,7 @@ This registers `POST /paymongo/webhook` (route name `paymongo.webhooks`) pointin
 
 ### 3. Listen for events
 
-The controller verifies, deduplicates, and dispatches Laravel events. Typed classes exist for the common event names; everything dispatches the generic `Luigel\Paymongo\Events\WebhookReceived` as well:
+The controller verifies, deduplicates, and dispatches Laravel events. Typed classes exist for every event name PayMongo sends; everything dispatches the generic `Luigel\Paymongo\Events\WebhookReceived` as well:
 
 ```php
 namespace App\Listeners;
@@ -123,14 +123,22 @@ Laravel auto-discovers listeners with type-hinted `handle()` methods; nothing el
 | `source.chargeable` | `SourceChargeable` |
 | `refund.succeeded` | `RefundSucceeded` |
 | `qrph.expired` | `QrphExpired` |
+| `qr.paid` | `QrPaid` |
+| `qr.expired` | `QrExpired` |
 | `subscription.activated` | `SubscriptionActivated` |
 | `subscription.past_due` | `SubscriptionPastDue` |
 | `subscription.unpaid` | `SubscriptionUnpaid` |
 | `subscription.updated` | `SubscriptionUpdated` |
+| `subscription.invoice.created` | `SubscriptionInvoiceCreated` |
+| `subscription.invoice.finalized` | `SubscriptionInvoiceFinalized` |
 | `subscription.invoice.paid` | `SubscriptionInvoicePaid` |
 | `subscription.invoice.payment_failed` | `SubscriptionInvoicePaymentFailed` |
+| `dispute.created` | `DisputeCreated` |
+| `dispute.resolved` | `DisputeResolved` |
+| `payout.deposited` | `PayoutDeposited` |
+| `payout.returned` | `PayoutReturned` |
 
-Every typed class extends `WebhookReceived`, so a `WebhookReceived` listener sees all events. Names without a typed class (`subscription.invoice.created`, `subscription.invoice.finalized`, `qr.paid`, `qr.expired`, `dispute.created`, `dispute.resolved`, `payout.deposited`, `payout.returned`, and future ones) arrive as `WebhookReceived` only — match on `$event->event->type` or `$event->event->eventType()` (`?WebhookEventType`).
+Every typed class extends `WebhookReceived`, so a `WebhookReceived` listener sees all events. All 25 known event names (`Luigel\Paymongo\Enums\WebhookEventType`) have a typed class; names the package does not know yet arrive as `WebhookReceived` only — match on `$event->event->type` or `$event->event->eventType()` (`?WebhookEventType`).
 
 ### Signature verification
 

@@ -7,16 +7,21 @@ All notable changes to `laravel-paymongo` will be documented in this file
 Complete rewrite. See [UPGRADE.md](UPGRADE.md) for the full v2 to v3 migration guide.
 
 ### Added
-- Per-resource services on the `Paymongo` facade (`paymentIntents()`, `paymentMethods()`, `payments()`, `refunds()`, `webhooks()`, `checkoutSessions()`, `links()`, `customers()`, `plans()`, `subscriptions()`, deprecated `sources()`) returning typed, immutable DTOs with enum-typed fields.
+- Per-resource services on the `Paymongo` facade (`paymentIntents()`, `paymentMethods()`, `payments()`, `refunds()`, `webhooks()`, `checkoutSessions()`, `links()`, `paymentLinks()`, `qrph()`, `customers()`, `plans()`, `subscriptions()`, `payouts()`, deprecated `sources()`) returning typed, immutable DTOs with enum-typed fields.
 - Subscriptions support: plans CRUD plus subscription create, list, cancel, change plan, change payment method, and test-cycle trigger.
+- QR Ph support (`Paymongo::qrph()`): dynamic and static MPM QR codes on the v3 QR API (`generate`, `execute`, `retrieve` with QR string/image flags, `expire`) plus static in-store QR Ph codes via the v1 endpoint (`generateStatic`).
+- Payment Links support (`Paymongo::paymentLinks()`) for the newer `/payment_links` API — flat request bodies, ISO 8601 timestamps, `active`/`archived` management status: `create`, `retrieve`, `update`, `archive`/`unarchive`, `list`, per-link `payments`, and `refund` (raw array; the response shape is undocumented upstream). The legacy `/links` API stays available unchanged as `Paymongo::links()`.
+- Read-only Payouts support (`Paymongo::payouts()`): `list` with filters (`payout_status`, `provider`, `created_at.between`, `search`, `sort_by`, `order`), `retrieve`, per-payout `transactions`, and merchant payout `schedule`.
+- `CursorTokenPage` for the Payouts API's token pagination: `nextCursor`/`prevCursor`, totals `meta`, `nextPage()`, `lazy()`, iteration, and counting.
+- Flat-body client methods `postFlat()`/`patchFlat()` and `ClientConfig::origin()` for the newer APIs that skip the `data.attributes` envelope (payment links, v3 QR).
 - Payment intent `capture()` (full and partial) and `retrieveUsingClientKey()` (public-key retrieval).
 - Cursor pagination for list endpoints: `CursorPage` with `nextPage()`, `lazy()`, iteration, and counting.
 - `Money` value object for integer-centavo amounts (`toDecimal()`, `format()`, arithmetic) and a `money()` helper on amount-bearing resources.
 - Exception tree rooted at `PaymongoException` (`AuthenticationException`, `PaymentDeclinedException`, `ResourceNotFoundException`, `RateLimitException` with `retryAfter`, `ServerException`, `InvalidRequestException`, `ConnectionException`, `InvalidWebhookSignatureException`) carrying parsed `ApiError`s.
 - Automatic `Idempotency-Key` on POST requests and automatic retries (429/5xx/connection errors) for idempotent requests; configurable via `paymongo.http.*` and `paymongo.idempotency.*`.
-- First-class inbound webhooks: `Route::paymongoWebhooks()` macro, `paymongo.signature` middleware verifying the `Paymongo-Signature` header (with timestamp tolerance), cache-based event deduplication, and dispatched Laravel events — generic `WebhookReceived` plus 17 typed event classes.
+- First-class inbound webhooks: `Route::paymongoWebhooks()` macro, `paymongo.signature` middleware verifying the `Paymongo-Signature` header (with timestamp tolerance), cache-based event deduplication, and dispatched Laravel events — generic `WebhookReceived` plus a typed event class for every one of the 25 webhook event types.
 - Multi-account support via `Paymongo::withSecretKey()`.
-- Testing utilities: `Paymongo::fake()`, `Paymongo::assertSent()`, `Paymongo::assertNothingSent()`, and `Luigel\Paymongo\Testing\Fixtures` factories for every resource; interoperable with plain `Http::fake()`.
+- Testing utilities: `Paymongo::fake()`, `Paymongo::assertSent()`, `Paymongo::assertNothingSent()`, and `Luigel\Paymongo\Testing\Fixtures` factories for every resource (including `paymentLink`, `mpmQr`, `qrExecution`, `staticQr`, `payout`, `payoutTransaction`, `payoutSchedule`, and the `flatList`/`payoutList` envelopes); the fake covers the entire API origin, `/v3` QR endpoints included, and interoperates with plain `Http::fake()`.
 - Artisan commands `paymongo:webhook:create`, `paymongo:webhook:list`, `paymongo:webhook:toggle`.
 - Opt-in contract test suite against the real test-mode API (`PAYMONGO_CONTRACT_TESTS=1`).
 
