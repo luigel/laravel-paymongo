@@ -14,8 +14,7 @@ use Luigel\Paymongo\Facades\Paymongo;
  * The two tests share state and run in file order; the refund test skips when
  * the charge did not produce a payment.
  */
-$state = new class
-{
+$state = new class() {
     public ?string $intentId = null;
 
     public ?string $paymentId = null;
@@ -37,8 +36,8 @@ beforeEach(function () {
 
 it('charges a sandbox card and receives the payment.paid webhook', function () use ($state) {
     $intent = Paymongo::paymentIntents()->create([
-        'amount' => 10000,
-        'currency' => 'PHP',
+        'amount'                 => 10000,
+        'currency'               => 'PHP',
         'payment_method_allowed' => ['card'],
         'payment_method_options' => [
             'card' => ['request_three_d_secure' => 'automatic'],
@@ -50,16 +49,16 @@ it('charges a sandbox card and receives the payment.paid webhook', function () u
         ->and($intent->status)->toBe(PaymentIntentStatus::AwaitingPaymentMethod);
 
     $method = Paymongo::paymentMethods()->create([
-        'type' => 'card',
+        'type'    => 'card',
         'details' => [
             // PayMongo sandbox card that succeeds without a 3DS challenge.
             'card_number' => '4343434343434345',
-            'exp_month' => 12,
-            'exp_year' => 34,
-            'cvc' => '123',
+            'exp_month'   => 12,
+            'exp_year'    => 34,
+            'cvc'         => '123',
         ],
         'billing' => [
-            'name' => 'Juan dela Cruz',
+            'name'  => 'Juan dela Cruz',
             'email' => 'juan.delacruz@example.com',
             'phone' => '+639171234567',
         ],
@@ -103,13 +102,13 @@ it('refunds the payment and receives the payment.refunded webhook', function () 
     }
 
     $refund = Paymongo::refunds()->create([
-        'amount' => $state->amount ?? 10000,
+        'amount'     => $state->amount ?? 10000,
         'payment_id' => $state->paymentId,
         // NOTE: PayMongo also accepts `requested_by_customer`, but the package's
         // RefundReason enum only models duplicate|fraudulent|others, so that
         // value would round-trip as a null $refund->reason.
         'reason' => RefundReason::Others,
-        'notes' => 'laravel-paymongo e2e',
+        'notes'  => 'laravel-paymongo e2e',
     ]);
 
     expect($refund->id)->toStartWith('ref_')

@@ -11,7 +11,7 @@ use Throwable;
 abstract class PaymongoException extends RuntimeException
 {
     /**
-     * @param  list<ApiError>  $errors
+     * @param list<ApiError> $errors
      */
     public function __construct(
         string $message,

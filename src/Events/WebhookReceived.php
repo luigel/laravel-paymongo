@@ -15,5 +15,7 @@ use Luigel\Paymongo\Webhooks\WebhookEvent;
  */
 class WebhookReceived
 {
-    public function __construct(public readonly WebhookEvent $event) {}
+    public function __construct(public readonly WebhookEvent $event)
+    {
+    }
 }

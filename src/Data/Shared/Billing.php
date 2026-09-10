@@ -11,10 +11,11 @@ final readonly class Billing
         public ?string $email = null,
         public ?string $phone = null,
         public ?Address $address = null,
-    ) {}
+    ) {
+    }
 
     /**
-     * @param  array<array-key, mixed>  $data
+     * @param array<array-key, mixed> $data
      */
     public static function fromArray(array $data): self
     {

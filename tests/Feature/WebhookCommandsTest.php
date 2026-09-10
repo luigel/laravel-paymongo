@@ -17,7 +17,7 @@ it('creates a webhook subscribed to the default events', function () {
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/webhooks'
         && $request->data() === ['data' => ['attributes' => [
-            'url' => 'https://example.com/paymongo/webhook',
+            'url'    => 'https://example.com/paymongo/webhook',
             'events' => ['payment.paid', 'payment.failed'],
         ]]]);
 });
@@ -26,14 +26,14 @@ it('creates a webhook subscribed to explicitly passed events', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('webhook'))]);
 
     $this->artisan('paymongo:webhook:create', [
-        'url' => 'https://example.com/paymongo/webhook',
+        'url'     => 'https://example.com/paymongo/webhook',
         '--event' => ['source.chargeable', 'payment.refunded'],
     ])->assertSuccessful();
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/webhooks'
         && $request->data() === ['data' => ['attributes' => [
-            'url' => 'https://example.com/paymongo/webhook',
+            'url'    => 'https://example.com/paymongo/webhook',
             'events' => ['source.chargeable', 'payment.refunded'],
         ]]]);
 });
@@ -98,8 +98,8 @@ it('errors when both --enable and --disable are passed', function () {
     Http::fake();
 
     $this->artisan('paymongo:webhook:toggle', [
-        'id' => 'hook_Vq5cCzKFFV1yvhs8q1M4moJn',
-        '--enable' => true,
+        'id'        => 'hook_Vq5cCzKFFV1yvhs8q1M4moJn',
+        '--enable'  => true,
         '--disable' => true,
     ])
         ->expectsOutputToContain('exactly one of --enable or --disable')

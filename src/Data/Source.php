@@ -18,9 +18,9 @@ use Luigel\Paymongo\Support\Money;
 final class Source extends Resource
 {
     /**
-     * @param  array<string, mixed>  $attributes
-     * @param  PaymentMethodType|null  $sourceType  The `type` attribute (gcash, grab_pay); named
-     *                                              sourceType because $type holds the resource type.
+     * @param array<string, mixed>   $attributes
+     * @param PaymentMethodType|null $sourceType The `type` attribute (gcash, grab_pay); named
+     *                                           sourceType because $type holds the resource type.
      */
     public function __construct(
         string $id,

@@ -7,4 +7,6 @@ namespace Luigel\Paymongo\Events;
 /**
  * Dispatched for `checkout_session.payment.paid` webhook events.
  */
-final class CheckoutSessionPaymentPaid extends WebhookReceived {}
+final class CheckoutSessionPaymentPaid extends WebhookReceived
+{
+}

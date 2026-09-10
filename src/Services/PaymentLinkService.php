@@ -23,7 +23,7 @@ use Luigel\Paymongo\Pagination\CursorPage;
 final class PaymentLinkService extends AbstractService
 {
     /**
-     * @param  array<string, mixed>  $attributes  Supported keys: amount (min 100), currency (uppercase), description, remarks, metadata, restrictions (e.g. `['completed_sessions' => 1]`).
+     * @param array<string, mixed> $attributes Supported keys: amount (min 100), currency (uppercase), description, remarks, metadata, restrictions (e.g. `['completed_sessions' => 1]`).
      *
      * @throws PaymongoException
      */
@@ -43,7 +43,7 @@ final class PaymentLinkService extends AbstractService
     }
 
     /**
-     * @param  array<string, mixed>  $attributes  Updatable fields, including `status` (`active` / `archived`).
+     * @param array<string, mixed> $attributes Updatable fields, including `status` (`active` / `archived`).
      *
      * @throws PaymongoException
      */
@@ -76,10 +76,11 @@ final class PaymentLinkService extends AbstractService
      * helper; the next page repeats the request with `after` set to the
      * last item's id.
      *
-     * @param  array<string, mixed>  $params  Supported keys: limit, before, after.
-     * @return CursorPage<PaymentLink>
+     * @param array<string, mixed> $params Supported keys: limit, before, after.
      *
      * @throws PaymongoException
+     *
+     * @return CursorPage<PaymentLink>
      */
     public function list(array $params = []): CursorPage
     {
@@ -114,10 +115,11 @@ final class PaymentLinkService extends AbstractService
      * pagination (assumed from the v1 conventions; the official docs do
      * not spell the list envelope out).
      *
-     * @param  array<string, mixed>  $params  Supported keys: limit, before, after.
-     * @return CursorPage<Payment>
+     * @param array<string, mixed> $params Supported keys: limit, before, after.
      *
      * @throws PaymongoException
+     *
+     * @return CursorPage<Payment>
      */
     public function payments(string $id, array $params = []): CursorPage
     {
@@ -132,10 +134,11 @@ final class PaymentLinkService extends AbstractService
      * passthrough on the request, too). Expect this signature to tighten
      * once the shape is verified.
      *
-     * @param  array<string, mixed>  $attributes
-     * @return array<array-key, mixed>
+     * @param array<string, mixed> $attributes
      *
      * @throws PaymongoException
+     *
+     * @return array<array-key, mixed>
      */
     public function refund(string $id, array $attributes = []): array
     {

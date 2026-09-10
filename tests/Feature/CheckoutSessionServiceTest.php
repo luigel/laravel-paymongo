@@ -22,10 +22,10 @@ it('creates a checkout session and maps the response onto the DTO', function () 
             ['amount' => 150050, 'currency' => 'PHP', 'name' => 'Leather Wallet', 'quantity' => 1],
         ],
         'payment_method_types' => ['card', 'gcash', 'paymaya'],
-        'success_url' => 'https://example.com/success',
-        'cancel_url' => 'https://example.com/cancel',
-        'reference_number' => 'ORDER-10101',
-        'description' => 'Order #10101 checkout',
+        'success_url'          => 'https://example.com/success',
+        'cancel_url'           => 'https://example.com/cancel',
+        'reference_number'     => 'ORDER-10101',
+        'description'          => 'Order #10101 checkout',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
@@ -35,10 +35,10 @@ it('creates a checkout session and maps the response onto the DTO', function () 
                 ['amount' => 150050, 'currency' => 'PHP', 'name' => 'Leather Wallet', 'quantity' => 1],
             ],
             'payment_method_types' => ['card', 'gcash', 'paymaya'],
-            'success_url' => 'https://example.com/success',
-            'cancel_url' => 'https://example.com/cancel',
-            'reference_number' => 'ORDER-10101',
-            'description' => 'Order #10101 checkout',
+            'success_url'          => 'https://example.com/success',
+            'cancel_url'           => 'https://example.com/cancel',
+            'reference_number'     => 'ORDER-10101',
+            'description'          => 'Order #10101 checkout',
         ]]]
         && $request->hasHeader('Idempotency-Key'));
 

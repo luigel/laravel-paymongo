@@ -13,14 +13,16 @@ abstract class AbstractService
 {
     public function __construct(
         protected readonly PaymongoClient $client,
-    ) {}
+    ) {
+    }
 
     /**
      * Map a single-resource response onto a DTO.
      *
      * @template T of Resource
      *
-     * @param  class-string<T>  $class
+     * @param class-string<T> $class
+     *
      * @return T
      */
     protected function one(ApiResponse $response, string $class): Resource
@@ -33,7 +35,8 @@ abstract class AbstractService
      *
      * @template T of Resource
      *
-     * @param  class-string<T>  $class
+     * @param class-string<T> $class
+     *
      * @return list<T>
      */
     protected function many(ApiResponse $response, string $class): array
@@ -55,9 +58,10 @@ abstract class AbstractService
      *
      * @template T of Resource
      *
-     * @param  class-string<T>  $class
-     * @param  array<string, mixed>  $params
-     * @param  (callable(array<string, mixed>): array<string, mixed>)|null  $mapQuery
+     * @param class-string<T>                                             $class
+     * @param array<string, mixed>                                        $params
+     * @param (callable(array<string, mixed>): array<string, mixed>)|null $mapQuery
+     *
      * @return CursorPage<T>
      */
     protected function page(string $class, string $path, array $params = [], ?callable $mapQuery = null): CursorPage

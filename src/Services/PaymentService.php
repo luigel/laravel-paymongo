@@ -19,10 +19,11 @@ final class PaymentService extends AbstractService
     }
 
     /**
-     * @param  array<string, mixed>  $params  Supported keys: limit, before, after.
-     * @return CursorPage<Payment>
+     * @param array<string, mixed> $params Supported keys: limit, before, after.
      *
      * @throws PaymongoException
+     *
+     * @return CursorPage<Payment>
      */
     public function list(array $params = []): CursorPage
     {

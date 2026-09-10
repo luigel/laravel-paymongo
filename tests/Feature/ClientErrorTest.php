@@ -27,16 +27,16 @@ it('maps error statuses to the exception tree', function (int $status, string $e
 
     expect(fn () => app('paymongo')->client()->get('/payments'))->toThrow($exception);
 })->with([
-    '400 invalid request' => [400, InvalidRequestException::class],
-    '401 authentication' => [401, AuthenticationException::class],
+    '400 invalid request'  => [400, InvalidRequestException::class],
+    '401 authentication'   => [401, AuthenticationException::class],
     '402 payment declined' => [402, PaymentDeclinedException::class],
-    '403 invalid request' => [403, InvalidRequestException::class],
-    '404 not found' => [404, ResourceNotFoundException::class],
-    '422 invalid request' => [422, InvalidRequestException::class],
-    '429 rate limit' => [429, RateLimitException::class],
-    '500 server' => [500, ServerException::class],
-    '502 server' => [502, ServerException::class],
-    '503 server' => [503, ServerException::class],
+    '403 invalid request'  => [403, InvalidRequestException::class],
+    '404 not found'        => [404, ResourceNotFoundException::class],
+    '422 invalid request'  => [422, InvalidRequestException::class],
+    '429 rate limit'       => [429, RateLimitException::class],
+    '500 server'           => [500, ServerException::class],
+    '502 server'           => [502, ServerException::class],
+    '503 server'           => [503, ServerException::class],
 ]);
 
 it('parses the PayMongo error payload into ApiError objects', function () {
@@ -44,12 +44,12 @@ it('parses the PayMongo error payload into ApiError objects', function () {
         'api.paymongo.com/*' => Http::response([
             'errors' => [
                 [
-                    'code' => 'parameter_below_minimum',
+                    'code'   => 'parameter_below_minimum',
                     'detail' => 'The value for amount cannot be less than 100.',
                     'source' => ['pointer' => 'amount', 'attribute' => 'amount'],
                 ],
                 [
-                    'code' => 'parameter_required',
+                    'code'   => 'parameter_required',
                     'detail' => 'currency is required.',
                 ],
             ],

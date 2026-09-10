@@ -38,7 +38,7 @@ it('sends no idempotency key when auto idempotency is disabled', function () {
 
     app('paymongo')->client()->post('/payment_intents', ['amount' => 10000]);
 
-    Http::assertSent(fn (Request $request): bool => ! $request->hasHeader('Idempotency-Key'));
+    Http::assertSent(fn (Request $request): bool => !$request->hasHeader('Idempotency-Key'));
 });
 
 it('still sends an explicit idempotency key when auto idempotency is disabled', function () {
