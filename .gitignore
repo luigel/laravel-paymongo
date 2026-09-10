@@ -11,3 +11,6 @@ coverage
 /e2e/app
 /e2e/.env
 /e2e/.webhook_id
+
+# Claude Code personal overrides.
+.claude/settings.local.json
