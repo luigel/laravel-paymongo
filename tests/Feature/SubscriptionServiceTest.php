@@ -36,7 +36,7 @@ it('creates a subscription from a customer and plan id and maps the DTO', functi
         && $request->url() === 'https://api.paymongo.com/v1/subscriptions'
         && $request->data() === ['data' => ['attributes' => [
             'customer_id' => 'cus_hcjuejWKpU1YZi3sBDGGpx8M',
-            'plan_id' => 'plan_Ho5Fp9vJkTqW2xYzB3cD4eFg',
+            'plan_id'     => 'plan_Ho5Fp9vJkTqW2xYzB3cD4eFg',
         ]]]
         && $request->hasHeader('Idempotency-Key'));
 
@@ -84,7 +84,7 @@ it('retrieves a subscription', function () {
 
 it('lists subscriptions passing the query parameters through', function () {
     Http::fake(['api.paymongo.com/*' => Http::response([
-        'data' => [fixture_data('subscription')['data']],
+        'data'     => [fixture_data('subscription')['data']],
         'has_more' => false,
     ])]);
 
@@ -168,7 +168,7 @@ it('changes the payment method including the redirect url when given', function 
         && $request->url() === 'https://api.paymongo.com/v1/subscriptions/sub_Kx2mVp8RqTw4ZyBnCsDe6Fgh/payment_method'
         && $request->data() === ['data' => ['attributes' => [
             'payment_method_id' => 'pm_Bq6TnVr9ZuWxC3yD7sE2fGh5',
-            'redirect_url' => 'https://example.com/billing',
+            'redirect_url'      => 'https://example.com/billing',
         ]]]);
 });
 

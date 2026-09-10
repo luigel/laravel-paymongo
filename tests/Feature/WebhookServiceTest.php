@@ -20,7 +20,7 @@ it('creates a webhook normalizing enum events and maps the DTO', function () {
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/webhooks'
         && $request->data() === ['data' => ['attributes' => [
-            'url' => 'https://example.com/paymongo/webhook',
+            'url'    => 'https://example.com/paymongo/webhook',
             'events' => ['payment.paid', 'payment.failed'],
         ]]]);
 
@@ -72,14 +72,14 @@ it('updates a webhook via PUT with the envelope', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('webhook'))]);
 
     Paymongo::webhooks()->update('hook_Vq5cCzKFFV1yvhs8q1M4moJn', [
-        'url' => 'https://example.com/new-hook',
+        'url'    => 'https://example.com/new-hook',
         'events' => ['payment.paid'],
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'PUT'
         && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_Vq5cCzKFFV1yvhs8q1M4moJn'
         && $request->data() === ['data' => ['attributes' => [
-            'url' => 'https://example.com/new-hook',
+            'url'    => 'https://example.com/new-hook',
             'events' => ['payment.paid'],
         ]]]);
 });

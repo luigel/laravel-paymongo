@@ -14,10 +14,11 @@ final readonly class NextAction
         public ?string $type = null,
         public ?string $url = null,
         public ?string $returnUrl = null,
-    ) {}
+    ) {
+    }
 
     /**
-     * @param  array<array-key, mixed>  $data
+     * @param array<array-key, mixed> $data
      */
     public static function fromArray(array $data): self
     {

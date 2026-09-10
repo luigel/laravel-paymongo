@@ -17,7 +17,7 @@ use Luigel\Paymongo\Pagination\CursorPage;
 final class LinkService extends AbstractService
 {
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
      *
      * @throws PaymongoException
      */
@@ -50,10 +50,11 @@ final class LinkService extends AbstractService
     }
 
     /**
-     * @param  array<string, mixed>  $params  Supported keys: limit, before, after.
-     * @return CursorPage<Link>
+     * @param array<string, mixed> $params Supported keys: limit, before, after.
      *
      * @throws PaymongoException
+     *
+     * @return CursorPage<Link>
      */
     public function list(array $params = []): CursorPage
     {

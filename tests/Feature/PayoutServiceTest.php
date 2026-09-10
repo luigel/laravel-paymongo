@@ -42,12 +42,12 @@ it('lists payouts with the documented query parameters', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(payouts_first_page())]);
 
     $page = Paymongo::payouts()->list([
-        'limit' => 10,
-        'payout_status' => 'deposited',
-        'provider' => 'paymongo_central_hub',
+        'limit'              => 10,
+        'payout_status'      => 'deposited',
+        'provider'           => 'paymongo_central_hub',
         'created_at.between' => '2024-09-01..2024-09-30',
-        'sort_by' => 'created_at',
-        'order' => 'desc',
+        'sort_by'            => 'created_at',
+        'order'              => 'desc',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
@@ -87,12 +87,12 @@ it('follows the next_cursor token when fetching the next payout page', function 
 
 it('exposes the totals metadata without the cursor tokens', function () {
     Http::fake(['api.paymongo.com/*' => Http::response([
-        'data' => [Fixtures::payout()['data']],
+        'data'       => [Fixtures::payout()['data']],
         'pagination' => [
-            'next_cursor' => 'cursor_next',
-            'prev_cursor' => 'cursor_prev',
-            'total_records' => 25,
-            'total_amount' => 12500000,
+            'next_cursor'        => 'cursor_next',
+            'prev_cursor'        => 'cursor_prev',
+            'total_records'      => 25,
+            'total_amount'       => 12500000,
             'total_per_currency' => ['PHP' => 12500000],
         ],
     ])]);
@@ -102,8 +102,8 @@ it('exposes the totals metadata without the cursor tokens', function () {
     expect($page->nextCursor)->toBe('cursor_next')
         ->and($page->prevCursor)->toBe('cursor_prev')
         ->and($page->meta)->toBe([
-            'total_records' => 25,
-            'total_amount' => 12500000,
+            'total_records'      => 25,
+            'total_amount'       => 12500000,
             'total_per_currency' => ['PHP' => 12500000],
         ]);
 });

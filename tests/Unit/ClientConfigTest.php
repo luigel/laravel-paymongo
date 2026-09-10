@@ -8,10 +8,10 @@ it('builds from the paymongo config array shape', function () {
     $config = ClientConfig::fromArray([
         'secret_key' => 'sk_test_abc',
         'public_key' => 'pk_test_abc',
-        'base_url' => 'https://api.example.test/v1',
-        'http' => [
-            'timeout' => 10,
-            'retries' => 5,
+        'base_url'   => 'https://api.example.test/v1',
+        'http'       => [
+            'timeout'     => 10,
+            'retries'     => 5,
             'retry_delay' => 50,
         ],
         'idempotency' => [
@@ -51,9 +51,9 @@ it('treats null and empty public keys as null', function () {
 
 it('clones with a new secret key', function () {
     $config = ClientConfig::fromArray([
-        'secret_key' => 'sk_test_abc',
-        'public_key' => 'pk_test_abc',
-        'http' => ['timeout' => 10, 'retries' => 5, 'retry_delay' => 50],
+        'secret_key'  => 'sk_test_abc',
+        'public_key'  => 'pk_test_abc',
+        'http'        => ['timeout' => 10, 'retries' => 5, 'retry_delay' => 50],
         'idempotency' => ['auto' => false],
     ]);
 

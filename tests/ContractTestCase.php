@@ -24,7 +24,7 @@ abstract class ContractTestCase extends TestCase
     }
 
     /**
-     * @param  Application  $app
+     * @param Application $app
      */
     protected function defineEnvironment($app): void
     {
