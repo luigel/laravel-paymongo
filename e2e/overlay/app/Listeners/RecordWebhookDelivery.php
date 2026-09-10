@@ -24,12 +24,12 @@ class RecordWebhookDelivery
         $payload = json_encode($webhookEvent->raw, JSON_UNESCAPED_SLASHES);
 
         DB::table('webhook_deliveries')->insertOrIgnore([
-            'event_id' => $webhookEvent->id !== '' ? $webhookEvent->id : 'evt_unknown_'.bin2hex(random_bytes(8)),
-            'event_type' => $webhookEvent->type,
+            'event_id'      => $webhookEvent->id !== '' ? $webhookEvent->id : 'evt_unknown_'.bin2hex(random_bytes(8)),
+            'event_type'    => $webhookEvent->type,
             'resource_type' => is_string($resourceType) ? $resourceType : null,
-            'resource_id' => $webhookEvent->resourceId(),
-            'payload' => is_string($payload) ? $payload : '{}',
-            'received_at' => now()->toDateTimeString(),
+            'resource_id'   => $webhookEvent->resourceId(),
+            'payload'       => is_string($payload) ? $payload : '{}',
+            'received_at'   => now()->toDateTimeString(),
         ]);
     }
 }

@@ -42,21 +42,21 @@ it('creates a payment link with a flat body and an idempotency key', function ()
     Http::fake(['api.paymongo.com/*' => Http::response(Fixtures::paymentLink())]);
 
     $link = Paymongo::paymentLinks()->create([
-        'amount' => 150050,
-        'currency' => 'PHP',
-        'description' => 'Payment for Order #10101',
-        'remarks' => 'Facebook order',
+        'amount'       => 150050,
+        'currency'     => 'PHP',
+        'description'  => 'Payment for Order #10101',
+        'remarks'      => 'Facebook order',
         'restrictions' => ['completed_sessions' => 1],
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/payment_links'
-        && ! array_key_exists('data', $request->data())
+        && !array_key_exists('data', $request->data())
         && $request->data() === [
-            'amount' => 150050,
-            'currency' => 'PHP',
-            'description' => 'Payment for Order #10101',
-            'remarks' => 'Facebook order',
+            'amount'       => 150050,
+            'currency'     => 'PHP',
+            'description'  => 'Payment for Order #10101',
+            'remarks'      => 'Facebook order',
             'restrictions' => ['completed_sessions' => 1],
         ]
         && Str::isUuid($request->header('Idempotency-Key')[0] ?? ''));
@@ -108,7 +108,7 @@ it('updates a payment link with a flat PATCH body', function () {
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'PATCH'
         && $request->url() === 'https://api.paymongo.com/v1/payment_links/plink_uSJXoxTBNqRrg35kj5w9dTVY'
-        && ! array_key_exists('data', $request->data())
+        && !array_key_exists('data', $request->data())
         && $request->data() === ['description' => 'Updated order']);
 
     expect($link->description)->toBe('Updated order');
@@ -200,7 +200,7 @@ it('refunds payment link payments returning the raw data payload', function () {
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/payment_links/plink_uSJXoxTBNqRrg35kj5w9dTVY/refunds'
-        && ! array_key_exists('data', $request->data())
+        && !array_key_exists('data', $request->data())
         && $request->data() === ['reason' => 'others']);
 
     expect($result)->toBe(['id' => 'ref_1', 'status' => 'pending']);

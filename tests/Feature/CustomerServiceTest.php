@@ -13,20 +13,20 @@ it('creates a customer normalizing the default device enum and maps the DTO', fu
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('customer'))]);
 
     $customer = Paymongo::customers()->create([
-        'first_name' => 'Juan',
-        'last_name' => 'dela Cruz',
-        'phone' => '+639171234567',
-        'email' => 'juan@example.com',
+        'first_name'     => 'Juan',
+        'last_name'      => 'dela Cruz',
+        'phone'          => '+639171234567',
+        'email'          => 'juan@example.com',
         'default_device' => DefaultDevice::Phone,
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/customers'
         && $request->data() === ['data' => ['attributes' => [
-            'first_name' => 'Juan',
-            'last_name' => 'dela Cruz',
-            'phone' => '+639171234567',
-            'email' => 'juan@example.com',
+            'first_name'     => 'Juan',
+            'last_name'      => 'dela Cruz',
+            'phone'          => '+639171234567',
+            'email'          => 'juan@example.com',
             'default_device' => 'phone',
         ]]]);
 
@@ -59,14 +59,14 @@ it('updates a customer via PATCH with the envelope', function () {
 
     $customer = Paymongo::customers()->update('cus_hcjuejWKpU1YZi3sBDGGpx8M', [
         'default_device' => 'email',
-        'email' => 'juan.delacruz@example.com',
+        'email'          => 'juan.delacruz@example.com',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'PATCH'
         && $request->url() === 'https://api.paymongo.com/v1/customers/cus_hcjuejWKpU1YZi3sBDGGpx8M'
         && $request->data() === ['data' => ['attributes' => [
             'default_device' => 'email',
-            'email' => 'juan.delacruz@example.com',
+            'email'          => 'juan.delacruz@example.com',
         ]]]);
 
     expect($customer)->toBeInstanceOf(Customer::class);
@@ -102,10 +102,10 @@ it('lists the payment methods of a customer as DTOs', function () {
         ->and($paymentMethods[0]->paymentMethodType)->toBe('card')
         ->and($paymentMethods[0]->sessionType)->toBe('on_session')
         ->and($paymentMethods[0]->details)->toBe([
-            'last4' => '4345',
+            'last4'     => '4345',
             'exp_month' => 12,
-            'exp_year' => 2028,
-            'brand' => 'visa',
+            'exp_year'  => 2028,
+            'brand'     => 'visa',
         ])
         ->and($paymentMethods[0]->livemode)->toBeFalse()
         ->and($paymentMethods[1]->id)->toBe('cpm_Wk3RmNp7YtXzB2vC5sD8eFg4')

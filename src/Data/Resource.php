@@ -16,18 +16,20 @@ use Carbon\CarbonImmutable;
 abstract class Resource
 {
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
      */
     public function __construct(
         public readonly string $id,
         public readonly string $type,
         public readonly array $attributes,
-    ) {}
+    ) {
+    }
 
     /**
      * Build the resource from a raw `{id, type, attributes}` payload.
      *
-     * @param  array<array-key, mixed>  $data
+     * @param array<array-key, mixed> $data
+     *
      * @return static
      */
     abstract public static function fromArray(array $data): self;
@@ -46,8 +48,8 @@ abstract class Resource
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
-            'type' => $this->type,
+            'id'         => $this->id,
+            'type'       => $this->type,
             'attributes' => $this->attributes,
         ];
     }
@@ -75,7 +77,8 @@ abstract class Resource
     /**
      * Split a raw resource payload into `[id, type, attributes]`.
      *
-     * @param  array<array-key, mixed>  $data
+     * @param array<array-key, mixed> $data
+     *
      * @return array{string, string, array<string, mixed>}
      */
     protected static function parseResource(array $data): array
@@ -95,7 +98,7 @@ abstract class Resource
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
      */
     protected static function stringValue(array $attributes, string $key): ?string
     {
@@ -105,7 +108,7 @@ abstract class Resource
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
      */
     protected static function intValue(array $attributes, string $key): ?int
     {
@@ -115,7 +118,7 @@ abstract class Resource
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
      */
     protected static function boolValue(array $attributes, string $key): bool
     {
@@ -123,14 +126,15 @@ abstract class Resource
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
+     *
      * @return array<string, mixed>|null
      */
     protected static function arrayValue(array $attributes, string $key): ?array
     {
         $value = $attributes[$key] ?? null;
 
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return null;
         }
 
@@ -139,14 +143,15 @@ abstract class Resource
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
+     *
      * @return list<string>
      */
     protected static function stringListValue(array $attributes, string $key): array
     {
         $value = $attributes[$key] ?? null;
 
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return [];
         }
 
@@ -167,8 +172,9 @@ abstract class Resource
      *
      * @template TEnum of BackedEnum
      *
-     * @param  array<string, mixed>  $attributes
-     * @param  class-string<TEnum>  $enum
+     * @param array<string, mixed> $attributes
+     * @param class-string<TEnum>  $enum
+     *
      * @return TEnum|null
      */
     protected static function enumValue(array $attributes, string $key, string $enum): ?BackedEnum

@@ -13,8 +13,8 @@ use Throwable;
 final class RateLimitException extends PaymongoException
 {
     /**
-     * @param  list<ApiError>  $errors
-     * @param  ?int  $retryAfter  Seconds from the `Retry-After` header, when present.
+     * @param list<ApiError> $errors
+     * @param ?int           $retryAfter Seconds from the `Retry-After` header, when present.
      */
     public function __construct(
         string $message,

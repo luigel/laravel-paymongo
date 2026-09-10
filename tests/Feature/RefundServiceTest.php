@@ -15,19 +15,19 @@ it('creates a refund normalizing the enum reason and maps the DTO', function () 
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('refund'))]);
 
     $refund = Paymongo::refunds()->create([
-        'amount' => 50000,
+        'amount'     => 50000,
         'payment_id' => 'pay_hvTn9EyxduZ9gV8WHhSGYqBi',
-        'reason' => RefundReason::Duplicate,
-        'notes' => 'Customer returned the item.',
+        'reason'     => RefundReason::Duplicate,
+        'notes'      => 'Customer returned the item.',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/refunds'
         && $request->data() === ['data' => ['attributes' => [
-            'amount' => 50000,
+            'amount'     => 50000,
             'payment_id' => 'pay_hvTn9EyxduZ9gV8WHhSGYqBi',
-            'reason' => 'duplicate',
-            'notes' => 'Customer returned the item.',
+            'reason'     => 'duplicate',
+            'notes'      => 'Customer returned the item.',
         ]]]
         && $request->hasHeader('Idempotency-Key'));
 
@@ -70,7 +70,7 @@ it('retrieves a refund', function () {
 it('lists refunds with the payment_id filter in the query', function () {
     Http::fake([
         'api.paymongo.com/*' => Http::response([
-            'data' => [fixture_data('refund')['data']],
+            'data'     => [fixture_data('refund')['data']],
             'has_more' => false,
         ]),
     ]);

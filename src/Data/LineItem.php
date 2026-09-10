@@ -14,7 +14,7 @@ use Luigel\Paymongo\Support\Money;
 final readonly class LineItem
 {
     /**
-     * @param  list<string>  $images
+     * @param list<string> $images
      */
     public function __construct(
         public ?int $amount = null,
@@ -23,10 +23,11 @@ final readonly class LineItem
         public array $images = [],
         public ?string $name = null,
         public ?int $quantity = null,
-    ) {}
+    ) {
+    }
 
     /**
-     * @param  array<array-key, mixed>  $data
+     * @param array<array-key, mixed> $data
      */
     public static function fromArray(array $data): self
     {
@@ -59,7 +60,7 @@ final readonly class LineItem
      */
     private static function mapImages(mixed $value): array
     {
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return [];
         }
 

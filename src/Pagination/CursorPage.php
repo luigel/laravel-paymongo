@@ -23,14 +23,15 @@ use Traversable;
 final readonly class CursorPage implements Arrayable, Countable, IteratorAggregate
 {
     /**
-     * @param  list<T>  $items
-     * @param  (Closure(): self<T>)|null  $next  Resolver that fetches the next page.
+     * @param list<T>                   $items
+     * @param (Closure(): self<T>)|null $next  Resolver that fetches the next page.
      */
     public function __construct(
         public array $items,
         public bool $hasMore,
         private ?Closure $next = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Fetch the next page, or null when this is the last one.
@@ -39,7 +40,7 @@ final readonly class CursorPage implements Arrayable, Countable, IteratorAggrega
      */
     public function nextPage(): ?self
     {
-        if (! $this->hasMore || $this->next === null) {
+        if (!$this->hasMore || $this->next === null) {
             return null;
         }
 

@@ -11,10 +11,10 @@ use Luigel\Paymongo\Enums\SubscriptionStatus;
 final class Subscription extends Resource
 {
     /**
-     * @param  array<string, mixed>  $attributes
-     * @param  Plan|null  $plan  The full plan resource nested in the payload.
-     * @param  array<string, mixed>|null  $latestInvoice
-     * @param  array<string, mixed>|null  $setupIntent
+     * @param array<string, mixed>      $attributes
+     * @param Plan|null                 $plan          The full plan resource nested in the payload.
+     * @param array<string, mixed>|null $latestInvoice
+     * @param array<string, mixed>|null $setupIntent
      */
     public function __construct(
         string $id,
@@ -64,7 +64,7 @@ final class Subscription extends Resource
     /**
      * Convert a unix-seconds attribute into an immutable date, when present.
      *
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
      */
     private static function timestampValue(array $attributes, string $key): ?CarbonImmutable
     {

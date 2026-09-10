@@ -13,7 +13,7 @@ it('wraps POST attributes in the data.attributes envelope', function () {
     ]);
 
     $response = app('paymongo')->client()->post('/payment_intents', [
-        'amount' => 10000,
+        'amount'   => 10000,
         'currency' => 'PHP',
     ]);
 
@@ -40,7 +40,7 @@ it('sends no body when POST attributes are empty', function () {
 it('sends GET query parameters without a body', function () {
     Http::fake([
         'api.paymongo.com/*' => Http::response([
-            'data' => [['id' => 'pay_1'], ['id' => 'pay_2']],
+            'data'     => [['id' => 'pay_1'], ['id' => 'pay_2']],
             'has_more' => true,
         ]),
     ]);
@@ -111,19 +111,19 @@ it('normalizes backed enums recursively in outgoing payloads', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(['data' => []])]);
 
     app('paymongo')->client()->post('/payment_intents', [
-        'capture_type' => ClientRequestTestCaptureType::Manual,
+        'capture_type'           => ClientRequestTestCaptureType::Manual,
         'payment_method_allowed' => [ClientRequestTestMethod::Card, ClientRequestTestMethod::Gcash],
-        'metadata' => [
-            'nested' => ['method' => ClientRequestTestMethod::Card],
+        'metadata'               => [
+            'nested'   => ['method' => ClientRequestTestMethod::Card],
             'priority' => ClientRequestTestPriority::High,
         ],
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->data() === ['data' => ['attributes' => [
-        'capture_type' => 'manual',
+        'capture_type'           => 'manual',
         'payment_method_allowed' => ['card', 'gcash'],
-        'metadata' => [
-            'nested' => ['method' => 'card'],
+        'metadata'               => [
+            'nested'   => ['method' => 'card'],
             'priority' => 5,
         ],
     ]]]);

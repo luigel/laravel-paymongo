@@ -17,24 +17,24 @@ it('generates an MPM QR with a flat body against the absolute v3 URL', function 
     Http::fake(['api.paymongo.com/*' => Http::response(Fixtures::mpmQr())]);
 
     $qr = Paymongo::qrph()->generate([
-        'nation' => 'ph',
-        'mode' => QrMode::P2m,
-        'type' => QrType::Dynamic,
+        'nation'               => 'ph',
+        'mode'                 => QrMode::P2m,
+        'type'                 => QrType::Dynamic,
         'transaction_currency' => 'PHP',
-        'transaction_amount' => 150050,
-        'expiry_seconds' => 1800,
+        'transaction_amount'   => 150050,
+        'expiry_seconds'       => 1800,
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/generate'
-        && ! array_key_exists('data', $request->data())
+        && !array_key_exists('data', $request->data())
         && $request->data() === [
-            'nation' => 'ph',
-            'mode' => 'p2m',
-            'type' => 'dynamic',
+            'nation'               => 'ph',
+            'mode'                 => 'p2m',
+            'type'                 => 'dynamic',
             'transaction_currency' => 'PHP',
-            'transaction_amount' => 150050,
-            'expiry_seconds' => 1800,
+            'transaction_amount'   => 150050,
+            'expiry_seconds'       => 1800,
         ]);
 
     expect($qr)->toBeInstanceOf(MpmQr::class)
@@ -60,8 +60,8 @@ it('generates an MPM QR with a flat body against the absolute v3 URL', function 
 it('maps unknown QR enum values to null while keeping the raw values', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(Fixtures::mpmQr([
         'status' => 'suspended',
-        'type' => 'hybrid',
-        'mode' => 'p2x',
+        'type'   => 'hybrid',
+        'mode'   => 'p2x',
     ]))]);
 
     $qr = Paymongo::qrph()->generate(['nation' => 'ph']);
@@ -76,17 +76,17 @@ it('executes an MPM QR string with a flat body', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(Fixtures::qrExecution())]);
 
     $execution = Paymongo::qrph()->execute([
-        'qr_string' => '00020101021228_example',
-        'amount' => 150050,
+        'qr_string'        => '00020101021228_example',
+        'amount'           => 150050,
         'reference_number' => 'QR-REF-10101',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/execute'
-        && ! array_key_exists('data', $request->data())
+        && !array_key_exists('data', $request->data())
         && $request->data() === [
-            'qr_string' => '00020101021228_example',
-            'amount' => 150050,
+            'qr_string'        => '00020101021228_example',
+            'amount'           => 150050,
             'reference_number' => 'QR-REF-10101',
         ]);
 
@@ -136,17 +136,17 @@ it('generates a static QR Ph through the enveloped v1 endpoint', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(Fixtures::staticQr())]);
 
     $code = Paymongo::qrph()->generateStatic([
-        'kind' => 'instore',
+        'kind'          => 'instore',
         'mobile_number' => '+639171234567',
-        'notes' => 'Counter 1',
+        'notes'         => 'Counter 1',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/qrph/generate'
         && $request->data() === ['data' => ['attributes' => [
-            'kind' => 'instore',
+            'kind'          => 'instore',
             'mobile_number' => '+639171234567',
-            'notes' => 'Counter 1',
+            'notes'         => 'Counter 1',
         ]]]);
 
     expect($code)->toBeInstanceOf(StaticQr::class)

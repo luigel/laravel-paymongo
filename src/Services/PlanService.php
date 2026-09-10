@@ -11,8 +11,8 @@ use Luigel\Paymongo\Pagination\CursorPage;
 final class PlanService extends AbstractService
 {
     /**
-     * @param  array<string, mixed>  $attributes  Supported keys: name, description, amount, currency,
-     *                                            interval, interval_count, plan_type, cycle_count, metadata.
+     * @param array<string, mixed> $attributes Supported keys: name, description, amount, currency,
+     *                                         interval, interval_count, plan_type, cycle_count, metadata.
      *
      * @throws PaymongoException
      */
@@ -30,7 +30,7 @@ final class PlanService extends AbstractService
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
      *
      * @throws PaymongoException
      */
@@ -40,10 +40,11 @@ final class PlanService extends AbstractService
     }
 
     /**
-     * @param  array<string, mixed>  $params  Supported keys: limit, before, after.
-     * @return CursorPage<Plan>
+     * @param array<string, mixed> $params Supported keys: limit, before, after.
      *
      * @throws PaymongoException
+     *
+     * @return CursorPage<Plan>
      */
     public function list(array $params = []): CursorPage
     {

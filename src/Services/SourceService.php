@@ -13,7 +13,7 @@ use Luigel\Paymongo\Exceptions\PaymongoException;
 final class SourceService extends AbstractService
 {
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
      *
      * @throws PaymongoException
      *

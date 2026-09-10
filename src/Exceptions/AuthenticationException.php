@@ -7,4 +7,6 @@ namespace Luigel\Paymongo\Exceptions;
 /**
  * Thrown when PayMongo rejects the API key (HTTP 401).
  */
-final class AuthenticationException extends PaymongoException {}
+final class AuthenticationException extends PaymongoException
+{
+}

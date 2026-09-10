@@ -7,4 +7,6 @@ namespace Luigel\Paymongo\Events;
 /**
  * Dispatched for `subscription.unpaid` webhook events.
  */
-final class SubscriptionUnpaid extends WebhookReceived {}
+final class SubscriptionUnpaid extends WebhookReceived
+{
+}

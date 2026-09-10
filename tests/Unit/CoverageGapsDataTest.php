@@ -34,11 +34,11 @@ it('maps a checkout session with a non-list payments attribute to no payments', 
 
 it('maps a line item with a non-list images value to no images', function () {
     $lineItem = LineItem::fromArray([
-        'amount' => 25000,
+        'amount'   => 25000,
         'currency' => 'PHP',
-        'name' => 'Gift Wrap',
+        'name'     => 'Gift Wrap',
         'quantity' => 2,
-        'images' => 'https://images.example.com/gift-wrap.png',
+        'images'   => 'https://images.example.com/gift-wrap.png',
     ]);
 
     expect($lineItem->images)->toBe([])
@@ -75,7 +75,7 @@ it('skips non-array entries in a link payments list', function () {
 
 it('maps non-string and empty payment link timestamps to null', function () {
     $link = PaymentLink::fromArray([
-        'id' => 'plink_timestamps',
+        'id'         => 'plink_timestamps',
         'created_at' => 1725840000,
         'updated_at' => '',
     ]);
@@ -87,7 +87,7 @@ it('maps non-string and empty payment link timestamps to null', function () {
 
 it('maps unparsable payment link timestamps to null', function () {
     $link = PaymentLink::fromArray([
-        'id' => 'plink_timestamps',
+        'id'         => 'plink_timestamps',
         'created_at' => 'not a date',
         'updated_at' => '2024-09-09T00:00:00.000Z',
     ]);

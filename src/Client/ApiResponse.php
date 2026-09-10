@@ -7,12 +7,13 @@ namespace Luigel\Paymongo\Client;
 final readonly class ApiResponse
 {
     /**
-     * @param  array<array-key, mixed>  $body
+     * @param array<array-key, mixed> $body
      */
     public function __construct(
         public array $body,
         public int $status,
-    ) {}
+    ) {
+    }
 
     /**
      * The `data` payload: a single resource array or a list of resource arrays.

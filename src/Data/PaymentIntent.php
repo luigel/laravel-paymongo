@@ -13,13 +13,13 @@ use Luigel\Paymongo\Support\Money;
 final class PaymentIntent extends Resource
 {
     /**
-     * @param  array<string, mixed>  $attributes
-     * @param  list<string>  $paymentMethodAllowed
-     * @param  array<string, mixed>|null  $paymentMethodOptions
-     * @param  list<Payment>  $payments
-     * @param  array<string, mixed>|null  $lastPaymentError
-     * @param  array<string, mixed>|null  $setupFutureUsage
-     * @param  array<string, mixed>|null  $metadata
+     * @param array<string, mixed>      $attributes
+     * @param list<string>              $paymentMethodAllowed
+     * @param array<string, mixed>|null $paymentMethodOptions
+     * @param list<Payment>             $payments
+     * @param array<string, mixed>|null $lastPaymentError
+     * @param array<string, mixed>|null $setupFutureUsage
+     * @param array<string, mixed>|null $metadata
      */
     public function __construct(
         string $id,
@@ -78,14 +78,15 @@ final class PaymentIntent extends Resource
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param array<string, mixed> $attributes
+     *
      * @return list<Payment>
      */
     private static function mapPayments(array $attributes): array
     {
         $raw = $attributes['payments'] ?? null;
 
-        if (! is_array($raw)) {
+        if (!is_array($raw)) {
             return [];
         }
 

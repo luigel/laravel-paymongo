@@ -14,10 +14,11 @@ final readonly class Redirect
         public ?string $success = null,
         public ?string $failed = null,
         public ?string $checkoutUrl = null,
-    ) {}
+    ) {
+    }
 
     /**
-     * @param  array<array-key, mixed>  $data
+     * @param array<array-key, mixed> $data
      */
     public static function fromArray(array $data): self
     {

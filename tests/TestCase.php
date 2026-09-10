@@ -19,7 +19,8 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * @param  Application  $app
+     * @param Application $app
+     *
      * @return list<class-string>
      */
     protected function getPackageProviders($app): array
@@ -30,7 +31,7 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * @param  Application  $app
+     * @param Application $app
      */
     protected function defineEnvironment($app): void
     {

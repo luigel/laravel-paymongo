@@ -43,11 +43,11 @@ it('registers the webhook route through the Router macro', function () {
  * is precisely how the Laravel 13 breakage slipped through. Match on either
  * spelling instead.
  *
- * @param  mixed  $middleware
+ * @param mixed $middleware
  */
 function isCsrfMiddleware($middleware): bool
 {
-    if (! is_string($middleware)) {
+    if (!is_string($middleware)) {
         return false;
     }
 
