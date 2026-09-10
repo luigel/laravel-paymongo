@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class VerifyWebhookSignature
 {
     /**
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, ?string $secretName = null): Response
     {
@@ -46,7 +46,7 @@ final class VerifyWebhookSignature
             ? config('paymongo.webhooks.secret')
             : config("paymongo.webhooks.secrets.{$secretName}");
 
-        if (!is_string($secret) || $secret === '') {
+        if (! is_string($secret) || $secret === '') {
             throw new RuntimeException($secretName === null
                 ? 'PayMongo webhook secret is not configured. Set PAYMONGO_WEBHOOK_SECRET (config key paymongo.webhooks.secret).'
                 : "PayMongo webhook secret [{$secretName}] is not configured. Set the paymongo.webhooks.secrets.{$secretName} config key.");

@@ -7,6 +7,4 @@ namespace Luigel\Paymongo\Events;
 /**
  * Dispatched for `qr.paid` webhook events.
  */
-final class QrPaid extends WebhookReceived
-{
-}
+final class QrPaid extends WebhookReceived {}

@@ -22,11 +22,10 @@ use Luigel\Paymongo\Pagination\CursorTokenPage;
 final class PayoutService extends AbstractService
 {
     /**
-     * @param array<string, mixed> $params Supported keys: limit (default 20), after, before, search, payout_status (pending|on_hold|in_transit|deposited|returned|cancelled), provider (paymongo_central_hub|unionbank), created_at.between (`YYYY-MM-DD..YYYY-MM-DD`), sort_by (created_at|net_amount), order (asc|desc).
+     * @param  array<string, mixed>  $params  Supported keys: limit (default 20), after, before, search, payout_status (pending|on_hold|in_transit|deposited|returned|cancelled), provider (paymongo_central_hub|unionbank), created_at.between (`YYYY-MM-DD..YYYY-MM-DD`), sort_by (created_at|net_amount), order (asc|desc).
+     * @return CursorTokenPage<Payout>
      *
      * @throws PaymongoException
-     *
-     * @return CursorTokenPage<Payout>
      */
     public function list(array $params = []): CursorTokenPage
     {
@@ -44,11 +43,10 @@ final class PayoutService extends AbstractService
     /**
      * The transactions lined up in a payout.
      *
-     * @param array<string, mixed> $params Supported keys: limit, after, before.
+     * @param  array<string, mixed>  $params  Supported keys: limit, after, before.
+     * @return CursorTokenPage<PayoutTransaction>
      *
      * @throws PaymongoException
-     *
-     * @return CursorTokenPage<PayoutTransaction>
      */
     public function transactions(string $payoutId, array $params = []): CursorTokenPage
     {
@@ -71,9 +69,8 @@ final class PayoutService extends AbstractService
      *
      * @template T of Resource
      *
-     * @param class-string<T>      $class
-     * @param array<string, mixed> $params
-     *
+     * @param  class-string<T>  $class
+     * @param  array<string, mixed>  $params
      * @return CursorTokenPage<T>
      */
     private function tokenPage(string $class, string $path, array $params): CursorTokenPage
@@ -103,7 +100,7 @@ final class PayoutService extends AbstractService
     {
         $pagination = $response->body['pagination'] ?? null;
 
-        if (!is_array($pagination)) {
+        if (! is_array($pagination)) {
             return [null, null, []];
         }
 

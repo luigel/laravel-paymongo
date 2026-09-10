@@ -7,6 +7,4 @@ namespace Luigel\Paymongo\Events;
 /**
  * Dispatched for `payment.failed` webhook events.
  */
-final class PaymentFailed extends WebhookReceived
-{
-}
+final class PaymentFailed extends WebhookReceived {}

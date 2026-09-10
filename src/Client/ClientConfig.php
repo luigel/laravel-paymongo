@@ -14,13 +14,12 @@ final readonly class ClientConfig
         public int $retries = 2,
         public int $retryDelay = 200,
         public bool $autoIdempotency = true,
-    ) {
-    }
+    ) {}
 
     /**
      * Build a config from the `config/paymongo.php` array shape.
      *
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      */
     public static function fromArray(array $config): self
     {

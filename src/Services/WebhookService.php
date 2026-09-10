@@ -11,7 +11,7 @@ use Luigel\Paymongo\Exceptions\PaymongoException;
 final class WebhookService extends AbstractService
 {
     /**
-     * @param list<WebhookEventType|string> $events
+     * @param  list<WebhookEventType|string>  $events
      *
      * @throws PaymongoException
      */
@@ -21,9 +21,9 @@ final class WebhookService extends AbstractService
     }
 
     /**
-     * @throws PaymongoException
-     *
      * @return list<Webhook>
+     *
+     * @throws PaymongoException
      */
     public function list(): array
     {
@@ -39,7 +39,7 @@ final class WebhookService extends AbstractService
     }
 
     /**
-     * @param array<string, mixed> $attributes Supported keys: url, events.
+     * @param  array<string, mixed>  $attributes  Supported keys: url, events.
      *
      * @throws PaymongoException
      */

@@ -14,24 +14,24 @@ it('creates a source and maps the response onto the DTO', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('source'))]);
 
     $source = Paymongo::sources()->create([
-        'amount'   => 150050,
+        'amount' => 150050,
         'currency' => 'PHP',
-        'type'     => 'gcash',
+        'type' => 'gcash',
         'redirect' => [
             'success' => 'https://example.com/payments/success',
-            'failed'  => 'https://example.com/payments/failed',
+            'failed' => 'https://example.com/payments/failed',
         ],
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/sources'
         && $request->data() === ['data' => ['attributes' => [
-            'amount'   => 150050,
+            'amount' => 150050,
             'currency' => 'PHP',
-            'type'     => 'gcash',
+            'type' => 'gcash',
             'redirect' => [
                 'success' => 'https://example.com/payments/success',
-                'failed'  => 'https://example.com/payments/failed',
+                'failed' => 'https://example.com/payments/failed',
             ],
         ]]]);
 

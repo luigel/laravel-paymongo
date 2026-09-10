@@ -22,7 +22,7 @@ final class QrphService extends AbstractService
     /**
      * Generate an MPM QR code.
      *
-     * @param array<string, mixed> $attributes Supported keys: nation, mode, type, transaction_currency, transaction_amount (dynamic only), expiry_seconds, qr_image, metadata.
+     * @param  array<string, mixed>  $attributes  Supported keys: nation, mode, type, transaction_currency, transaction_amount (dynamic only), expiry_seconds, qr_image, metadata.
      *
      * @throws PaymongoException
      */
@@ -38,7 +38,7 @@ final class QrphService extends AbstractService
      * account. The outcome arrives via the `qr.paid` / `qr.expired`
      * webhooks.
      *
-     * @param array<string, mixed> $attributes Supported keys: qr_string, amount, reference_number, metadata.
+     * @param  array<string, mixed>  $attributes  Supported keys: qr_string, amount, reference_number, metadata.
      *
      * @throws PaymongoException
      */
@@ -86,7 +86,7 @@ final class QrphService extends AbstractService
      * Generate a static in-store QR Ph code via the v1 `/qrph/generate`
      * endpoint (normal `data.attributes` envelope).
      *
-     * @param array<string, mixed> $attributes Supported keys: kind ("instore", required), mobile_number, notes.
+     * @param  array<string, mixed>  $attributes  Supported keys: kind ("instore", required), mobile_number, notes.
      *
      * @throws PaymongoException
      */

@@ -16,10 +16,10 @@ use Luigel\Paymongo\Enums\WebhookEventType;
 final readonly class WebhookEvent
 {
     /**
-     * @param string                  $id   The event id (`evt_...`).
-     * @param string                  $type The dotted event name, e.g. `payment.paid`.
-     * @param array<string, mixed>    $data The full embedded resource (`{id, type, attributes}`).
-     * @param array<array-key, mixed> $raw  The unmodified request payload.
+     * @param  string  $id  The event id (`evt_...`).
+     * @param  string  $type  The dotted event name, e.g. `payment.paid`.
+     * @param  array<string, mixed>  $data  The full embedded resource (`{id, type, attributes}`).
+     * @param  array<array-key, mixed>  $raw  The unmodified request payload.
      */
     public function __construct(
         public string $id,
@@ -28,13 +28,12 @@ final readonly class WebhookEvent
         public array $data,
         public ?CarbonImmutable $timestamp,
         public array $raw,
-    ) {
-    }
+    ) {}
 
     /**
      * Build the event from a raw webhook payload, tolerating missing keys.
      *
-     * @param array<array-key, mixed> $payload
+     * @param  array<array-key, mixed>  $payload
      */
     public static function fromArray(array $payload): self
     {

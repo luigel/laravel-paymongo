@@ -11,8 +11,8 @@ use Luigel\Paymongo\Support\Money;
 final class Link extends Resource
 {
     /**
-     * @param array<string, mixed> $attributes
-     * @param list<Payment>        $payments
+     * @param  array<string, mixed>  $attributes
+     * @param  list<Payment>  $payments
      */
     public function __construct(
         string $id,
@@ -64,22 +64,21 @@ final class Link extends Resource
      * PayMongo wraps each payment of a link in its own `data` envelope;
      * bare payment resources are accepted as well.
      *
-     * @param array<string, mixed> $attributes
-     *
+     * @param  array<string, mixed>  $attributes
      * @return list<Payment>
      */
     private static function mapPayments(array $attributes): array
     {
         $raw = $attributes['payments'] ?? null;
 
-        if (!is_array($raw)) {
+        if (! is_array($raw)) {
             return [];
         }
 
         $payments = [];
 
         foreach ($raw as $payment) {
-            if (!is_array($payment)) {
+            if (! is_array($payment)) {
                 continue;
             }
 

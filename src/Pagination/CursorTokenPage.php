@@ -25,9 +25,9 @@ use Traversable;
 final readonly class CursorTokenPage implements Arrayable, Countable, IteratorAggregate
 {
     /**
-     * @param list<T>                   $items
-     * @param array<string, mixed>      $meta  Totals metadata (`total_records`, `total_amount`, `total_per_currency` when present).
-     * @param (Closure(): self<T>)|null $next  Resolver that fetches the next page.
+     * @param  list<T>  $items
+     * @param  array<string, mixed>  $meta  Totals metadata (`total_records`, `total_amount`, `total_per_currency` when present).
+     * @param  (Closure(): self<T>)|null  $next  Resolver that fetches the next page.
      */
     public function __construct(
         public array $items,
@@ -35,8 +35,7 @@ final readonly class CursorTokenPage implements Arrayable, Countable, IteratorAg
         public ?string $prevCursor = null,
         public array $meta = [],
         private ?Closure $next = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch the next page, or null when this is the last one.

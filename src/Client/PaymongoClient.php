@@ -24,8 +24,7 @@ final readonly class PaymongoClient
     public function __construct(
         private Factory $http,
         private ClientConfig $config,
-    ) {
-    }
+    ) {}
 
     /**
      * Clone the client with a different secret key (e.g. public-key or multi-account use).
@@ -41,7 +40,7 @@ final readonly class PaymongoClient
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param  array<string, mixed>  $query
      *
      * @throws PaymongoException
      */
@@ -51,7 +50,7 @@ final readonly class PaymongoClient
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      *
      * @throws PaymongoException
      */
@@ -75,7 +74,7 @@ final readonly class PaymongoClient
      * bodies. Auth, retry, and idempotency semantics match {@see post()};
      * an empty body sends no request body at all.
      *
-     * @param array<string, mixed> $body
+     * @param  array<string, mixed>  $body
      *
      * @throws PaymongoException
      */
@@ -93,7 +92,7 @@ final readonly class PaymongoClient
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      *
      * @throws PaymongoException
      */
@@ -103,7 +102,7 @@ final readonly class PaymongoClient
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      *
      * @throws PaymongoException
      */
@@ -115,7 +114,7 @@ final readonly class PaymongoClient
     /**
      * PATCH with the body sent as-is, without the `data.attributes` envelope.
      *
-     * @param array<string, mixed> $body
+     * @param  array<string, mixed>  $body
      *
      * @throws PaymongoException
      */
@@ -133,7 +132,7 @@ final readonly class PaymongoClient
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $options
      *
      * @throws PaymongoException
      */
@@ -147,7 +146,7 @@ final readonly class PaymongoClient
             throw new ConnectionException('Could not connect to PayMongo: '.$exception->getMessage(), $exception);
         }
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             $this->throwRequestException($response);
         }
 
@@ -194,8 +193,7 @@ final readonly class PaymongoClient
      * Wrap non-empty attributes in the PayMongo request envelope.
      * Empty attributes produce no request body at all.
      *
-     * @param array<string, mixed> $attributes
-     *
+     * @param  array<string, mixed>  $attributes
      * @return array<string, mixed>
      */
     private function bodyOptions(array $attributes): array
@@ -211,8 +209,7 @@ final readonly class PaymongoClient
      * Send a flat body verbatim (enum-normalized, no envelope).
      * An empty body produces no request body at all.
      *
-     * @param array<string, mixed> $body
-     *
+     * @param  array<string, mixed>  $body
      * @return array<string, mixed>
      */
     private function flatBodyOptions(array $body): array
@@ -227,8 +224,7 @@ final readonly class PaymongoClient
     /**
      * Recursively replace backed enum instances with their raw values.
      *
-     * @param array<array-key, mixed> $attributes
-     *
+     * @param  array<array-key, mixed>  $attributes
      * @return array<array-key, mixed>
      */
     private function normalizeEnums(array $attributes): array
@@ -236,8 +232,8 @@ final readonly class PaymongoClient
         return array_map(
             fn (mixed $value): mixed => match (true) {
                 $value instanceof BackedEnum => $value->value,
-                is_array($value)             => $this->normalizeEnums($value),
-                default                      => $value,
+                is_array($value) => $this->normalizeEnums($value),
+                default => $value,
             },
             $attributes,
         );

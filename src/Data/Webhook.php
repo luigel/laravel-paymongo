@@ -9,9 +9,9 @@ use Luigel\Paymongo\Enums\WebhookStatus;
 final class Webhook extends Resource
 {
     /**
-     * @param array<string, mixed> $attributes
-     * @param string|null          $secretKey  The endpoint's signing secret, used to verify inbound events.
-     * @param list<string>         $events
+     * @param  array<string, mixed>  $attributes
+     * @param  string|null  $secretKey  The endpoint's signing secret, used to verify inbound events.
+     * @param  list<string>  $events
      */
     public function __construct(
         string $id,

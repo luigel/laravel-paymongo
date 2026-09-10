@@ -33,8 +33,8 @@ trait HandlesApiErrors
             $status === 402 => new PaymentDeclinedException($message, $status, $errors),
             $status === 404 => new ResourceNotFoundException($message, $status, $errors),
             $status === 429 => new RateLimitException($message, $status, $errors, $this->parseRetryAfter($response)),
-            $status >= 500  => new ServerException($message, $status, $errors),
-            default         => new InvalidRequestException($message, $status, $errors),
+            $status >= 500 => new ServerException($message, $status, $errors),
+            default => new InvalidRequestException($message, $status, $errors),
         };
     }
 

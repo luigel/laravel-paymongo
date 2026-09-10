@@ -29,17 +29,17 @@ it('creates a link and maps the response onto the DTO', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('link'))]);
 
     $link = Paymongo::links()->create([
-        'amount'      => 150050,
+        'amount' => 150050,
         'description' => 'Payment for Order #10101',
-        'remarks'     => 'Facebook order',
+        'remarks' => 'Facebook order',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/links'
         && $request->data() === ['data' => ['attributes' => [
-            'amount'      => 150050,
+            'amount' => 150050,
             'description' => 'Payment for Order #10101',
-            'remarks'     => 'Facebook order',
+            'remarks' => 'Facebook order',
         ]]]);
 
     expect($link)->toBeInstanceOf(Link::class)

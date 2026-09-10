@@ -10,12 +10,12 @@ use Luigel\Paymongo\Enums\CheckoutSessionStatus;
 final class CheckoutSession extends Resource
 {
     /**
-     * @param array<string, mixed>      $attributes
-     * @param list<LineItem>            $lineItems
-     * @param PaymentIntent|null        $paymentIntent      The payment intent PayMongo creates for the session.
-     * @param list<Payment>             $payments
-     * @param list<string>              $paymentMethodTypes
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>  $attributes
+     * @param  list<LineItem>  $lineItems
+     * @param  PaymentIntent|null  $paymentIntent  The payment intent PayMongo creates for the session.
+     * @param  list<Payment>  $payments
+     * @param  list<string>  $paymentMethodTypes
+     * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
         string $id,
@@ -72,15 +72,14 @@ final class CheckoutSession extends Resource
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     *
+     * @param  array<string, mixed>  $attributes
      * @return list<LineItem>
      */
     private static function mapLineItems(array $attributes): array
     {
         $raw = $attributes['line_items'] ?? null;
 
-        if (!is_array($raw)) {
+        if (! is_array($raw)) {
             return [];
         }
 
@@ -96,15 +95,14 @@ final class CheckoutSession extends Resource
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     *
+     * @param  array<string, mixed>  $attributes
      * @return list<Payment>
      */
     private static function mapPayments(array $attributes): array
     {
         $raw = $attributes['payments'] ?? null;
 
-        if (!is_array($raw)) {
+        if (! is_array($raw)) {
             return [];
         }
 

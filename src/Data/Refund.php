@@ -13,8 +13,8 @@ use Luigel\Paymongo\Support\Money;
 final class Refund extends Resource
 {
     /**
-     * @param array<string, mixed>      $attributes
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
         string $id,

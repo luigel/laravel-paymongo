@@ -24,6 +24,7 @@ Complete rewrite. See [UPGRADE.md](UPGRADE.md) for the full v2 to v3 migration g
 - Testing utilities: `Paymongo::fake()`, `Paymongo::assertSent()`, `Paymongo::assertNothingSent()`, and `Luigel\Paymongo\Testing\Fixtures` factories for every resource (including `paymentLink`, `mpmQr`, `qrExecution`, `staticQr`, `payout`, `payoutTransaction`, `payoutSchedule`, and the `flatList`/`payoutList` envelopes); the fake covers the entire API origin, `/v3` QR endpoints included, and interoperates with plain `Http::fake()`.
 - Artisan commands `paymongo:webhook:create`, `paymongo:webhook:list`, `paymongo:webhook:toggle`.
 - Opt-in contract test suite against the real test-mode API (`PAYMONGO_CONTRACT_TESTS=1`).
+- Laravel Boost support: an AI guideline (`resources/boost/guidelines/core.blade.php`) loaded into agent sessions of apps depending on the package, and a `paymongo-v3-upgrade` skill for migrating integrations from 2.x to 3.x.
 
 ### Changed
 - Amounts are now integer centavos everywhere (v2 auto-converted float pesos; `amount_type` removed).

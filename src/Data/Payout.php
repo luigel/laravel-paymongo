@@ -11,7 +11,7 @@ use Luigel\Paymongo\Support\Money;
 final class Payout extends Resource
 {
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function __construct(
         string $id,

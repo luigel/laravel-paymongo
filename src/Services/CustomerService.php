@@ -11,7 +11,7 @@ use Luigel\Paymongo\Exceptions\PaymongoException;
 final class CustomerService extends AbstractService
 {
     /**
-     * @param array<string, mixed> $attributes Supported keys: first_name, last_name, phone, email, default_device.
+     * @param  array<string, mixed>  $attributes  Supported keys: first_name, last_name, phone, email, default_device.
      *
      * @throws PaymongoException
      */
@@ -29,7 +29,7 @@ final class CustomerService extends AbstractService
     }
 
     /**
-     * @param array<string, mixed> $attributes Same keys as {@see create()}.
+     * @param  array<string, mixed>  $attributes  Same keys as {@see create()}.
      *
      * @throws PaymongoException
      */
@@ -54,9 +54,10 @@ final class CustomerService extends AbstractService
     /**
      * The payment methods saved against the customer.
      *
-     * @throws PaymongoException
      *
      * @return list<CustomerPaymentMethod>
+     *
+     * @throws PaymongoException
      */
     public function paymentMethods(string $customerId): array
     {

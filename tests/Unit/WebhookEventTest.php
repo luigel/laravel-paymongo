@@ -58,11 +58,11 @@ it('tolerates an empty payload', function () {
 it('tolerates malformed envelope values', function () {
     $event = WebhookEvent::fromArray([
         'data' => [
-            'id'         => 12345,
+            'id' => 12345,
             'attributes' => [
-                'type'       => ['not-a-string'],
-                'livemode'   => 1,
-                'data'       => 'not-an-array',
+                'type' => ['not-a-string'],
+                'livemode' => 1,
+                'data' => 'not-an-array',
                 'created_at' => 'not-an-int',
             ],
         ],

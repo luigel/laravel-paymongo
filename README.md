@@ -28,6 +28,7 @@ This package is not affiliated with PayMongo.
 - [Webhooks](#webhooks)
 - [Multiple accounts](#multiple-accounts)
 - [Testing your integration](#testing-your-integration)
+- [AI coding agents (Laravel Boost)](#ai-coding-agents-laravel-boost)
 - [Version support](#version-support)
 
 ## Requirements
@@ -638,6 +639,17 @@ The platform resources have factories too — `Fixtures::paymentLink()`, `mpmQr(
 `Fixtures::event('payment.paid', Fixtures::payment())` builds full webhook event payloads for testing your listeners. Since `Paymongo::fake()` registers plain `Http::fake()` handlers under the hood, `Http::assertSent()`, `Http::fakeSequence()`, and everything else from Laravel's HTTP client testing toolkit work alongside it.
 
 The package's own test suite is fully faked. An opt-in contract suite exercises the real test-mode API — set `PAYMONGO_CONTRACT_TESTS=1` and a `sk_test_...` key to run it.
+
+## AI coding agents (Laravel Boost)
+
+The package ships [Laravel Boost](https://github.com/laravel/boost) resources so AI agents working in your app know the v3 API: a guideline (`resources/boost/guidelines/core.blade.php`) covering the centavo rule, the services, DTOs, webhooks, and the testing fake, plus a `paymongo-v3-upgrade` skill that walks an agent through migrating an integration from 2.x to 3.x.
+
+```bash
+php artisan boost:install              # new Boost setup
+php artisan boost:update --discover    # existing Boost app: pick up newly installed packages
+```
+
+Select `luigel/laravel-paymongo` when prompted. The guideline is then loaded into every agent session automatically; to migrate from 2.x, ask the agent to "use the paymongo-v3-upgrade skill".
 
 ## Version support
 

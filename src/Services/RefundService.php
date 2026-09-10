@@ -11,7 +11,7 @@ use Luigel\Paymongo\Pagination\CursorPage;
 final class RefundService extends AbstractService
 {
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      *
      * @throws PaymongoException
      */
@@ -29,11 +29,10 @@ final class RefundService extends AbstractService
     }
 
     /**
-     * @param array<string, mixed> $params Supported keys: limit, before, after, payment_id.
+     * @param  array<string, mixed>  $params  Supported keys: limit, before, after, payment_id.
+     * @return CursorPage<Refund>
      *
      * @throws PaymongoException
-     *
-     * @return CursorPage<Refund>
      */
     public function list(array $params = []): CursorPage
     {

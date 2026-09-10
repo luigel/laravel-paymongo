@@ -16,11 +16,9 @@ use Luigel\Paymongo\Exceptions\InvalidWebhookSignatureException;
 final readonly class SignatureVerifier
 {
     /**
-     * @param int $tolerance Max allowed clock drift for `t`, in seconds. 0 disables the check.
+     * @param  int  $tolerance  Max allowed clock drift for `t`, in seconds. 0 disables the check.
      */
-    public function __construct(private int $tolerance = 300)
-    {
-    }
+    public function __construct(private int $tolerance = 300) {}
 
     /**
      * @throws InvalidWebhookSignatureException
@@ -35,7 +33,7 @@ final readonly class SignatureVerifier
 
         $timestamp = $components['t'] ?? null;
 
-        if ($timestamp === null || !ctype_digit($timestamp)) {
+        if ($timestamp === null || ! ctype_digit($timestamp)) {
             throw new InvalidWebhookSignatureException(
                 'Malformed Paymongo-Signature header: missing or non-numeric timestamp (t).'
             );
@@ -52,7 +50,7 @@ final readonly class SignatureVerifier
 
         $expected = hash_hmac('sha256', $timestamp.'.'.$payload, $secret);
 
-        if (!hash_equals($expected, $signature)) {
+        if (! hash_equals($expected, $signature)) {
             throw new InvalidWebhookSignatureException('Webhook signature does not match the expected signature.');
         }
 
@@ -75,7 +73,7 @@ final readonly class SignatureVerifier
         foreach (explode(',', $header) as $pair) {
             $pair = trim($pair);
 
-            if ($pair === '' || !str_contains($pair, '=')) {
+            if ($pair === '' || ! str_contains($pair, '=')) {
                 continue;
             }
 

@@ -7,6 +7,4 @@ namespace Luigel\Paymongo\Exceptions;
 /**
  * Thrown when an inbound webhook request fails Paymongo-Signature verification.
  */
-final class InvalidWebhookSignatureException extends PaymongoException
-{
-}
+final class InvalidWebhookSignatureException extends PaymongoException {}

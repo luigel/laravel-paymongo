@@ -14,25 +14,25 @@ it('creates a plan under /subscriptions/plans and maps the DTO', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('plan'))]);
 
     $plan = Paymongo::plans()->create([
-        'name'           => 'Premium Monthly',
-        'description'    => 'Premium tier billed monthly',
-        'amount'         => 150050,
-        'currency'       => 'PHP',
-        'interval'       => PlanInterval::Monthly,
+        'name' => 'Premium Monthly',
+        'description' => 'Premium tier billed monthly',
+        'amount' => 150050,
+        'currency' => 'PHP',
+        'interval' => PlanInterval::Monthly,
         'interval_count' => 1,
-        'cycle_count'    => 12,
+        'cycle_count' => 12,
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/subscriptions/plans'
         && $request->data() === ['data' => ['attributes' => [
-            'name'           => 'Premium Monthly',
-            'description'    => 'Premium tier billed monthly',
-            'amount'         => 150050,
-            'currency'       => 'PHP',
-            'interval'       => 'monthly',
+            'name' => 'Premium Monthly',
+            'description' => 'Premium tier billed monthly',
+            'amount' => 150050,
+            'currency' => 'PHP',
+            'interval' => 'monthly',
             'interval_count' => 1,
-            'cycle_count'    => 12,
+            'cycle_count' => 12,
         ]]]
         && $request->hasHeader('Idempotency-Key'));
 
@@ -81,7 +81,7 @@ it('updates a plan via PATCH with the envelope', function () {
 
 it('lists plans from /subscriptions/plans passing the query parameters through', function () {
     Http::fake(['api.paymongo.com/*' => Http::response([
-        'data'     => [fixture_data('plan')['data']],
+        'data' => [fixture_data('plan')['data']],
         'has_more' => false,
     ])]);
 

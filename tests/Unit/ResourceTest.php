@@ -22,8 +22,8 @@ it('round-trips id, type and attributes through toArray', function () {
     $intent = PaymentIntent::fromArray($data);
 
     expect($intent->toArray())->toBe([
-        'id'         => $data['id'],
-        'type'       => $data['type'],
+        'id' => $data['id'],
+        'type' => $data['type'],
         'attributes' => $data['attributes'],
     ]);
 });
@@ -88,9 +88,9 @@ it('maps next_action onto a NextAction DTO flattening the redirect', function ()
     $data = fixture_data('payment_intent')['data'];
     $data['attributes']['status'] = 'awaiting_next_action';
     $data['attributes']['next_action'] = [
-        'type'     => 'redirect',
+        'type' => 'redirect',
         'redirect' => [
-            'url'        => 'https://test-sources.paymongo.com/sources?id=src_123',
+            'url' => 'https://test-sources.paymongo.com/sources?id=src_123',
             'return_url' => 'https://example.com/return',
         ],
     ];

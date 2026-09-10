@@ -11,7 +11,7 @@ use Luigel\Paymongo\Exceptions\PaymongoException;
 final class PaymentIntentService extends AbstractService
 {
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      *
      * @throws PaymongoException
      */
@@ -53,7 +53,7 @@ final class PaymentIntentService extends AbstractService
     /**
      * Attach a payment method to the payment intent.
      *
-     * @param string|null $returnUrl Required by PayMongo for e-wallet, DOB and BillEase payments.
+     * @param  string|null  $returnUrl  Required by PayMongo for e-wallet, DOB and BillEase payments.
      *
      * @throws PaymongoException
      */

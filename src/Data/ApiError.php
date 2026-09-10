@@ -11,13 +11,12 @@ final readonly class ApiError
         public ?string $detail = null,
         public ?string $pointer = null,
         public ?string $attribute = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Create an error from a single PayMongo `errors[]` entry.
      *
-     * @param array<array-key, mixed> $data
+     * @param  array<array-key, mixed>  $data
      */
     public static function fromArray(array $data): self
     {

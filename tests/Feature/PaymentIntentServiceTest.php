@@ -16,19 +16,19 @@ it('creates a payment intent and maps the response onto the DTO', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('payment_intent'))]);
 
     $intent = Paymongo::paymentIntents()->create([
-        'amount'                 => 150050,
-        'currency'               => 'PHP',
+        'amount' => 150050,
+        'currency' => 'PHP',
         'payment_method_allowed' => ['card', 'gcash', 'paymaya'],
-        'capture_type'           => 'automatic',
+        'capture_type' => 'automatic',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/payment_intents'
         && $request->data() === ['data' => ['attributes' => [
-            'amount'                 => 150050,
-            'currency'               => 'PHP',
+            'amount' => 150050,
+            'currency' => 'PHP',
             'payment_method_allowed' => ['card', 'gcash', 'paymaya'],
-            'capture_type'           => 'automatic',
+            'capture_type' => 'automatic',
         ]]]
         && $request->hasHeader('Idempotency-Key'));
 
@@ -136,8 +136,8 @@ it('attaches with a return url and client key when given', function () {
         && $request->url() === 'https://api.paymongo.com/v1/payment_intents/pi_UWL2ZP2rBjMPS9UfnqAROSXg/attach'
         && $request->data() === ['data' => ['attributes' => [
             'payment_method' => 'pm_ZzVPFGwGe31eR2vDcPuS9tsA',
-            'return_url'     => 'https://example.com/return',
-            'client_key'     => 'ck_test_123',
+            'return_url' => 'https://example.com/return',
+            'client_key' => 'ck_test_123',
         ]]]);
 });
 

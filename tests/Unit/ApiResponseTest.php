@@ -17,7 +17,7 @@ it('exposes a single resource payload', function () {
 
 it('exposes a list payload with has_more', function () {
     $response = new ApiResponse([
-        'data'     => [['id' => 'pay_1'], ['id' => 'pay_2']],
+        'data' => [['id' => 'pay_1'], ['id' => 'pay_2']],
         'has_more' => true,
     ], 200);
 

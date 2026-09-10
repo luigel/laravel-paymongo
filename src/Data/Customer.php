@@ -9,7 +9,7 @@ use Luigel\Paymongo\Enums\DefaultDevice;
 final class Customer extends Resource
 {
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function __construct(
         string $id,

@@ -24,7 +24,7 @@ function post_signed_webhook(string $uri, string $body, ?string $header): TestRe
 {
     $server = [
         'CONTENT_TYPE' => 'application/json',
-        'HTTP_ACCEPT'  => 'application/json',
+        'HTTP_ACCEPT' => 'application/json',
     ];
 
     if ($header !== null) {

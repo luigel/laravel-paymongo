@@ -6,6 +6,9 @@ namespace Luigel\Paymongo;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
@@ -38,7 +41,7 @@ final class PaymongoServiceProvider extends ServiceProvider
     {
         $this->app->make(Router::class)->aliasMiddleware('paymongo.signature', VerifyWebhookSignature::class);
 
-        $csrfMiddleware = self::csrfMiddleware();
+        $csrfMiddleware = $this->csrfMiddleware();
 
         Router::macro('paymongoWebhooks', function (string $uri = 'paymongo/webhook', ?string $secret = null) use ($csrfMiddleware): Route {
             /** @var Router $this */
@@ -72,12 +75,12 @@ final class PaymongoServiceProvider extends ServiceProvider
      *
      * @return list<string>
      */
-    private static function csrfMiddleware(): array
+    private function csrfMiddleware(): array
     {
         return array_values(array_filter([
-            'Illuminate\Foundation\Http\Middleware\PreventRequestForgery',
-            'Illuminate\Foundation\Http\Middleware\ValidateCsrfToken',
-            'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken',
-        ], static fn (string $class): bool => class_exists($class)));
+            PreventRequestForgery::class,
+            ValidateCsrfToken::class,
+            VerifyCsrfToken::class,
+        ], class_exists(...)));
     }
 }

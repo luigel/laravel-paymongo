@@ -12,8 +12,8 @@ namespace Luigel\Paymongo\Data;
 final class CustomerPaymentMethod extends Resource
 {
     /**
-     * @param array<string, mixed>      $attributes
-     * @param array<string, mixed>|null $details
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, mixed>|null  $details
      */
     public function __construct(
         string $id,

@@ -8,6 +8,7 @@ use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 /**
  * Testing concern for the PaymongoManager: stub the whole PayMongo API and
@@ -32,7 +33,7 @@ trait FakesPaymongo
      * enable, ...) return their parent resource. Unrouted paths under the
      * origin get a PayMongo-style 404 error response.
      *
-     * @param array<string, mixed> $stubs
+     * @param  array<string, mixed>  $stubs
      */
     public function fake(array $stubs = []): void
     {
@@ -50,7 +51,7 @@ trait FakesPaymongo
     /**
      * Assert that a request matching the callback was sent to PayMongo.
      *
-     * @param callable(Request, Response): bool $callback
+     * @param  callable(Request, Response): bool  $callback
      */
     public function assertSent(callable $callback): void
     {
@@ -95,21 +96,21 @@ trait FakesPaymongo
         // /subscriptions/plans/* must be routed before /subscriptions/{id}.
         if ($root === 'subscriptions' && $id === 'plans') {
             return match (true) {
-                $method === 'POST' && $count === 2  => Factory::response(Fixtures::plan($attributes)),
-                $method === 'GET' && $count === 2   => Factory::response(Fixtures::list([Fixtures::plan()])),
-                $method === 'GET' && $count === 3   => Factory::response(Fixtures::plan(['id' => $action])),
+                $method === 'POST' && $count === 2 => Factory::response(Fixtures::plan($attributes)),
+                $method === 'GET' && $count === 2 => Factory::response(Fixtures::list([Fixtures::plan()])),
+                $method === 'GET' && $count === 3 => Factory::response(Fixtures::plan(['id' => $action])),
                 $method === 'PATCH' && $count === 3 => Factory::response(Fixtures::plan(array_merge($attributes, ['id' => $action]))),
-                default                             => $this->fakePaymongoNotFound($method, $segments),
+                default => $this->fakePaymongoNotFound($method, $segments),
             };
         }
 
         return match (true) {
             // Payment Links v2 (flat bodies and objects), routed before the
             // generic matchers so they never fall through to legacy links.
-            $method === 'POST' && $count === 1 && $root === 'payment_links'                          => Factory::response(Fixtures::paymentLink($this->fakePaymongoFlatBody($request))),
-            $method === 'GET' && $count === 1 && $root === 'payment_links'                           => Factory::response(Fixtures::flatList([Fixtures::paymentLink()])),
-            $method === 'GET' && $count === 2 && $root === 'payment_links'                           => Factory::response(Fixtures::paymentLink(['id' => $id])),
-            $method === 'PATCH' && $count === 2 && $root === 'payment_links'                         => Factory::response(Fixtures::paymentLink(array_merge($this->fakePaymongoFlatBody($request), ['id' => $id]))),
+            $method === 'POST' && $count === 1 && $root === 'payment_links' => Factory::response(Fixtures::paymentLink($this->fakePaymongoFlatBody($request))),
+            $method === 'GET' && $count === 1 && $root === 'payment_links' => Factory::response(Fixtures::flatList([Fixtures::paymentLink()])),
+            $method === 'GET' && $count === 2 && $root === 'payment_links' => Factory::response(Fixtures::paymentLink(['id' => $id])),
+            $method === 'PATCH' && $count === 2 && $root === 'payment_links' => Factory::response(Fixtures::paymentLink(array_merge($this->fakePaymongoFlatBody($request), ['id' => $id]))),
             $method === 'GET' && $count === 3 && $root === 'payment_links' && $action === 'payments' => Factory::response(Fixtures::list([Fixtures::payment()])),
             $method === 'POST' && $count === 3 && $root === 'payment_links' && $action === 'refunds' => Factory::response(['data' => $this->fakePaymongoFlatBody($request)]),
 
@@ -117,19 +118,19 @@ trait FakesPaymongo
             $method === 'POST' && $count === 2 && $root === 'qrph' && $id === 'generate' => Factory::response(Fixtures::staticQr($attributes)),
 
             // Payouts (read-only, token pagination) and payout schedules.
-            $method === 'GET' && $count === 1 && $root === 'payouts'                               => Factory::response(Fixtures::payoutList([Fixtures::payout()])),
-            $method === 'GET' && $count === 2 && $root === 'payouts'                               => Factory::response(Fixtures::payout(['id' => $id])),
+            $method === 'GET' && $count === 1 && $root === 'payouts' => Factory::response(Fixtures::payoutList([Fixtures::payout()])),
+            $method === 'GET' && $count === 2 && $root === 'payouts' => Factory::response(Fixtures::payout(['id' => $id])),
             $method === 'GET' && $count === 3 && $root === 'payouts' && $action === 'transactions' => Factory::response(Fixtures::payoutList([Fixtures::payoutTransaction()])),
-            $method === 'GET' && $count === 3 && $root === 'merchants' && $action === 'schedules'  => Factory::response(Fixtures::payoutSchedule()),
+            $method === 'GET' && $count === 3 && $root === 'merchants' && $action === 'schedules' => Factory::response(Fixtures::payoutSchedule()),
 
             // Payment intents.
-            $method === 'POST' && $count === 1 && $root === 'payment_intents'                                                             => Factory::response(Fixtures::paymentIntent($attributes)),
-            $method === 'GET' && $count === 2 && $root === 'payment_intents'                                                              => Factory::response(Fixtures::paymentIntent(['id' => $id])),
+            $method === 'POST' && $count === 1 && $root === 'payment_intents' => Factory::response(Fixtures::paymentIntent($attributes)),
+            $method === 'GET' && $count === 2 && $root === 'payment_intents' => Factory::response(Fixtures::paymentIntent(['id' => $id])),
             $method === 'POST' && $count === 3 && $root === 'payment_intents' && in_array($action, ['attach', 'capture', 'cancel'], true) => Factory::response(Fixtures::paymentIntent(['id' => $id])),
 
             // Payment methods.
             $method === 'POST' && $count === 1 && $root === 'payment_methods' => Factory::response(Fixtures::paymentMethod($attributes)),
-            $method === 'GET' && $count === 2 && $root === 'payment_methods'  => Factory::response(Fixtures::paymentMethod(['id' => $id])),
+            $method === 'GET' && $count === 2 && $root === 'payment_methods' => Factory::response(Fixtures::paymentMethod(['id' => $id])),
 
             // Payments.
             $method === 'GET' && $count === 1 && $root === 'payments' => Factory::response(Fixtures::list([Fixtures::payment()])),
@@ -137,46 +138,46 @@ trait FakesPaymongo
 
             // Refunds.
             $method === 'POST' && $count === 1 && $root === 'refunds' => Factory::response(Fixtures::refund($attributes)),
-            $method === 'GET' && $count === 1 && $root === 'refunds'  => Factory::response(Fixtures::list([Fixtures::refund()])),
-            $method === 'GET' && $count === 2 && $root === 'refunds'  => Factory::response(Fixtures::refund(['id' => $id])),
+            $method === 'GET' && $count === 1 && $root === 'refunds' => Factory::response(Fixtures::list([Fixtures::refund()])),
+            $method === 'GET' && $count === 2 && $root === 'refunds' => Factory::response(Fixtures::refund(['id' => $id])),
 
             // Webhooks.
-            $method === 'POST' && $count === 1 && $root === 'webhooks'                                                   => Factory::response(Fixtures::webhook($attributes)),
-            $method === 'GET' && $count === 1 && $root === 'webhooks'                                                    => Factory::response(Fixtures::list([Fixtures::webhook()])),
-            $method === 'GET' && $count === 2 && $root === 'webhooks'                                                    => Factory::response(Fixtures::webhook(['id' => $id])),
-            $method === 'PUT' && $count === 2 && $root === 'webhooks'                                                    => Factory::response(Fixtures::webhook(array_merge($attributes, ['id' => $id]))),
+            $method === 'POST' && $count === 1 && $root === 'webhooks' => Factory::response(Fixtures::webhook($attributes)),
+            $method === 'GET' && $count === 1 && $root === 'webhooks' => Factory::response(Fixtures::list([Fixtures::webhook()])),
+            $method === 'GET' && $count === 2 && $root === 'webhooks' => Factory::response(Fixtures::webhook(['id' => $id])),
+            $method === 'PUT' && $count === 2 && $root === 'webhooks' => Factory::response(Fixtures::webhook(array_merge($attributes, ['id' => $id]))),
             $method === 'POST' && $count === 3 && $root === 'webhooks' && in_array($action, ['enable', 'disable'], true) => Factory::response(Fixtures::webhook(['id' => $id])),
 
             // Checkout sessions.
-            $method === 'POST' && $count === 1 && $root === 'checkout_sessions'                         => Factory::response(Fixtures::checkoutSession($attributes)),
-            $method === 'GET' && $count === 2 && $root === 'checkout_sessions'                          => Factory::response(Fixtures::checkoutSession(['id' => $id])),
+            $method === 'POST' && $count === 1 && $root === 'checkout_sessions' => Factory::response(Fixtures::checkoutSession($attributes)),
+            $method === 'GET' && $count === 2 && $root === 'checkout_sessions' => Factory::response(Fixtures::checkoutSession(['id' => $id])),
             $method === 'POST' && $count === 3 && $root === 'checkout_sessions' && $action === 'expire' => Factory::response(Fixtures::checkoutSession(['id' => $id])),
 
             // Links; GET /links?reference_number=... echoes the reference back.
-            $method === 'POST' && $count === 1 && $root === 'links'                                                      => Factory::response(Fixtures::link($attributes)),
-            $method === 'GET' && $count === 1 && $root === 'links'                                                       => Factory::response(Fixtures::list([Fixtures::link($this->fakePaymongoLinkOverrides($request))])),
-            $method === 'GET' && $count === 2 && $root === 'links'                                                       => Factory::response(Fixtures::link(['id' => $id])),
+            $method === 'POST' && $count === 1 && $root === 'links' => Factory::response(Fixtures::link($attributes)),
+            $method === 'GET' && $count === 1 && $root === 'links' => Factory::response(Fixtures::list([Fixtures::link($this->fakePaymongoLinkOverrides($request))])),
+            $method === 'GET' && $count === 2 && $root === 'links' => Factory::response(Fixtures::link(['id' => $id])),
             $method === 'POST' && $count === 3 && $root === 'links' && in_array($action, ['archive', 'unarchive'], true) => Factory::response(Fixtures::link(['id' => $id])),
 
             // Customers and their saved payment methods.
-            $method === 'POST' && $count === 1 && $root === 'customers'                                    => Factory::response(Fixtures::customer($attributes)),
-            $method === 'GET' && $count === 2 && $root === 'customers'                                     => Factory::response(Fixtures::customer(['id' => $id])),
-            $method === 'PATCH' && $count === 2 && $root === 'customers'                                   => Factory::response(Fixtures::customer(array_merge($attributes, ['id' => $id]))),
-            $method === 'DELETE' && $count === 2 && $root === 'customers'                                  => Factory::response(Fixtures::customer(['id' => $id])),
-            $method === 'GET' && $count === 3 && $root === 'customers' && $action === 'payment_methods'    => Factory::response(Fixtures::list([Fixtures::customerPaymentMethod()])),
+            $method === 'POST' && $count === 1 && $root === 'customers' => Factory::response(Fixtures::customer($attributes)),
+            $method === 'GET' && $count === 2 && $root === 'customers' => Factory::response(Fixtures::customer(['id' => $id])),
+            $method === 'PATCH' && $count === 2 && $root === 'customers' => Factory::response(Fixtures::customer(array_merge($attributes, ['id' => $id]))),
+            $method === 'DELETE' && $count === 2 && $root === 'customers' => Factory::response(Fixtures::customer(['id' => $id])),
+            $method === 'GET' && $count === 3 && $root === 'customers' && $action === 'payment_methods' => Factory::response(Fixtures::list([Fixtures::customerPaymentMethod()])),
             $method === 'DELETE' && $count === 4 && $root === 'customers' && $action === 'payment_methods' => Factory::response(Fixtures::customerPaymentMethod(['id' => $segments[3] ?? ''])),
 
             // Subscriptions.
-            $method === 'POST' && $count === 1 && $root === 'subscriptions'                                                       => Factory::response(Fixtures::subscription($attributes)),
-            $method === 'GET' && $count === 1 && $root === 'subscriptions'                                                        => Factory::response(Fixtures::list([Fixtures::subscription()])),
-            $method === 'GET' && $count === 2 && $root === 'subscriptions'                                                        => Factory::response(Fixtures::subscription(['id' => $id])),
-            $method === 'POST' && $count === 3 && $root === 'subscriptions' && $action === 'cancel'                               => Factory::response(Fixtures::subscription(['id' => $id])),
+            $method === 'POST' && $count === 1 && $root === 'subscriptions' => Factory::response(Fixtures::subscription($attributes)),
+            $method === 'GET' && $count === 1 && $root === 'subscriptions' => Factory::response(Fixtures::list([Fixtures::subscription()])),
+            $method === 'GET' && $count === 2 && $root === 'subscriptions' => Factory::response(Fixtures::subscription(['id' => $id])),
+            $method === 'POST' && $count === 3 && $root === 'subscriptions' && $action === 'cancel' => Factory::response(Fixtures::subscription(['id' => $id])),
             $method === 'PUT' && $count === 3 && $root === 'subscriptions' && in_array($action, ['plan', 'payment_method'], true) => Factory::response(Fixtures::subscription(['id' => $id])),
-            $method === 'POST' && $count === 3 && $root === 'subscriptions' && $action === 'test_cycle'                           => Factory::response('{}'),
+            $method === 'POST' && $count === 3 && $root === 'subscriptions' && $action === 'test_cycle' => Factory::response('{}'),
 
             // Sources (deprecated).
             $method === 'POST' && $count === 1 && $root === 'sources' => Factory::response(Fixtures::source($attributes)),
-            $method === 'GET' && $count === 2 && $root === 'sources'  => Factory::response(Fixtures::source(['id' => $id])),
+            $method === 'GET' && $count === 2 && $root === 'sources' => Factory::response(Fixtures::source(['id' => $id])),
 
             default => $this->fakePaymongoNotFound($method, $segments),
         };
@@ -185,7 +186,7 @@ trait FakesPaymongo
     /**
      * Route a faked v3 QR API request (flat bodies and objects).
      *
-     * @param list<string> $segments
+     * @param  list<string>  $segments
      */
     private function fakePaymongoV3Response(Request $request, string $method, array $segments): PromiseInterface
     {
@@ -197,10 +198,10 @@ trait FakesPaymongo
         if ($root === 'qr') {
             return match (true) {
                 $method === 'POST' && $count === 3 && $id === 'mpm' && $action === 'generate' => Factory::response(Fixtures::mpmQr($this->fakePaymongoFlatBody($request))),
-                $method === 'POST' && $count === 3 && $id === 'mpm' && $action === 'execute'  => Factory::response(Fixtures::qrExecution($this->fakePaymongoFlatBody($request))),
-                $method === 'GET' && $count === 2                                             => Factory::response(Fixtures::mpmQr(['id' => $id])),
-                $method === 'POST' && $count === 3 && $action === 'expire'                    => Factory::response(Fixtures::mpmQr(['id' => $id])),
-                default                                                                       => $this->fakePaymongoNotFound($method, $segments),
+                $method === 'POST' && $count === 3 && $id === 'mpm' && $action === 'execute' => Factory::response(Fixtures::qrExecution($this->fakePaymongoFlatBody($request))),
+                $method === 'GET' && $count === 2 => Factory::response(Fixtures::mpmQr(['id' => $id])),
+                $method === 'POST' && $count === 3 && $action === 'expire' => Factory::response(Fixtures::mpmQr(['id' => $id])),
+                default => $this->fakePaymongoNotFound($method, $segments),
             };
         }
 
@@ -240,7 +241,7 @@ trait FakesPaymongo
         $body = $request->data();
         $data = $body['data'] ?? null;
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return [];
         }
 
@@ -272,12 +273,11 @@ trait FakesPaymongo
     {
         $queryString = parse_url($request->url(), PHP_URL_QUERY);
 
-        if (!is_string($queryString)) {
+        if (! is_string($queryString)) {
             return [];
         }
 
-        parse_str($queryString, $query);
-        $reference = $query['reference_number'] ?? null;
+        $reference = HeaderUtils::parseQuery($queryString)['reference_number'] ?? null;
 
         return is_string($reference) ? ['reference_number' => $reference] : [];
     }
@@ -285,14 +285,14 @@ trait FakesPaymongo
     /**
      * A PayMongo-style 404 for paths the catch-all does not know.
      *
-     * @param list<string> $segments
+     * @param  list<string>  $segments
      */
     private function fakePaymongoNotFound(string $method, array $segments): PromiseInterface
     {
         return Factory::response([
             'errors' => [
                 [
-                    'code'   => 'resource_not_found',
+                    'code' => 'resource_not_found',
                     'detail' => sprintf(
                         'No fake PayMongo route matches [%s /%s]. Pass a stub to Paymongo::fake() to handle this endpoint.',
                         $method,

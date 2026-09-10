@@ -10,7 +10,7 @@ use Luigel\Paymongo\Exceptions\PaymongoException;
 final class CheckoutSessionService extends AbstractService
 {
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      *
      * @throws PaymongoException
      */

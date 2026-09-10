@@ -13,9 +13,9 @@ namespace Luigel\Paymongo\Data;
 final class PayoutSchedule extends Resource
 {
     /**
-     * @param array<string, mixed>    $attributes
-     * @param list<string>            $options
-     * @param array<array-key, mixed> $lineup
+     * @param  array<string, mixed>  $attributes
+     * @param  list<string>  $options
+     * @param  array<array-key, mixed>  $lineup
      */
     public function __construct(
         string $id,

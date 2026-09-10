@@ -22,9 +22,9 @@ use Throwable;
 final readonly class PaymentLink
 {
     /**
-     * @param array<string, mixed>|null $metadata
-     * @param array<string, mixed>|null $restrictions
-     * @param array<string, mixed>      $raw          The full flat `data` object.
+     * @param  array<string, mixed>|null  $metadata
+     * @param  array<string, mixed>|null  $restrictions
+     * @param  array<string, mixed>  $raw  The full flat `data` object.
      */
     public function __construct(
         public ?string $id = null,
@@ -41,15 +41,14 @@ final readonly class PaymentLink
         public ?CarbonImmutable $createdAt = null,
         public ?CarbonImmutable $updatedAt = null,
         public array $raw = [],
-    ) {
-    }
+    ) {}
 
     /**
      * Build the DTO from the flat `data` object of a `/payment_links`
      * response. Tolerant: every missing or unexpectedly typed field maps
      * to null.
      *
-     * @param array<array-key, mixed> $data
+     * @param  array<array-key, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
@@ -91,7 +90,7 @@ final readonly class PaymentLink
     }
 
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     private static function stringOf(array $raw, string $key): ?string
     {
@@ -101,7 +100,7 @@ final readonly class PaymentLink
     }
 
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     private static function intOf(array $raw, string $key): ?int
     {
@@ -111,15 +110,14 @@ final readonly class PaymentLink
     }
 
     /**
-     * @param array<string, mixed> $raw
-     *
+     * @param  array<string, mixed>  $raw
      * @return array<string, mixed>|null
      */
     private static function arrayOf(array $raw, string $key): ?array
     {
         $value = $raw[$key] ?? null;
 
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return null;
         }
 
@@ -130,13 +128,13 @@ final readonly class PaymentLink
     /**
      * Parse an ISO 8601 string timestamp, e.g. `2024-09-09T00:00:00.000Z`.
      *
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     private static function isoTime(array $raw, string $key): ?CarbonImmutable
     {
         $value = $raw[$key] ?? null;
 
-        if (!is_string($value) || $value === '') {
+        if (! is_string($value) || $value === '') {
             return null;
         }
 

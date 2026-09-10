@@ -10,11 +10,11 @@ use Luigel\Paymongo\Enums\PaymentMethodType;
 final class PaymentMethod extends Resource
 {
     /**
-     * @param array<string, mixed>      $attributes
-     * @param PaymentMethodType|null    $methodType The `type` attribute (card, gcash, ...); named
+     * @param  array<string, mixed>  $attributes
+     * @param  PaymentMethodType|null  $methodType  The `type` attribute (card, gcash, ...); named
      *                                              methodType because $type holds the resource type.
-     * @param array<string, mixed>|null $details
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>|null  $details
+     * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
         string $id,

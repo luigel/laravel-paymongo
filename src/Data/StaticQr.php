@@ -11,7 +11,7 @@ namespace Luigel\Paymongo\Data;
 final class StaticQr extends Resource
 {
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function __construct(
         string $id,

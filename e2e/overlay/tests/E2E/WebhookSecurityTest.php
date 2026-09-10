@@ -20,10 +20,10 @@ beforeEach(function () {
     }
 
     config([
-        'paymongo.webhooks.secret'         => 'whsk_test_e2e',
-        'paymongo.webhooks.tolerance'      => 300,
+        'paymongo.webhooks.secret' => 'whsk_test_e2e',
+        'paymongo.webhooks.tolerance' => 300,
         'paymongo.webhooks.dedupe.enabled' => true,
-        'paymongo.livemode'                => false,
+        'paymongo.livemode' => false,
     ]);
 
     truncateWebhookDeliveries();

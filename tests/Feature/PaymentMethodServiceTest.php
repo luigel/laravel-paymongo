@@ -13,12 +13,12 @@ it('creates a payment method and maps the response onto the DTO', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('payment_method'))]);
 
     $method = Paymongo::paymentMethods()->create([
-        'type'    => 'card',
+        'type' => 'card',
         'details' => [
             'card_number' => '4343434343434345',
-            'exp_month'   => 12,
-            'exp_year'    => 2030,
-            'cvc'         => '123',
+            'exp_month' => 12,
+            'exp_year' => 2030,
+            'cvc' => '123',
         ],
         'billing' => ['name' => 'Juan Dela Cruz', 'email' => 'juan.delacruz@example.com'],
     ]);
@@ -26,12 +26,12 @@ it('creates a payment method and maps the response onto the DTO', function () {
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/payment_methods'
         && $request->data() === ['data' => ['attributes' => [
-            'type'    => 'card',
+            'type' => 'card',
             'details' => [
                 'card_number' => '4343434343434345',
-                'exp_month'   => 12,
-                'exp_year'    => 2030,
-                'cvc'         => '123',
+                'exp_month' => 12,
+                'exp_year' => 2030,
+                'cvc' => '123',
             ],
             'billing' => ['name' => 'Juan Dela Cruz', 'email' => 'juan.delacruz@example.com'],
         ]]]);

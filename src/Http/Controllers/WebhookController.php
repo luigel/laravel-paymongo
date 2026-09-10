@@ -45,14 +45,14 @@ final class WebhookController
      */
     private function isDuplicate(WebhookEvent $event): bool
     {
-        if (!(bool) config('paymongo.webhooks.dedupe.enabled', true)) {
+        if (! (bool) config('paymongo.webhooks.dedupe.enabled', true)) {
             return false;
         }
 
         $store = config('paymongo.webhooks.dedupe.store');
         $ttl = config('paymongo.webhooks.dedupe.ttl', 86400);
 
-        return !Cache::store(is_string($store) ? $store : null)->add(
+        return ! Cache::store(is_string($store) ? $store : null)->add(
             'paymongo:webhook:'.$event->id,
             true,
             is_numeric($ttl) ? (int) $ttl : 86400,

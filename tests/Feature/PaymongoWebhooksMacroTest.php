@@ -53,8 +53,8 @@ it('routes a correctly signed request through the middleware to the controller',
     $header = macro_signature_header($body, 'whsk_test_fake', time());
 
     $this->call('POST', '/paymongo/webhook', server: [
-        'CONTENT_TYPE'            => 'application/json',
-        'HTTP_ACCEPT'             => 'application/json',
+        'CONTENT_TYPE' => 'application/json',
+        'HTTP_ACCEPT' => 'application/json',
         'HTTP_PAYMONGO_SIGNATURE' => $header,
     ], content: $body)
         ->assertOk()

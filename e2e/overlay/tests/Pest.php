@@ -23,13 +23,13 @@ uses(TestCase::class)->in('E2E');
  */
 function e2eSkipReason(): ?string
 {
-    if (!filter_var(env('PAYMONGO_E2E', false), FILTER_VALIDATE_BOOLEAN)) {
+    if (! filter_var(env('PAYMONGO_E2E', false), FILTER_VALIDATE_BOOLEAN)) {
         return 'PAYMONGO_E2E is not set; run the suite through the e2e Docker harness.';
     }
 
     $secretKey = config('paymongo.secret_key');
 
-    if (!is_string($secretKey) || !str_starts_with($secretKey, 'sk_test_')) {
+    if (! is_string($secretKey) || ! str_starts_with($secretKey, 'sk_test_')) {
         return 'PAYMONGO_SECRET_KEY must be a sandbox key (sk_test_...); refusing to run E2E tests.';
     }
 
@@ -44,7 +44,7 @@ function e2eWebhookSkipReason(): ?string
 {
     $secret = config('paymongo.webhooks.secret');
 
-    if (!is_string($secret) || $secret === '') {
+    if (! is_string($secret) || $secret === '') {
         return 'PAYMONGO_WEBHOOK_SECRET is empty; re-run setup without --no-tunnel to exercise the webhook round trip.';
     }
 
@@ -72,7 +72,7 @@ function truncateWebhookDeliveries(): void
  * Rows are written by the long-running HTTP server in another process, so the
  * only way to see them is to re-query.
  *
- * @param callable(object): bool $where
+ * @param  callable(object): bool  $where
  */
 function waitForDelivery(callable $where, int $timeoutSeconds = 45): ?object
 {
@@ -118,13 +118,13 @@ function signWebhookPayload(string $json, string $secret, bool $livemode = false
  * The signature covers the exact bytes of the body, so the request must not be
  * re-encoded — hence call() with `content:` rather than postJson().
  *
- * @param array<string, string> $extraServer
+ * @param  array<string, string>  $extraServer
  */
 function postWebhook(string $body, ?string $signature, array $extraServer = []): TestResponse
 {
     $server = array_merge([
         'CONTENT_TYPE' => 'application/json',
-        'HTTP_ACCEPT'  => 'application/json',
+        'HTTP_ACCEPT' => 'application/json',
     ], $extraServer);
 
     if ($signature !== null) {

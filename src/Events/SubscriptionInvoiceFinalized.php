@@ -7,6 +7,4 @@ namespace Luigel\Paymongo\Events;
 /**
  * Dispatched for `subscription.invoice.finalized` webhook events.
  */
-final class SubscriptionInvoiceFinalized extends WebhookReceived
-{
-}
+final class SubscriptionInvoiceFinalized extends WebhookReceived {}

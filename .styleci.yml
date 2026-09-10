@@ -1,0 +1,3 @@
+# Formatting is owned by Laravel Pint (pint.json, `composer lint:pint`).
+# StyleCI's presets disagree with Pint's, so it must not rewrite files.
+preset: none

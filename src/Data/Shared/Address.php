@@ -13,11 +13,10 @@ final readonly class Address
         public ?string $state = null,
         public ?string $postalCode = null,
         public ?string $country = null,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<array-key, mixed> $data
+     * @param  array<array-key, mixed>  $data
      */
     public static function fromArray(array $data): self
     {

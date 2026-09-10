@@ -7,6 +7,4 @@ namespace Luigel\Paymongo\Events;
 /**
  * Dispatched for `qr.expired` webhook events.
  */
-final class QrExpired extends WebhookReceived
-{
-}
+final class QrExpired extends WebhookReceived {}

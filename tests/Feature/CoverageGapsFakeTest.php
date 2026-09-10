@@ -13,7 +13,7 @@ it('fakes plan updates and echoes the patched attributes onto the requested id',
     Paymongo::fake();
 
     $plan = Paymongo::plans()->update('plan_fake_123', [
-        'name'   => 'Premium Yearly',
+        'name' => 'Premium Yearly',
         'amount' => 1500000,
     ]);
 

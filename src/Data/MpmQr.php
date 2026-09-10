@@ -21,7 +21,7 @@ use Luigel\Paymongo\Support\Money;
 final readonly class MpmQr
 {
     /**
-     * @param array<string, mixed> $raw The full flat `data` object.
+     * @param  array<string, mixed>  $raw  The full flat `data` object.
      */
     public function __construct(
         public ?string $id = null,
@@ -39,14 +39,13 @@ final readonly class MpmQr
         public ?CarbonImmutable $createdAt = null,
         public ?CarbonImmutable $updatedAt = null,
         public array $raw = [],
-    ) {
-    }
+    ) {}
 
     /**
      * Build the DTO from the flat `data` object of a v3 QR response.
      * Tolerant: every missing or unexpectedly typed field maps to null.
      *
-     * @param array<array-key, mixed> $data
+     * @param  array<array-key, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
@@ -93,7 +92,7 @@ final readonly class MpmQr
     }
 
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     private static function stringOf(array $raw, string $key): ?string
     {
@@ -103,7 +102,7 @@ final readonly class MpmQr
     }
 
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     private static function intOf(array $raw, string $key): ?int
     {
@@ -113,7 +112,7 @@ final readonly class MpmQr
     }
 
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     private static function unixTime(array $raw, string $key): ?CarbonImmutable
     {

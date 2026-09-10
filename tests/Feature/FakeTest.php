@@ -29,9 +29,9 @@ it('fakes payment intent creation and echoes the request attributes', function (
     Paymongo::fake();
 
     $intent = Paymongo::paymentIntents()->create([
-        'amount'               => 99999,
-        'currency'             => 'PHP',
-        'description'          => 'Faked order',
+        'amount' => 99999,
+        'currency' => 'PHP',
+        'description' => 'Faked order',
         'statement_descriptor' => 'FAKE STORE',
     ]);
 
@@ -91,9 +91,9 @@ it('fakes checkout session creation through the catch-all', function () {
     Paymongo::fake();
 
     $session = Paymongo::checkoutSessions()->create([
-        'description'      => 'Fake checkout',
+        'description' => 'Fake checkout',
         'reference_number' => 'REF-999',
-        'success_url'      => 'https://example.test/success',
+        'success_url' => 'https://example.test/success',
     ]);
 
     expect($session)->toBeInstanceOf(CheckoutSession::class)
@@ -174,8 +174,8 @@ it('fakes MPM QR generation and execution with flat echoes', function () {
     Paymongo::fake();
 
     $qr = Paymongo::qrph()->generate([
-        'nation'             => 'ph',
-        'mode'               => 'p2p',
+        'nation' => 'ph',
+        'mode' => 'p2p',
         'transaction_amount' => 7500,
     ]);
 
@@ -185,8 +185,8 @@ it('fakes MPM QR generation and execution with flat echoes', function () {
         ->and($qr->transactionAmount)->toBe(7500);
 
     $execution = Paymongo::qrph()->execute([
-        'qr_string'        => '00020101021228_example',
-        'amount'           => 7500,
+        'qr_string' => '00020101021228_example',
+        'amount' => 7500,
         'reference_number' => 'QR-FAKE-1',
     ]);
 
@@ -197,7 +197,7 @@ it('fakes MPM QR generation and execution with flat echoes', function () {
 
     Paymongo::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v3/qr/mpm/generate'
-        && !array_key_exists('data', $request->data()));
+        && ! array_key_exists('data', $request->data()));
 });
 
 it('routes v3 QR retrieval and expiry through the origin catch-all', function () {
@@ -216,7 +216,7 @@ it('fakes static QR Ph generation with an enveloped echo', function () {
     Paymongo::fake();
 
     $code = Paymongo::qrph()->generateStatic([
-        'kind'          => 'instore',
+        'kind' => 'instore',
         'mobile_number' => '+639998887766',
     ]);
 
@@ -230,8 +230,8 @@ it('fakes payment link creation and update with flat echoes', function () {
     Paymongo::fake();
 
     $link = Paymongo::paymentLinks()->create([
-        'amount'      => 25000,
-        'currency'    => 'PHP',
+        'amount' => 25000,
+        'currency' => 'PHP',
         'description' => 'Faked payment link',
     ]);
 

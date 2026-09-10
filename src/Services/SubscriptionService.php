@@ -33,11 +33,10 @@ final class SubscriptionService extends AbstractService
     }
 
     /**
-     * @param array<string, mixed> $params Supported keys: limit, before, after.
+     * @param  array<string, mixed>  $params  Supported keys: limit, before, after.
+     * @return CursorPage<Subscription>
      *
      * @throws PaymongoException
-     *
-     * @return CursorPage<Subscription>
      */
     public function list(array $params = []): CursorPage
     {
@@ -73,7 +72,7 @@ final class SubscriptionService extends AbstractService
     /**
      * Change the payment method future cycles are charged against.
      *
-     * @param string|null $redirectUrl Where the customer lands after authorizing the new method.
+     * @param  string|null  $redirectUrl  Where the customer lands after authorizing the new method.
      *
      * @throws PaymongoException
      */

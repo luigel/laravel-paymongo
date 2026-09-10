@@ -7,6 +7,4 @@ namespace Luigel\Paymongo\Events;
 /**
  * Dispatched for `dispute.resolved` webhook events.
  */
-final class DisputeResolved extends WebhookReceived
-{
-}
+final class DisputeResolved extends WebhookReceived {}

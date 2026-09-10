@@ -12,25 +12,25 @@ it('exposes the raw centavos', function () {
 it('converts to an exact decimal string', function (int $centavos, string $decimal) {
     expect(Money::ofCentavos($centavos)->toDecimal())->toBe($decimal);
 })->with([
-    'zero'                        => [0, '0.00'],
-    'one centavo'                 => [1, '0.01'],
-    'ninety-nine centavos'        => [99, '0.99'],
-    'one peso'                    => [100, '1.00'],
+    'zero' => [0, '0.00'],
+    'one centavo' => [1, '0.01'],
+    'ninety-nine centavos' => [99, '0.99'],
+    'one peso' => [100, '1.00'],
     'fifteen hundred pesos fifty' => [150050, '1500.50'],
-    'negative centavo'            => [-1, '-0.01'],
-    'negative pesos'              => [-150050, '-1500.50'],
-    'large amount'                => [123456789012345, '1234567890123.45'],
+    'negative centavo' => [-1, '-0.01'],
+    'negative pesos' => [-150050, '-1500.50'],
+    'large amount' => [123456789012345, '1234567890123.45'],
 ]);
 
 it('formats with the peso sign and thousands separators', function (int $centavos, string $formatted) {
     expect(Money::ofCentavos($centavos)->format())->toBe($formatted);
 })->with([
-    'zero'                => [0, '₱0.00'],
-    'centavos only'       => [99, '₱0.99'],
+    'zero' => [0, '₱0.00'],
+    'centavos only' => [99, '₱0.99'],
     'no separator needed' => [15000, '₱150.00'],
-    'thousands'           => [150050, '₱1,500.50'],
-    'millions'            => [123456789, '₱1,234,567.89'],
-    'negative'            => [-150050, '-₱1,500.50'],
+    'thousands' => [150050, '₱1,500.50'],
+    'millions' => [123456789, '₱1,234,567.89'],
+    'negative' => [-150050, '-₱1,500.50'],
 ]);
 
 it('formats with a custom symbol', function () {

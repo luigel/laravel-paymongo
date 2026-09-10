@@ -58,13 +58,12 @@ final class PaymongoManager
     private ?PayoutService $payouts = null;
 
     /**
-     * @param array<string, mixed> $config The `paymongo` config array.
+     * @param  array<string, mixed>  $config  The `paymongo` config array.
      */
     public function __construct(
         private readonly Factory $http,
         private array $config,
-    ) {
-    }
+    ) {}
 
     public function client(): PaymongoClient
     {

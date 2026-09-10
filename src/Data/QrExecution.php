@@ -17,7 +17,7 @@ use Luigel\Paymongo\Support\Money;
 final readonly class QrExecution
 {
     /**
-     * @param array<string, mixed> $raw The full flat `data` object.
+     * @param  array<string, mixed>  $raw  The full flat `data` object.
      */
     public function __construct(
         public ?string $id = null,
@@ -25,14 +25,13 @@ final readonly class QrExecution
         public ?string $referenceNumber = null,
         public ?int $amount = null,
         public array $raw = [],
-    ) {
-    }
+    ) {}
 
     /**
      * Build the DTO from the flat `data` object of a v3 QR response.
      * Tolerant: every missing or unexpectedly typed field maps to null.
      *
-     * @param array<array-key, mixed> $data
+     * @param  array<array-key, mixed>  $data
      */
     public static function fromArray(array $data): self
     {

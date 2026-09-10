@@ -13,9 +13,9 @@ use Luigel\Paymongo\Support\Money;
 final class Payment extends Resource
 {
     /**
-     * @param array<string, mixed>      $attributes
-     * @param array<string, mixed>|null $source     The `{id, type}` of the charged source.
-     * @param array<string, mixed>|null $metadata
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, mixed>|null  $source  The `{id, type}` of the charged source.
+     * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
         string $id,

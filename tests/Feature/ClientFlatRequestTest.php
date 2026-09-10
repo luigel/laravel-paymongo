@@ -10,17 +10,17 @@ it('sends the flat POST body verbatim without the data envelope', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(['data' => ['id' => 'plink_1']])]);
 
     app('paymongo')->client()->postFlat('/payment_links', [
-        'amount'      => 150050,
-        'currency'    => 'PHP',
+        'amount' => 150050,
+        'currency' => 'PHP',
         'description' => 'Order #10101',
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/payment_links'
-        && !array_key_exists('data', $request->data())
+        && ! array_key_exists('data', $request->data())
         && $request->data() === [
-            'amount'      => 150050,
-            'currency'    => 'PHP',
+            'amount' => 150050,
+            'currency' => 'PHP',
             'description' => 'Order #10101',
         ]);
 });
@@ -47,12 +47,12 @@ it('normalizes backed enums recursively in flat bodies', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(['data' => ['id' => 'qr_1']])]);
 
     app('paymongo')->client()->postFlat('/qr/mpm/generate', [
-        'mode'     => ClientFlatRequestTestMode::P2m,
+        'mode' => ClientFlatRequestTestMode::P2m,
         'metadata' => ['kind' => ClientFlatRequestTestMode::P2p],
     ]);
 
     Http::assertSent(fn (Request $request): bool => $request->data() === [
-        'mode'     => 'p2m',
+        'mode' => 'p2m',
         'metadata' => ['kind' => 'p2p'],
     ]);
 });
@@ -64,9 +64,9 @@ it('sends the flat PATCH body verbatim without an idempotency key', function () 
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'PATCH'
         && $request->url() === 'https://api.paymongo.com/v1/payment_links/plink_1'
-        && !array_key_exists('data', $request->data())
+        && ! array_key_exists('data', $request->data())
         && $request->data() === ['status' => 'archived']
-        && !$request->hasHeader('Idempotency-Key'));
+        && ! $request->hasHeader('Idempotency-Key'));
 });
 
 it('sends no body on a flat PATCH with an empty body', function () {
