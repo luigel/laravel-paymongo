@@ -133,7 +133,7 @@ it('verifies the signature on a route of your own', function () {
 });
 
 it('verifies each merchant\'s deliveries with that merchant\'s own secret', function () {
-    require_once dirname(__DIR__).'/Fixtures/DocsApp/Merchant.php';
+    require_once __DIR__.'/../Fixtures/DocsApp/Merchant.php';
     config(['app.key' => 'base64:'.base64_encode(str_repeat('k', 32))]);
     Schema::create('merchants', function (Blueprint $table) {
         $table->id();

@@ -46,7 +46,7 @@ function run_docs_example(string $path): void
  */
 function boot_docs_first_payment_app(): void
 {
-    $app = dirname(__DIR__).'/docs/examples/first-payment';
+    $app = __DIR__.'/../docs/examples/first-payment';
 
     create_docs_orders_table();
 

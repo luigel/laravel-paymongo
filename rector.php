@@ -26,6 +26,7 @@ use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveDuplicatedReturnSelfDocblockRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveEmptyClassMethodRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessUnionReturnDocblockRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
@@ -59,6 +60,12 @@ return RectorConfig::configure()
         // an arrow function has no statement to hang it on.
         ClosureToArrowFunctionRector::class => [
             __DIR__.'/src/PaymongoServiceProvider.php',
+        ],
+
+        // The docs coverage fixture exists only for its method names, which the
+        // coverage test reflects over; its empty bodies are the point.
+        RemoveEmptyClassMethodRector::class => [
+            __DIR__.'/tests/Fixtures/DocsCoverage',
         ],
 
         // Pest tests stay `function () {` (Pest style); closures in src are typed.
