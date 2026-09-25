@@ -153,6 +153,25 @@ final class Fixtures
     }
 
     /**
+     * A dispute, shaped like the resource in PayMongo's dispute webhook events.
+     *
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function dispute(array $overrides = []): array
+    {
+        return self::resource('dsp_7HkQmPzW3xVbNcLtRfYs2DgA', 'dispute', [
+            'amount' => 150050,
+            'currency' => 'PHP',
+            'status' => 'under_review',
+            'reason' => 'fraudulent',
+            'livemode' => false,
+            'created_at' => 1725840000,
+            'updated_at' => 1725840000,
+        ], $overrides);
+    }
+
+    /**
      * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>
      */

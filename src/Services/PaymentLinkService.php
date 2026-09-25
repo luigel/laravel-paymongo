@@ -6,6 +6,7 @@ namespace Luigel\Paymongo\Services;
 
 use Luigel\Paymongo\Data\Payment;
 use Luigel\Paymongo\Data\PaymentLink;
+use Luigel\Paymongo\Data\Refund;
 use Luigel\Paymongo\Enums\PaymentLinkStatus;
 use Luigel\Paymongo\Exceptions\PaymongoException;
 use Luigel\Paymongo\Pagination\CursorPage;
@@ -125,20 +126,20 @@ final class PaymentLinkService extends AbstractService
     }
 
     /**
-     * Refund payments collected through a payment link.
+     * Refund a payment collected through a payment link. The request is a
+     * flat body; the response is a standard `{id, type, attributes}`
+     * refund resource.
      *
-     * Caveat: PayMongo does not document the response shape of this
-     * endpoint, so the raw `data` payload is returned as-is (flat body
-     * passthrough on the request, too). Expect this signature to tighten
-     * once the shape is verified.
+     * Caveat: PayMongo documents this endpoint's request `amount` in pesos
+     * (major units), unlike every other amount, while the refund it
+     * returns carries `amount` in centavos.
      *
-     * @param  array<string, mixed>  $attributes
-     * @return array<array-key, mixed>
+     * @param  array<string, mixed>  $attributes  Supported keys: payment_id, amount (pesos), reason, metadata.
      *
      * @throws PaymongoException
      */
-    public function refund(string $id, array $attributes = []): array
+    public function refund(string $id, array $attributes = []): Refund
     {
-        return $this->client->postFlat("/payment_links/{$id}/refunds", $attributes)->data();
+        return $this->one($this->client->postFlat("/payment_links/{$id}/refunds", $attributes), Refund::class);
     }
 }

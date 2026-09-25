@@ -11,7 +11,7 @@ PayMongo returns lists a page at a time. A `list()` method returns the first pag
 
 ## Pages
 
-These return a `Luigel\Paymongo\Pagination\CursorPage`: `payments()->list()`, `refunds()->list()`, `links()->list()`, `paymentLinks()->list()`, `paymentLinks()->payments()`, `plans()->list()` and `subscriptions()->list()`.
+These return a `Luigel\Paymongo\Pagination\CursorPage`: `payments()->list()`, `refunds()->list()`, `links()->list()`, `paymentLinks()->list()`, `paymentLinks()->payments()`, `plans()->list()`, `subscriptions()->list()`, `webhooks()->list()` and `disputes()->list()`.
 
 ```php include=examples/pagination/page.php
 ```
@@ -41,4 +41,4 @@ Walking a long history takes one request per page. Narrow the list with the endp
 
 ## Lists that are not paged
 
-`webhooks()->list()` and `customers()->paymentMethods()` return every item at once, as a plain array.
+`customers()->paymentMethods()` returns every item at once, as a plain array.

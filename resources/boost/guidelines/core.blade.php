@@ -5,7 +5,7 @@ Laravel client for the PayMongo API: per-resource services on the `Paymongo` fac
 ### Core rules
 
 - Amounts are ALWAYS integer centavos (`150050` = ₱1,500.50), never floats. Multiply pesos by 100 and cast to `int` before sending; use `Luigel\Paymongo\Support\Money` (`$resource->money()->format()`, `Money::ofCentavos()`) for display and arithmetic.
-- Reach every resource through a service on `Luigel\Paymongo\Facades\Paymongo`: `Paymongo::paymentIntents()`, `paymentMethods()`, `payments()`, `refunds()`, `checkoutSessions()`, `links()`, `paymentLinks()`, `qrph()`, `customers()`, `plans()`, `subscriptions()`, `payouts()`, `webhooks()`, and the deprecated `sources()`. Use `retrieve($id)` and `list($params)`, not `find()`/`all()`.
+- Reach every resource through a service on `Luigel\Paymongo\Facades\Paymongo`: `Paymongo::paymentIntents()`, `paymentMethods()`, `payments()`, `refunds()`, `checkoutSessions()`, `links()`, `paymentLinks()`, `qrph()`, `customers()`, `plans()`, `subscriptions()`, `payouts()`, `disputes()`, `webhooks()`, and the deprecated `sources()`. Use `retrieve($id)` and `list($params)`, not `find()`/`all()`.
 - Attribute arrays match PayMongo's `data.attributes` exactly; enum instances from `Luigel\Paymongo\Enums` may be passed anywhere in them.
 - Responses are readonly DTOs in `Luigel\Paymongo\Data` with typed properties (`$intent->status`, `$payment->billing?->name`). Enum-typed properties are `null` for values the package does not know; read the raw payload with `$resource->attribute('dot.key')` or `$resource->toArray()`.
 - `list()` returns `Luigel\Paymongo\Pagination\CursorPage` (iterable, `->hasMore`, `->nextPage()`, `->lazy()` to stream every page). Payouts return `CursorTokenPage` with the same ergonomics.

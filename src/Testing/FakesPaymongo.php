@@ -112,7 +112,7 @@ trait FakesPaymongo
             $method === 'GET' && $count === 2 && $root === 'payment_links' => Factory::response(Fixtures::paymentLink(['id' => $id])),
             $method === 'PATCH' && $count === 2 && $root === 'payment_links' => Factory::response(Fixtures::paymentLink(array_merge($this->fakePaymongoFlatBody($request), ['id' => $id]))),
             $method === 'GET' && $count === 3 && $root === 'payment_links' && $action === 'payments' => Factory::response(Fixtures::list([Fixtures::payment()])),
-            $method === 'POST' && $count === 3 && $root === 'payment_links' && $action === 'refunds' => Factory::response(['data' => $this->fakePaymongoFlatBody($request)]),
+            $method === 'POST' && $count === 3 && $root === 'payment_links' && $action === 'refunds' => Factory::response(Fixtures::refund($this->fakePaymongoLinkRefundOverrides($request))),
 
             // Static QR Ph (normal v1 envelope).
             $method === 'POST' && $count === 2 && $root === 'qrph' && $id === 'generate' => Factory::response(Fixtures::staticQr($attributes)),
@@ -133,6 +133,7 @@ trait FakesPaymongo
             $method === 'GET' && $count === 2 && $root === 'payment_methods' => Factory::response(Fixtures::paymentMethod(['id' => $id])),
 
             // Payments.
+            $method === 'POST' && $count === 1 && $root === 'payments' => Factory::response(Fixtures::payment($attributes)),
             $method === 'GET' && $count === 1 && $root === 'payments' => Factory::response(Fixtures::list([Fixtures::payment()])),
             $method === 'GET' && $count === 2 && $root === 'payments' => Factory::response(Fixtures::payment(['id' => $id])),
 
@@ -141,12 +142,17 @@ trait FakesPaymongo
             $method === 'GET' && $count === 1 && $root === 'refunds' => Factory::response(Fixtures::list([Fixtures::refund()])),
             $method === 'GET' && $count === 2 && $root === 'refunds' => Factory::response(Fixtures::refund(['id' => $id])),
 
+            // Disputes (read-only).
+            $method === 'GET' && $count === 1 && $root === 'disputes' => Factory::response(Fixtures::list([Fixtures::dispute()])),
+            $method === 'GET' && $count === 2 && $root === 'disputes' => Factory::response(Fixtures::dispute(['id' => $id])),
+
             // Webhooks.
             $method === 'POST' && $count === 1 && $root === 'webhooks' => Factory::response(Fixtures::webhook($attributes)),
             $method === 'GET' && $count === 1 && $root === 'webhooks' => Factory::response(Fixtures::list([Fixtures::webhook()])),
             $method === 'GET' && $count === 2 && $root === 'webhooks' => Factory::response(Fixtures::webhook(['id' => $id])),
             $method === 'PUT' && $count === 2 && $root === 'webhooks' => Factory::response(Fixtures::webhook(array_merge($attributes, ['id' => $id]))),
             $method === 'POST' && $count === 3 && $root === 'webhooks' && in_array($action, ['enable', 'disable'], true) => Factory::response(Fixtures::webhook(['id' => $id])),
+            $method === 'DELETE' && $count === 2 && $root === 'webhooks' => Factory::response(null, 204),
 
             // Checkout sessions.
             $method === 'POST' && $count === 1 && $root === 'checkout_sessions' => Factory::response(Fixtures::checkoutSession($attributes)),
@@ -262,6 +268,24 @@ trait FakesPaymongo
         $body = $request->data();
 
         return $body;
+    }
+
+    /**
+     * Echo a payment link refund's flat body into the refund fixture. The
+     * request `amount` is in pesos, so it is converted to the centavos the
+     * returned refund carries.
+     *
+     * @return array<string, mixed>
+     */
+    private function fakePaymongoLinkRefundOverrides(Request $request): array
+    {
+        $overrides = $this->fakePaymongoFlatBody($request);
+
+        if (isset($overrides['amount']) && is_numeric($overrides['amount'])) {
+            $overrides['amount'] = (int) round((float) $overrides['amount'] * 100);
+        }
+
+        return $overrides;
     }
 
     /**

@@ -174,7 +174,7 @@ Move each v2 controller action into a listener for its event, such as `Luigel\Pa
 
 PayMongo removed the Tokens API, and `Paymongo::token()` is gone with it. Card details become a [payment method](./payment-methods.md) instead.
 
-The Sources API still works but PayMongo has deprecated it, and v3 cannot finish its flow, because there is no `payments()->create()` to charge a chargeable source. Move GCash and GrabPay to a payment intent with an e-wallet payment method. PayMongo creates the payment when the customer authorizes it, so there is no step for you to charge:
+The Sources API still works but PayMongo has deprecated it. v3 still charges a chargeable source with `payments()->create()` (see [Sources](./sources.md#charge-a-chargeable-source)), but move GCash and GrabPay to a payment intent with an e-wallet payment method. PayMongo creates the payment when the customer authorizes it, so there is no step for you to charge:
 
 ```php include=examples/upgrading/e-wallet.php
 ```

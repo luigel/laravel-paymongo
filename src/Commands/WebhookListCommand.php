@@ -16,7 +16,7 @@ final class WebhookListCommand extends Command
 
     public function handle(PaymongoManager $paymongo): int
     {
-        $webhooks = $paymongo->webhooks()->list();
+        $webhooks = $paymongo->webhooks()->list()->lazy()->all();
 
         if ($webhooks === []) {
             $this->components->info('No webhooks are registered.');

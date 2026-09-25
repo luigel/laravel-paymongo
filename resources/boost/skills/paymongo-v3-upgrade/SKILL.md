@@ -243,7 +243,7 @@ Fixture factories exist for every resource (`Fixtures::paymentIntent()`, `link()
 - Apps that passed a reference number to `Paymongo::link()->find()` must switch to `links()->retrieveByReference($referenceNumber)`, which returns `null` (not an exception) when nothing matches; `retrieve()` only accepts a `link_...` id.
 - Enum properties are `null` for API states this package does not know; use `->attribute('status')` for the raw string before treating `null` as "missing".
 - `paymongo.signature:payment_paid` no longer means "the payment_paid event": it looks up `paymongo.webhooks.secrets.payment_paid` and throws a `RuntimeException` when that key is unset. Drop the parameter unless you configured named secrets.
-- `list()` returns a `CursorPage`, not a Collection: `->items` / `->first()` / `->lazy()`, no `->map()` or `->count()` semantics beyond the current page. `webhooks()->list()` and `customers()->paymentMethods()` return plain PHP arrays.
+- `list()` returns a `CursorPage`, not a Collection: `->items` / `->first()` / `->lazy()`, no `->map()` or `->count()` semantics beyond the current page. `customers()->paymentMethods()` returns a plain PHP array.
 - `webhooks()->create($url, $events)` takes positional arguments, not the v2 `['url' => ..., 'events' => ...]` array.
 - `attach()` signature is `attach(string $id, string $paymentMethodId, ?string $returnUrl = null, ?string $clientKey = null)`; e-wallets require `returnUrl`.
 - Idempotency keys are auto-generated on every POST; retries re-use them. Pass your own via `create($attributes, idempotencyKey: ...)` when you have a natural key.

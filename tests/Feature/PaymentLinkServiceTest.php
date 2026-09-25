@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Luigel\Paymongo\Data\Payment;
 use Luigel\Paymongo\Data\PaymentLink;
+use Luigel\Paymongo\Data\Refund;
 use Luigel\Paymongo\Enums\PaymentLinkStatus;
 use Luigel\Paymongo\Enums\PaymentStatus;
+use Luigel\Paymongo\Enums\RefundReason;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Pagination\CursorPage;
 use Luigel\Paymongo\Testing\Fixtures;
@@ -193,15 +195,22 @@ it('lists the payments of a payment link as standard triple resources', function
         ->and($page->first()?->status)->toBe(PaymentStatus::Paid);
 });
 
-it('refunds payment link payments returning the raw data payload', function () {
-    Http::fake(['api.paymongo.com/*' => Http::response(['data' => ['id' => 'ref_1', 'status' => 'pending']])]);
+it('refunds a payment link payment and maps the refund DTO', function () {
+    Http::fake(['api.paymongo.com/*' => Http::response(Fixtures::refund(['amount' => 10000, 'reason' => 'others']), 201)]);
 
-    $result = Paymongo::paymentLinks()->refund('plink_uSJXoxTBNqRrg35kj5w9dTVY', ['reason' => 'others']);
+    $refund = Paymongo::paymentLinks()->refund('plink_uSJXoxTBNqRrg35kj5w9dTVY', [
+        'payment_id' => 'pay_hvTn9EyxduZ9gV8WHhSGYqBi',
+        'amount' => 100,
+        'reason' => 'others',
+    ]);
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
         && $request->url() === 'https://api.paymongo.com/v1/payment_links/plink_uSJXoxTBNqRrg35kj5w9dTVY/refunds'
-        && ! array_key_exists('data', $request->data())
-        && $request->data() === ['reason' => 'others']);
+        && $request->data() === ['payment_id' => 'pay_hvTn9EyxduZ9gV8WHhSGYqBi', 'amount' => 100, 'reason' => 'others']);
 
-    expect($result)->toBe(['id' => 'ref_1', 'status' => 'pending']);
+    expect($refund)->toBeInstanceOf(Refund::class)
+        ->and($refund->id)->toBe('ref_9K2Wf3mLpQvXsTzYbNcVdGhJ')
+        ->and($refund->amount)->toBe(10000)
+        ->and($refund->reason)->toBe(RefundReason::Others)
+        ->and($refund->paymentId)->toBe('pay_hvTn9EyxduZ9gV8WHhSGYqBi');
 });

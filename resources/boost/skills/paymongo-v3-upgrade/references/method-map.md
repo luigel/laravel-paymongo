@@ -46,7 +46,7 @@ Return types are the DTOs in `Luigel\Paymongo\Data\*` unless noted. `list()` ret
 |---|---|
 | `Paymongo::webhook()->create(['url' => $url, 'events' => $events])` | `Paymongo::webhooks()->create(string $url, array $events): Webhook` — **positional** |
 | `Paymongo::webhook()->find($id)` | `Paymongo::webhooks()->retrieve(string $id): Webhook` |
-| `Paymongo::webhook()->all()` | `Paymongo::webhooks()->list(): array` — a plain `list<Webhook>`, **not** a `CursorPage` |
+| `Paymongo::webhook()->all()` | `Paymongo::webhooks()->list(): CursorPage<Webhook>` — iterate it, or `->lazy()` for every page |
 | `$webhook->update($payload)` / `Paymongo::webhook()->update($webhook, $payload)` | `Paymongo::webhooks()->update(string $id, array $attributes): Webhook` |
 | `$webhook->enable()` / `Paymongo::webhook()->enable($webhook)` | `Paymongo::webhooks()->enable(string $id): Webhook` |
 | `$webhook->disable()` / `Paymongo::webhook()->disable($webhook)` | `Paymongo::webhooks()->disable(string $id): Webhook` |

@@ -2,6 +2,17 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
+## Unreleased
+
+### Added
+- `payments()->create()` charges a chargeable source (`POST /v1/payments`), so the deprecated Sources flow can be finished with the package.
+- Read-only Disputes support (`Paymongo::disputes()`): `retrieve` and cursor-paginated `list`, returning a `Dispute` with `amount`, `currency`, `reason`, and a `DisputeStatus` (`under_review`, `won`, `lost`, `expired`). PayMongo's reference does not document these endpoints yet; the typed attributes are those of its dispute webhook events, and accounts without dispute access get a 403 `access_denied`. `Paymongo::fake()` routes both and `Fixtures::dispute()` builds the payload.
+- `webhooks()->delete()` removes a webhook endpoint (`DELETE /v1/webhooks/{id}`). PayMongo's reference does not list it yet; the API answers it with `204 No Content`.
+
+### Changed
+- `webhooks()->list()` returns a `CursorPage<Webhook>` and accepts `limit`, `before`, `after`, and `url`, matching PayMongo's paginated List all Webhooks endpoint. It previously returned a plain `list<Webhook>` of the first page only; iterate the page, or call `->lazy()` for every endpoint.
+- `paymentLinks()->refund()` returns a typed `Refund` instead of the raw array, now that PayMongo documents the response as a standard refund resource. `Paymongo::fake()` answers it with a `Fixtures::refund()` payload.
+
 ## 3.0.0-beta.1 (2026-09-26)
 
 Complete rewrite. See [UPGRADE.md](UPGRADE.md) for the full v2 to v3 migration guide.

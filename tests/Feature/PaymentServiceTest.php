@@ -23,6 +23,29 @@ function payments_second_page(): array
     return ['data' => [$payment], 'has_more' => false];
 }
 
+it('creates a payment by charging a source and maps the DTO', function () {
+    Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('payment'))]);
+
+    $payment = Paymongo::payments()->create([
+        'amount' => 150050,
+        'currency' => 'PHP',
+        'source' => ['id' => 'src_TtJ9XGgkY7mfFMBkxRWj2sQo', 'type' => 'source'],
+    ], idempotencyKey: 'order-1234');
+
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'POST'
+        && $request->url() === 'https://api.paymongo.com/v1/payments'
+        && $request->header('Idempotency-Key') === ['order-1234']
+        && $request->data() === ['data' => ['attributes' => [
+            'amount' => 150050,
+            'currency' => 'PHP',
+            'source' => ['id' => 'src_TtJ9XGgkY7mfFMBkxRWj2sQo', 'type' => 'source'],
+        ]]]);
+
+    expect($payment)->toBeInstanceOf(Payment::class)
+        ->and($payment->id)->toBe('pay_hvTn9EyxduZ9gV8WHhSGYqBi')
+        ->and($payment->amount)->toBe(150050);
+});
+
 it('retrieves a payment and maps the response onto the DTO', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('payment'))]);
 

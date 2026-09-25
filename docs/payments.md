@@ -10,9 +10,9 @@ operations:
 
 # Payments
 
-A Payment is the money a customer actually paid: its amount, PayMongo's fee, what you keep, and how they paid. You never create one. PayMongo creates it when a [payment intent](./payment-intents.md), [checkout session](./checkout-sessions.md), or [link](./payment-links.md) is paid, so this service only reads them.
+A Payment is the money a customer actually paid: its amount, PayMongo's fee, what you keep, and how they paid. PayMongo creates it when a [payment intent](./payment-intents.md), [checkout session](./checkout-sessions.md), or [link](./payment-links.md) is paid, so you only read it. The one exception is the deprecated Sources flow, where `payments()->create()` charges a chargeable source; see [Sources](./sources.md#charge-a-chargeable-source).
 
-Both methods live on `Paymongo::payments()`, and a single payment comes back as a [`Payment`](./reference/data-objects.md#payment). For every attribute PayMongo returns, see its [List all Payments reference](https://docs.paymongo.com/reference/list-all-payments).
+Every method lives on `Paymongo::payments()`, and a single payment comes back as a [`Payment`](./reference/data-objects.md#payment). For every attribute PayMongo returns, see its [List all Payments reference](https://docs.paymongo.com/reference/list-all-payments).
 
 ## Retrieve a payment
 

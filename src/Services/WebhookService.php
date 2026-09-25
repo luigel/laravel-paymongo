@@ -7,6 +7,7 @@ namespace Luigel\Paymongo\Services;
 use Luigel\Paymongo\Data\Webhook;
 use Luigel\Paymongo\Enums\WebhookEventType;
 use Luigel\Paymongo\Exceptions\PaymongoException;
+use Luigel\Paymongo\Pagination\CursorPage;
 
 final class WebhookService extends AbstractService
 {
@@ -21,13 +22,14 @@ final class WebhookService extends AbstractService
     }
 
     /**
-     * @return list<Webhook>
+     * @param  array<string, mixed>  $params  Supported keys: limit, before, after, url.
+     * @return CursorPage<Webhook>
      *
      * @throws PaymongoException
      */
-    public function list(): array
+    public function list(array $params = []): CursorPage
     {
-        return $this->many($this->client->get('/webhooks'), Webhook::class);
+        return $this->page(Webhook::class, '/webhooks', $params);
     }
 
     /**
@@ -62,5 +64,18 @@ final class WebhookService extends AbstractService
     public function disable(string $id): Webhook
     {
         return $this->one($this->client->post("/webhooks/{$id}/disable"), Webhook::class);
+    }
+
+    /**
+     * Delete the endpoint. The client throws on failure, so reaching the
+     * return value always means the deletion succeeded.
+     *
+     * @throws PaymongoException
+     */
+    public function delete(string $id): bool
+    {
+        $this->client->delete("/webhooks/{$id}");
+
+        return true;
     }
 }

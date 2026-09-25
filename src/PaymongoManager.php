@@ -9,6 +9,7 @@ use Luigel\Paymongo\Client\ClientConfig;
 use Luigel\Paymongo\Client\PaymongoClient;
 use Luigel\Paymongo\Services\CheckoutSessionService;
 use Luigel\Paymongo\Services\CustomerService;
+use Luigel\Paymongo\Services\DisputeService;
 use Luigel\Paymongo\Services\LinkService;
 use Luigel\Paymongo\Services\PaymentIntentService;
 use Luigel\Paymongo\Services\PaymentLinkService;
@@ -56,6 +57,8 @@ final class PaymongoManager
     private ?QrphService $qrph = null;
 
     private ?PayoutService $payouts = null;
+
+    private ?DisputeService $disputes = null;
 
     /**
      * @param  array<string, mixed>  $config  The `paymongo` config array.
@@ -143,6 +146,11 @@ final class PaymongoManager
         return $this->payouts ??= new PayoutService($this->client());
     }
 
+    public function disputes(): DisputeService
+    {
+        return $this->disputes ??= new DisputeService($this->client());
+    }
+
     /**
      * Clone the manager with a different secret key (multi-account use).
      */
@@ -175,5 +183,6 @@ final class PaymongoManager
         $this->subscriptions = null;
         $this->qrph = null;
         $this->payouts = null;
+        $this->disputes = null;
     }
 }

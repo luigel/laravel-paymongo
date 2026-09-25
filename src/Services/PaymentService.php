@@ -11,6 +11,21 @@ use Luigel\Paymongo\Pagination\CursorPage;
 final class PaymentService extends AbstractService
 {
     /**
+     * Charge a chargeable source. This is the last step of the legacy
+     * Sources flow; payment intents create their payment for you.
+     *
+     * @param  array<string, mixed>  $attributes  Supported keys: amount (centavos, min 100), currency, source
+     *                                            (`['id' => $sourceId, 'type' => 'source']`), description,
+     *                                            statement_descriptor, metadata.
+     *
+     * @throws PaymongoException
+     */
+    public function create(array $attributes, ?string $idempotencyKey = null): Payment
+    {
+        return $this->one($this->client->post('/payments', $attributes, $idempotencyKey), Payment::class);
+    }
+
+    /**
      * @throws PaymongoException
      */
     public function retrieve(string $id): Payment

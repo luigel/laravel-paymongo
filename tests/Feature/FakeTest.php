@@ -6,6 +6,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Luigel\Paymongo\Data\CheckoutSession;
 use Luigel\Paymongo\Data\CustomerPaymentMethod;
+use Luigel\Paymongo\Data\Dispute;
 use Luigel\Paymongo\Data\Link;
 use Luigel\Paymongo\Data\MpmQr;
 use Luigel\Paymongo\Data\Payment;
@@ -16,10 +17,13 @@ use Luigel\Paymongo\Data\PayoutSchedule;
 use Luigel\Paymongo\Data\PayoutTransaction;
 use Luigel\Paymongo\Data\Plan;
 use Luigel\Paymongo\Data\QrExecution;
+use Luigel\Paymongo\Data\Refund;
 use Luigel\Paymongo\Data\StaticQr;
 use Luigel\Paymongo\Data\Subscription;
+use Luigel\Paymongo\Enums\DisputeStatus;
 use Luigel\Paymongo\Enums\PaymentLinkStatus;
 use Luigel\Paymongo\Enums\QrMode;
+use Luigel\Paymongo\Enums\RefundReason;
 use Luigel\Paymongo\Exceptions\ResourceNotFoundException;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Pagination\CursorTokenPage;
@@ -268,9 +272,50 @@ it('routes payment link payments and refunds', function () {
         ->and($payments->items[0])->toBeInstanceOf(Payment::class)
         ->and($payments->items[0]->id)->toStartWith('pay_');
 
-    $refund = Paymongo::paymentLinks()->refund('plink_fake_123', ['reason' => 'others']);
+    $refund = Paymongo::paymentLinks()->refund('plink_fake_123', [
+        'payment_id' => 'pay_fake_123',
+        'amount' => 1500.50,
+        'reason' => 'others',
+    ]);
 
-    expect($refund)->toBe(['reason' => 'others']);
+    expect($refund)->toBeInstanceOf(Refund::class)
+        ->and($refund->paymentId)->toBe('pay_fake_123')
+        ->and($refund->amount)->toBe(150050)
+        ->and($refund->reason)->toBe(RefundReason::Others);
+});
+
+it('fakes payment creation from a source', function () {
+    Paymongo::fake();
+
+    $payment = Paymongo::payments()->create([
+        'amount' => 150050,
+        'currency' => 'PHP',
+        'source' => ['id' => 'src_fake_123', 'type' => 'source'],
+    ]);
+
+    expect($payment)->toBeInstanceOf(Payment::class)
+        ->and($payment->amount)->toBe(150050);
+});
+
+it('fakes dispute listing and retrieval', function () {
+    Paymongo::fake();
+
+    $page = Paymongo::disputes()->list();
+    $dispute = Paymongo::disputes()->retrieve('dsp_fake_123');
+
+    expect($page->first())->toBeInstanceOf(Dispute::class)
+        ->and($page->first()?->id)->toStartWith('dsp_')
+        ->and($dispute->id)->toBe('dsp_fake_123')
+        ->and($dispute->status)->toBe(DisputeStatus::UnderReview);
+});
+
+it('fakes webhook deletion', function () {
+    Paymongo::fake();
+
+    expect(Paymongo::webhooks()->delete('hook_fake_123'))->toBeTrue();
+
+    Paymongo::assertSent(fn (Request $request): bool => $request->method() === 'DELETE'
+        && $request->url() === 'https://api.paymongo.com/v1/webhooks/hook_fake_123');
 });
 
 it('fakes payout listing, retrieval and transactions with token pagination', function () {

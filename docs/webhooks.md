@@ -10,6 +10,7 @@ operations:
   - webhooks.update
   - webhooks.enable
   - webhooks.disable
+  - webhooks.delete
 ---
 
 # Webhooks
@@ -133,7 +134,7 @@ Register endpoints from code or with the artisan commands. Every method lives on
 
 PayMongo only returns `secretKey` here, so store it straight away.
 
-`list()` returns every endpoint on the account as a plain array, not a page. `retrieve()` returns one:
+`list()` returns a page of endpoints; pass `limit` or `url` to narrow it, or call `lazy()` to walk every page. `retrieve()` returns one:
 
 ```php include=examples/webhooks/list-and-retrieve.php
 ```
@@ -148,7 +149,12 @@ PayMongo only returns `secretKey` here, so store it straight away.
 ```php include=examples/webhooks/disable-and-enable.php
 ```
 
-The package cannot delete an endpoint. An endpoint you no longer want stays on the account, disabled.
+`delete()` removes an endpoint from the account for good, and returns `true`:
+
+```php include=examples/webhooks/delete.php
+```
+
+PayMongo's API reference does not list this endpoint yet, though the API answers it with `204 No Content`. Disable an endpoint instead when you may want it back.
 
 ### From the command line
 

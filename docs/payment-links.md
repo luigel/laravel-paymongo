@@ -73,7 +73,10 @@ Refund a payment made through a link as you would any other payment, with `Paymo
 ```php include=examples/payment-links/refund.php
 ```
 
-`paymentLinks()->refund()` calls PayMongo's refund endpoint for payment links instead. It returns the response as a plain array, not a data object, and PayMongo documents that endpoint's `amount` in pesos rather than centavos, unlike every other amount, so prefer `refunds()`.
+`paymentLinks()->refund()` calls PayMongo's refund endpoint for payment links instead, and also returns a `Refund`. It takes a flat body of `payment_id`, `amount`, `reason`, and `metadata`, and PayMongo documents its `amount` in pesos rather than centavos, unlike every other amount (the `Refund` it returns is in centavos), so prefer `refunds()`:
+
+```php include=examples/payment-links/refund-through-link.php
+```
 
 ## Know when it was paid
 
