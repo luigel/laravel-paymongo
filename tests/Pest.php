@@ -20,3 +20,14 @@ function fixture_data(string $name): array
 {
     return require __DIR__.'/Fixtures/'.$name.'.php';
 }
+
+/**
+ * Run a Package docs example file (docs/examples) in its own scope, the way
+ * a reader would paste it into their app.
+ */
+function run_docs_example(string $path): void
+{
+    (static function () use ($path): void {
+        require $path;
+    })();
+}
