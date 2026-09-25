@@ -2,9 +2,9 @@ import React from 'react';
 import {Redirect} from '@docusaurus/router';
 
 /**
- * Getting started moved from `/` to `/getting-started` when the docs switched
- * to the Package docs front matter, whose slugs are relative.
+ * The docs start at `/introduction`: the Package docs front matter's slugs
+ * are relative, so no page lives at `/`.
  */
 export default function Home() {
-  return <Redirect to="/getting-started" />;
+  return <Redirect to="/introduction" />;
 }

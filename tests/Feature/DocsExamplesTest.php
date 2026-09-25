@@ -9,12 +9,20 @@ use Symfony\Component\Finder\Finder;
  * Code examples in the Package docs are real files under docs/examples,
  * included into the markdown. Each one runs here under Paymongo::fake(), so
  * an example that no longer works against the package fails the suite.
+ *
+ * A walkthrough's examples are the files of one small app instead (a
+ * controller, its routes, a listener), so they are left out here and run
+ * together, end to end, by their own test.
  */
+
+const DOCS_WALKTHROUGHS = [
+    'first-payment', // DocsFirstPaymentTest
+];
 
 dataset('docs examples', function (): array {
     $examples = [];
 
-    foreach (Finder::create()->files()->name('*.php')->in(dirname(__DIR__, 2).'/docs/examples')->sortByName() as $file) {
+    foreach (Finder::create()->files()->name('*.php')->in(dirname(__DIR__, 2).'/docs/examples')->exclude(DOCS_WALKTHROUGHS)->sortByName() as $file) {
         $examples[$file->getRelativePathname()] = [$file->getPathname()];
     }
 

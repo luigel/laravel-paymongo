@@ -11,7 +11,10 @@
 
 module.exports = {
   tutorialSidebar: [
-    'getting-started',
+    'introduction',
+    'installation',
+    'your-first-payment',
+    'choose-a-flow',
     {
       type: 'category',
       label: 'Usage',
