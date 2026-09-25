@@ -14,6 +14,7 @@ Laravel client for the PayMongo API: per-resource services on the `Paymongo` fac
 - Inbound webhooks: register `Route::paymongoWebhooks()` and listen to `Luigel\Paymongo\Events\*` (`PaymentPaid`, `PaymentFailed`, `CheckoutSessionPaymentPaid`, ..., or the generic `WebhookReceived` for every event). Signatures are verified against `PAYMONGO_WEBHOOK_SECRET` and deliveries are deduplicated for you. Never hand-roll signature checks or a webhook controller.
 - Multiple accounts: `Paymongo::withSecretKey($key)` returns an isolated manager; the global facade is untouched.
 - Tests must use `Paymongo::fake()`, `Paymongo::assertSent()`, `Paymongo::assertNothingSent()`, and `Luigel\Paymongo\Testing\Fixtures` factories. Never hit the live API from a test.
+- For PayMongo API behavior (endpoint fields, statuses, error codes, test mode, payment methods), use the `paymongo-docs` skill to read docs.paymongo.com instead of relying on memory.
 
 ### Snippets
 

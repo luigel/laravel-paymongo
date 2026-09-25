@@ -642,7 +642,7 @@ The package's own test suite is fully faked. An opt-in contract suite exercises 
 
 ## AI coding agents (Laravel Boost)
 
-The package ships [Laravel Boost](https://github.com/laravel/boost) resources so AI agents working in your app know the v3 API: a guideline (`resources/boost/guidelines/core.blade.php`) covering the centavo rule, the services, DTOs, webhooks, and the testing fake, plus a `paymongo-v3-upgrade` skill that walks an agent through migrating an integration from 2.x to 3.x.
+The package ships [Laravel Boost](https://github.com/laravel/boost) resources so AI agents working in your app know the v3 API: a guideline (`resources/boost/guidelines/core.blade.php`) covering the centavo rule, the services, DTOs, webhooks, and the testing fake, plus two skills: `paymongo-docs`, which has the agent look up PayMongo's official docs (docs.paymongo.com) before answering or writing code, and `paymongo-v3-upgrade`, which walks an agent through migrating an integration from 2.x to 3.x.
 
 ```bash
 php artisan boost:install              # new Boost setup

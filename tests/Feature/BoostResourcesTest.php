@@ -12,7 +12,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 
 const BOOST_GUIDELINE = __DIR__.'/../../resources/boost/guidelines/core.blade.php';
-const BOOST_SKILL = __DIR__.'/../../resources/boost/skills/paymongo-v3-upgrade/SKILL.md';
+const BOOST_SKILLS = __DIR__.'/../../resources/boost/skills';
 
 /**
  * Render a guideline the way Boost does: its @boostsnippet directives become fenced code
@@ -87,20 +87,24 @@ it('keeps the core guideline free of PHP open tags and unsupported Blade constru
         ->not->toContain('@can');
 });
 
-it('ships the paymongo-v3-upgrade skill with valid front matter', function () {
-    expect(BOOST_SKILL)->toBeFile();
+it('ships the skill with valid front matter', function (string $name) {
+    $path = BOOST_SKILLS."/{$name}/SKILL.md";
 
-    $skill = parse_boost_skill(BOOST_SKILL);
+    expect($path)->toBeFile();
 
-    expect($skill['name'])->toBe('paymongo-v3-upgrade')
+    $skill = parse_boost_skill($path);
+
+    expect($skill['name'])->toBe($name)
         ->and($skill['description'])->toBeString()->not->toBeEmpty()
         ->and($skill['body'])->not->toMatch('/^\s*@\w+/m');
-});
+})->with(['paymongo-v3-upgrade', 'paymongo-docs']);
 
-it('links only to reference files that exist', function () {
-    expect(BOOST_SKILL)->toBeFile();
+it('links only to reference files that exist', function (string $name) {
+    $path = BOOST_SKILLS."/{$name}/SKILL.md";
 
-    preg_match_all('/\]\((references\/[^)#]+)/', (string) file_get_contents(BOOST_SKILL), $matches);
+    expect($path)->toBeFile();
+
+    preg_match_all('/\]\((references\/[^)#]+)/', (string) file_get_contents($path), $matches);
 
     if ($matches[1] === []) {
         expect(true)->toBeTrue();
@@ -109,6 +113,6 @@ it('links only to reference files that exist', function () {
     }
 
     foreach (array_unique($matches[1]) as $reference) {
-        expect(dirname(BOOST_SKILL).'/'.$reference)->toBeFile();
+        expect(dirname($path).'/'.$reference)->toBeFile();
     }
-});
+})->with(['paymongo-v3-upgrade', 'paymongo-docs']);
