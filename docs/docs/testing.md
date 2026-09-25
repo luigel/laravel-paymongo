@@ -7,139 +7,70 @@ section: Integration
 
 # Testing
 
-The package ships first-class fakes so your test suite never touches the network. New in v3.
+Your tests should never call PayMongo. `Paymongo::fake()` answers every request the package makes with a realistic response, records what was sent so you can assert on it, and lets you stub any response, errors included. `Luigel\Paymongo\Testing\Fixtures` builds the same payloads for your own stubs and for webhook events.
 
-## Paymongo::fake()
+The examples on this page test the app from [Your first payment](./your-first-payment.md): a `POST /orders/{order}/checkout` route that creates a checkout session, and a `FulfillOrder` listener that marks the order paid.
 
-Call `Paymongo::fake()` and every PayMongo API call in the code under test is served a realistic fixture response:
+## Fake PayMongo
 
-- **creates** echo the attributes you sent (enveloped or flat) back into the returned resource;
-- **retrieves** echo the requested id;
-- **lists** return a one-item page;
-- **actions** (attach, capture, cancel, expire, archive, ...) return the parent resource.
+Call `Paymongo::fake()` before the code under test runs, then assert on what it sent:
 
-The catch-all covers the **entire API origin**, so every endpoint is faked uniformly — the `/v3` QR endpoints, `/payment_links`, payouts, and merchant schedules right alongside the `/v1` resources.
-
-```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-public function test_checkout_creates_a_payment_intent(): void
-{
-    Paymongo::fake();
-
-    $this->post('/checkout', ['order' => 1234])->assertRedirect();
-
-    Paymongo::assertSent(function ($request) {
-        return str_ends_with($request->url(), '/payment_intents')
-            && $request['data']['attributes']['amount'] === 150050;
-    });
-}
-
-public function test_free_orders_charge_nothing(): void
-{
-    Paymongo::fake();
-
-    $this->post('/checkout', ['order' => 'free']);
-
-    Paymongo::assertNothingSent();
-}
+```php include=../examples/testing/CheckoutTest.php
 ```
 
-`Paymongo::assertSent()` receives each recorded request (Laravel's `Illuminate\Http\Client\Request`) and passes when your callback returns true for one of them; `Paymongo::assertNothingSent()` fails if any PayMongo request was made.
+With no stubs, the fake answers every endpoint of PayMongo's API:
 
-## Stubbing specific responses
+- a **create** returns the resource with the attributes you sent;
+- a **retrieve** returns the resource with the id you asked for;
+- a **list** returns a page of one;
+- an **action** such as attach, capture, cancel, expire, archive, or enable returns the resource it acted on.
 
-Pass `Http::fake()`-style stubs — URL patterns mapped to responses. Your stubs win over the built-in catch-all:
+A request to an endpoint the fake does not know gets a `404`, which the package throws as a `ResourceNotFoundException` whose message names the endpoint. Stub that endpoint to handle it.
 
-```php
-use Illuminate\Support\Facades\Http;
-use Luigel\Paymongo\Facades\Paymongo;
-use Luigel\Paymongo\Testing\Fixtures;
+`Paymongo::assertSent()` passes when your callback returns `true` for one of the requests sent. The callback receives Laravel's `Illuminate\Http\Client\Request`: read the URL with `$request->url()`, the body with `$request['data']['attributes']`, and headers with `$request->hasHeader('Idempotency-Key')`. `Paymongo::assertNothingSent()` fails if any request was sent.
 
-Paymongo::fake([
-    // Force an API error for a specific intent:
-    '*/payment_intents/pi_failing*' => Http::response([
-        'errors' => [['code' => 'resource_failed_state', 'detail' => 'The intent has failed.']],
-    ], 400),
+## Stub a response
 
-    // Return a crafted list:
-    '*/payments*' => Fixtures::list([
-        Fixtures::payment(['amount' => 150050, 'status' => 'paid']),
-    ], false),
-]);
+Pass `Paymongo::fake()` URL patterns mapped to responses, as you would to `Http::fake()`. Your stubs win over the fake's own answers, so you can return a particular resource, a page, or an error. An error response throws the exception the package would throw for it (see [Errors](./errors.md)):
+
+```php include=../examples/testing/PaymongoErrorTest.php
 ```
+
+Patterns match the whole URL, so start them with `*/`: `'*/checkout_sessions'`, `'*/payment_intents/pi_failing*'`. Stub a list with `Fixtures::list([Fixtures::payment(['amount' => 150050])])`.
 
 ## Fixtures
 
-`Luigel\Paymongo\Testing\Fixtures` builds the same realistic payloads the fake serves — one static factory per resource, each accepting attribute overrides (an `id` override is supported too):
+Every factory on `Fixtures` returns a response body, `{"data": ...}`, and takes an array of attribute overrides, including `id`. They are the same payloads the fake answers with.
 
-```php
-use Luigel\Paymongo\Testing\Fixtures;
+| Factory | Builds |
+|:--------|:-------|
+| `paymentIntent()`, `paymentMethod()`, `payment()`, `refund()` | Payment intents, methods, payments, refunds |
+| `checkoutSession()`, `link()`, `paymentLink()` | Checkout sessions, Classic Links, Payment Links |
+| `mpmQr()`, `qrExecution()`, `staticQr()` | QR Ph codes |
+| `customer()`, `customerPaymentMethod()`, `plan()`, `subscription()` | Customers and subscriptions |
+| `payout()`, `payoutTransaction()`, `payoutSchedule()` | Payouts |
+| `webhook()`, `source()` | Webhook endpoints, legacy sources |
+| `event($type, $resource, $overrides)` | A webhook event about `$resource`, as PayMongo posts it |
+| `list($items, $hasMore)` | A list response, as most list endpoints return |
+| `flatList($items, $hasMore)` | A page of Payment Links |
+| `payoutList($items, $nextCursor)` | A page of payouts or payout transactions |
 
-Fixtures::paymentIntent(['amount' => 150050, 'status' => 'succeeded']);
-Fixtures::paymentMethod();
-Fixtures::payment();
-Fixtures::refund();
-Fixtures::webhook();
-Fixtures::source();
-Fixtures::checkoutSession();
-Fixtures::link();
-Fixtures::customer();
-Fixtures::customerPaymentMethod();
-Fixtures::plan();
-Fixtures::subscription();
+`paymentLink()`, `mpmQr()` and `qrExecution()` build the flat shape those APIs return, with fields directly on `data`, and their overrides replace those fields. The rest nest them under `data.attributes`.
 
-Fixtures::list([Fixtures::payment(), Fixtures::payment()], true); // a list envelope with has_more
+## Test a webhook
+
+Post an event built with `Fixtures::event()` to your webhook route, signed with your endpoint's secret the way PayMongo signs it. That runs everything a real delivery does: the signature check, deduplication, and your listeners. To test just the listener, call it with the event object:
+
+```php include=../examples/testing/WebhookTest.php
 ```
 
-The platform resources have factories too. `paymentLink()`, `mpmQr()`, and `qrExecution()` return the **flat** payload shapes those APIs use (fields directly on `data`, no `{id, type, attributes}` triple), with overrides replacing into the flat object itself; the rest are standard resources:
+With the `array` cache store, which Laravel's default `phpunit.xml` sets, each test starts with an empty cache, so deduplication does not carry over from one test to the next. Within one test, a second post of the same event is dropped: pass another id, `Fixtures::event('payment.paid', $payment, ['id' => 'evt_2'])`, to send a different event.
 
-```php
-Fixtures::paymentLink(['amount' => 150050]); // "plink_..." — flat, ISO 8601 timestamps
-Fixtures::mpmQr(['type' => 'static']);       // "qr_..."    — flat, includes qr_string
-Fixtures::qrExecution();                     // "qrx_..."   — flat
-Fixtures::staticQr();                        // "qrph_..."  — normal v1 triple, type "code"
-Fixtures::payout(['status' => 'in_transit']); // "po_..."
-Fixtures::payoutTransaction();               // resource type = transaction kind ("payment", "refund", ...)
-Fixtures::payoutSchedule();                  // "sched_..."
+## Use Laravel's HTTP fakes
 
-// Matching list envelopes:
-Fixtures::flatList([Fixtures::paymentLink()], true);                // {"data": [...], "has_more": true}
-Fixtures::payoutList([Fixtures::payout()], nextCursor: 'cursor_2'); // {"data": [...], "pagination": {next_cursor, ...}}
+`Paymongo::fake()` is built on Laravel's `Http::fake()`, so the rest of Laravel's HTTP testing tools see the same requests: `Http::assertSent()`, `Http::assertSentCount()`, `Http::assertNotSent()`, and `Http::preventStrayRequests()`, which fails any request nothing is faking:
+
+```php include=../examples/testing/HttpFakeTest.php
 ```
 
-### Testing webhook listeners
-
-`Fixtures::event()` builds a full inbound event envelope — post it to your webhook route with `Event::fake()`, or construct the event object directly:
-
-```php
-use Illuminate\Support\Facades\Event;
-use Luigel\Paymongo\Events\PaymentPaid;
-use Luigel\Paymongo\Testing\Fixtures;
-use Luigel\Paymongo\Webhooks\WebhookEvent;
-
-Event::fake([PaymentPaid::class]);
-
-$payload = Fixtures::event('payment.paid', Fixtures::payment(['amount' => 150050]));
-
-// Unit-test a listener directly:
-$listener = new \App\Listeners\FulfillOrder();
-$listener->handle(new PaymentPaid(WebhookEvent::fromArray($payload)));
-```
-
-## Http::fake() interop
-
-`Paymongo::fake()` registers ordinary `Http::fake()` handlers on Laravel's HTTP client, so the whole HTTP testing toolkit composes with it — `Http::assertSent()`, `Http::assertSentCount()`, `Http::fakeSequence()`, `Http::preventStrayRequests()`. You can also skip the package fake entirely and stub with plain `Http::fake()` yourself:
-
-```php
-use Illuminate\Support\Facades\Http;
-use Luigel\Paymongo\Testing\Fixtures;
-
-Http::fake([
-    'api.paymongo.com/*' => Http::response(Fixtures::paymentIntent()), // factories already include the {"data": ...} envelope
-]);
-```
-
-## Contract tests
-
-The package's own suite is fully faked. A separate, opt-in contract suite exercises the real test-mode API; it only runs when `PAYMONGO_CONTRACT_TESTS=1` is set and `PAYMONGO_SECRET_KEY` is a `sk_test_...` key, and is excluded from the default test run.
+You can skip `Paymongo::fake()` and stub PayMongo with `Http::fake()` alone, using `Fixtures` for the bodies.

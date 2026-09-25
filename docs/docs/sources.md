@@ -1,49 +1,43 @@
 ---
 title: Sources (deprecated)
 slug: sources
-order: 60
+order: 80
 section: Legacy
+operations:
+  - sources.create
+  - sources.retrieve
 ---
 
 # Sources (deprecated)
 
-:::caution Deprecated
-The PayMongo **Sources API is deprecated**. For GCash, GrabPay, and other e-wallets, use [payment intents](./payment-intents.md) with an e-wallet payment method and a `return_url` — the redirect happens through `$intent->nextAction->url` and the payment is created automatically on authorization.
+PayMongo has deprecated the Sources API, and its [Source Resource](https://docs.paymongo.com/reference/the-sources-object) reference says the Sources workflow is no longer supported. For GCash, GrabPay, and every other e-wallet, use a [payment intent](./payment-intents.md) with an e-wallet payment method, or a [checkout session](./checkout-sessions.md). `Paymongo::sources()` is kept only for integrations that still create sources, and the package cannot finish a source's flow.
 
-`Paymongo::sources()` remains for existing integrations only.
-:::
+A source was PayMongo's older way to take a GCash or GrabPay payment:
 
-## Create
+1. Create a source, and send the customer to its checkout URL.
+2. The customer authorizes the payment in GCash or GrabPay. The source becomes `chargeable`, and PayMongo sends `source.chargeable`.
+3. Create a payment from the chargeable source to take the money.
 
-Amounts are integer centavos. `type` is `gcash` or `grab_pay`; both redirect URLs are required:
+The package has no `payments()->create()`, so it cannot do step 3. A source you create with it can be authorized but never charged unless you call PayMongo's API for it yourself. With a payment intent, PayMongo creates the payment itself as soon as the customer authorizes, so there is no third step. [Upgrading from v2](./upgrading.md#8-move-off-tokens-and-sources) shows the replacement.
 
-```php
-use Luigel\Paymongo\Facades\Paymongo;
+## Create a source
 
-$source = Paymongo::sources()->create([
-    'type' => 'gcash',
-    'amount' => 150050,
-    'currency' => 'PHP',
-    'redirect' => [
-        'success' => 'https://example.com/payments/success',
-        'failed' => 'https://example.com/payments/failed',
-    ],
-]);
+`create()` takes the e-wallet, the amount, and where to send the customer afterwards. It returns a `Luigel\Paymongo\Data\Source` (see the [Source reference](./reference/data-objects.md#source)):
 
-return redirect()->away($source->redirect->checkoutUrl);
+```php include=../examples/sources/create.php
 ```
 
-## Retrieve
+- `type` is `gcash` or `grab_pay`.
+- `amount` is integer centavos, at least `10000` (PHP 100.00).
+- `redirect.success` and `redirect.failed` are both required. The customer returns to one of them after authorizing or failing.
 
-```php
-$source = Paymongo::sources()->retrieve('src_hsJNpsRFU1LxgVbxW4YJHRs6');
+## Retrieve a source
 
-$source->sourceType;         // ?PaymentMethodType — gcash or grab_pay
-$source->status;             // "pending" | "chargeable" | "consumed" | ...
-$source->redirect?->success;
-$source->money()->format();  // "₱1,500.50"
+```php include=../examples/sources/retrieve.php
 ```
 
-## The legacy flow
+`status` is a plain string, not an enum. PayMongo lists `pending`, `chargeable`, `cancelled`, `expired` and `paid`. A source is `pending` until the customer authorizes it, and `chargeable` after.
 
-A chargeable source still needs a payment created against it. Listen for the `source.chargeable` webhook (`Luigel\Paymongo\Events\SourceChargeable`) — but note that v3 provides no `payments()->create()`; completing this legacy flow requires a raw API call. That is intentional: migrate to the [payment intent workflow](./payment-intents.md) instead, where PayMongo creates the payment for you.
+The package dispatches `source.chargeable` as `Luigel\Paymongo\Events\SourceChargeable`. See [Webhooks](./webhooks.md).
+
+For every attribute, see PayMongo's [Create a Source](https://docs.paymongo.com/reference/create-a-source) and [Source Resource](https://docs.paymongo.com/reference/the-sources-object) references.
