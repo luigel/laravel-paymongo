@@ -42,8 +42,6 @@ return RectorConfig::configure()
     ->withSkip([
         __DIR__.'/vendor',
         __DIR__.'/docs',
-        // Local end-to-end sandbox (its own app + Docker setup), not package code.
-        __DIR__.'/e2e',
 
         // Constructor promotion is applied deliberately, one DTO attribute per
         // parameter; deciding when to promote stays a human call.

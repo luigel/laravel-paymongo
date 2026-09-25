@@ -16,7 +16,7 @@
             <directory>tests/Contract</directory>
         </testsuite>
     </testsuites>
-    <!-- Coverage is limited to src/: tests/, docs/ and the local e2e sandbox are never measured. -->
+    <!-- Coverage is limited to src/: tests/ and docs/ are never measured. -->
     <source>
         <include>
             <directory>src</directory>
