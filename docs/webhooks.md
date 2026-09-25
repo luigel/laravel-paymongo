@@ -22,7 +22,7 @@ There are two halves. You **register** an endpoint with PayMongo through `Paymon
 
 ### 1. Register the route
 
-```php include=../examples/receiving-webhooks/routes.php
+```php include=examples/receiving-webhooks/routes.php
 ```
 
 `Route::paymongoWebhooks()` registers `POST /paymongo/webhook`, named `paymongo.webhooks`, pointing at the package's controller. Pass a different URI as the first argument: `Route::paymongoWebhooks('webhooks/paymongo')`. It turns off CSRF protection for the route itself, so it works from `routes/web.php` as well as `routes/api.php`.
@@ -48,7 +48,7 @@ PayMongo shows the secret when you create the endpoint, either in the dashboard 
 
 Write a listener for the typed event you care about:
 
-```php include=../examples/receiving-webhooks/MarkOrderPaid.php
+```php include=examples/receiving-webhooks/MarkOrderPaid.php
 ```
 
 Laravel discovers the listener from the type hint on `handle()`, so there is nothing to register. `$event->event` is a `Luigel\Paymongo\Webhooks\WebhookEvent`:
@@ -69,7 +69,7 @@ The resource is a snapshot from when the event happened, as a plain array rather
 
 To see every event, including names the package has no class for yet, listen for `WebhookReceived`. Every typed event extends it:
 
-```php include=../examples/receiving-webhooks/RecordWebhookEvent.php
+```php include=examples/receiving-webhooks/RecordWebhookEvent.php
 ```
 
 The [Events reference](./reference/events.md) lists every typed event and the PayMongo event name it is dispatched for. [Choose a flow](./choose-a-flow.md) says which one confirms payment for each way of taking it.
@@ -92,7 +92,7 @@ The route runs the `paymongo.signature` middleware (`Luigel\Paymongo\Http\Middle
 
 Put the middleware on a route of your own when you want to handle deliveries yourself instead of through events:
 
-```php include=../examples/receiving-webhooks/custom-route.php
+```php include=examples/receiving-webhooks/custom-route.php
 ```
 
 ### Deduplication
@@ -111,7 +111,7 @@ Running more than one server? Use a cache store they share, such as Redis, Memca
 
 Each endpoint has its own secret, so a second endpoint, for another PayMongo account, say, needs its own. Publish the config file (`php artisan vendor:publish --tag=paymongo-config`) and name the secret under `webhooks.secrets` in `config/paymongo.php`, for example `'orders' => env('PAYMONGO_WEBHOOK_SECRET_ORDERS')`. Then pass that name as the second argument:
 
-```php include=../examples/receiving-webhooks/multiple-endpoints.php
+```php include=examples/receiving-webhooks/multiple-endpoints.php
 ```
 
 On a route of your own, name the secret as the middleware's parameter: `paymongo.signature:orders`.
@@ -128,24 +128,24 @@ Register endpoints from code or with the artisan commands. Every method lives on
 
 `create()` takes the URL and the events to send to it, as `WebhookEventType` cases or strings:
 
-```php include=../examples/webhooks/create.php
+```php include=examples/webhooks/create.php
 ```
 
 PayMongo only returns `secretKey` here, so store it straight away.
 
 `list()` returns every endpoint on the account as a plain array, not a page. `retrieve()` returns one:
 
-```php include=../examples/webhooks/list-and-retrieve.php
+```php include=examples/webhooks/list-and-retrieve.php
 ```
 
 `update()` changes an endpoint's `url` or `events`:
 
-```php include=../examples/webhooks/update.php
+```php include=examples/webhooks/update.php
 ```
 
 `disable()` stops deliveries to an endpoint without removing it, and `enable()` starts them again. PayMongo does not replay the events it skipped in between:
 
-```php include=../examples/webhooks/disable-and-enable.php
+```php include=examples/webhooks/disable-and-enable.php
 ```
 
 The package cannot delete an endpoint. An endpoint you no longer want stays on the account, disabled.

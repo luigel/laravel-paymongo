@@ -25,7 +25,7 @@ It takes three files: a controller, two routes, and a listener. Every snippet be
 
 Create a Checkout Session for the order and redirect the customer to its `checkoutUrl`, a payment page PayMongo hosts for you:
 
-```php include=../examples/first-payment/CheckoutController.php
+```php include=examples/first-payment/CheckoutController.php
 ```
 
 - `amount` is **integer centavos** per unit, never a float: an order of PHP 1,500.50 is `150050`.
@@ -37,7 +37,7 @@ Create a Checkout Session for the order and redirect the customer to its `checko
 
 In `routes/web.php`, route the **Pay** button to the controller, and register the webhook endpoint PayMongo will call:
 
-```php include=../examples/first-payment/routes.php
+```php include=examples/first-payment/routes.php
 ```
 
 `Route::paymongoWebhooks()` registers `POST /paymongo/webhook`. It verifies each delivery's signature, skips deliveries it has already handled, and dispatches a Laravel event for each PayMongo event. CSRF protection is turned off for it automatically.
@@ -69,7 +69,7 @@ PAYMONGO_WEBHOOK_SECRET=whsk_...
 
 When the customer pays, PayMongo calls your endpoint and the package dispatches `Luigel\Paymongo\Events\CheckoutSessionPaymentPaid`. Listen for it in `app/Listeners/FulfillOrder.php`:
 
-```php include=../examples/first-payment/FulfillOrder.php
+```php include=examples/first-payment/FulfillOrder.php
 ```
 
 - Laravel discovers the listener from the type hint on `handle()`, so there is nothing to register.

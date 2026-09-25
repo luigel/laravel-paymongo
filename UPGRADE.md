@@ -250,4 +250,4 @@ No manual `payment()->create()` step exists anymore — PayMongo creates the pay
 
 ## 9. Testing
 
-Your v2 tests that mocked Guzzle or the `Paymongo` class need rewriting — for the better: `Paymongo::fake()` serves realistic fixtures with zero network, `Paymongo::assertSent()` / `assertNothingSent()` verify traffic, and `Luigel\Paymongo\Testing\Fixtures` builds any resource payload (including webhook events via `Fixtures::event()`). Plain `Http::fake()` works too. See the README's [Testing your integration](README.md#testing-your-integration).
+Your v2 tests that mocked Guzzle or the `Paymongo` class need rewriting — for the better: `Paymongo::fake()` serves realistic fixtures with zero network, `Paymongo::assertSent()` / `assertNothingSent()` verify traffic, and `Luigel\Paymongo\Testing\Fixtures` builds any resource payload (including webhook events via `Fixtures::event()`). Plain `Http::fake()` works too. See [Testing](https://paymongo.rigelkentcarbonel.com/docs/testing).

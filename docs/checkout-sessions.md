@@ -21,7 +21,7 @@ New to Checkout Sessions? [Your first payment](./your-first-payment.md) builds t
 
 `create()` takes the session's attributes. Redirect the customer to the `checkoutUrl` it returns:
 
-```php include=../examples/checkout-sessions/create.php
+```php include=examples/checkout-sessions/create.php
 ```
 
 - Each line item's `amount` is integer centavos **per unit**. The customer pays `amount × quantity` for each item.
@@ -34,14 +34,14 @@ New to Checkout Sessions? [Your first payment](./your-first-payment.md) builds t
 
 `retrieve()` returns the session with its line items, the payment intent it charges through, and its payments once there are any:
 
-```php include=../examples/checkout-sessions/retrieve.php
+```php include=examples/checkout-sessions/retrieve.php
 ```
 
 ## Expire a session
 
 `expire()` closes an active session, so its page can no longer be paid. Do this when the order it belongs to is cancelled or changed:
 
-```php include=../examples/checkout-sessions/expire.php
+```php include=examples/checkout-sessions/expire.php
 ```
 
 ## Know when it was paid

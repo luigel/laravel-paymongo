@@ -19,7 +19,7 @@ Every method lives on `Paymongo::refunds()`, and a single refund comes back as a
 
 `create()` takes the payment to refund, the amount, and why:
 
-```php include=../examples/refunds/create.php
+```php include=examples/refunds/create.php
 ```
 
 - `amount` is integer centavos, at least `100` (PHP 1.00). The full payment amount refunds it in full, and anything less refunds part of it.
@@ -35,7 +35,7 @@ The money comes out of your upcoming payout. If that balance cannot cover the re
 
 `retrieve()` returns a refund with its status:
 
-```php include=../examples/refunds/retrieve.php
+```php include=examples/refunds/retrieve.php
 ```
 
 `$refund->status` is a `Luigel\Paymongo\Enums\RefundStatus`:
@@ -52,7 +52,7 @@ PayMongo also documents a `processing` status, which reads as `null` here. Like 
 
 `list()` returns a page of refunds. Pass `payment_id` for the refunds of one payment:
 
-```php include=../examples/refunds/list.php
+```php include=examples/refunds/list.php
 ```
 
 The page is a `Luigel\Paymongo\Pagination\CursorPage`. Iterate it for its refunds, check `hasMore`, and call `nextPage()` for the next one, or `lazy()` to walk every page.

@@ -26,7 +26,7 @@ Payment Links are PayMongo's successor to [Classic Links](./links.md). Use them 
 
 `create()` takes the link's attributes. Send the customer the `url` it returns:
 
-```php include=../examples/payment-links/create.php
+```php include=examples/payment-links/create.php
 ```
 
 - `amount` is integer centavos, at least `100` (PHP 1.00). `currency` and `description` are required too.
@@ -38,7 +38,7 @@ Payment Links are PayMongo's successor to [Classic Links](./links.md). Use them 
 
 `retrieve()` returns the link. `update()` changes its `amount`, `description`, or `remarks`:
 
-```php include=../examples/payment-links/retrieve-and-update.php
+```php include=examples/payment-links/retrieve-and-update.php
 ```
 
 A link's `status` is whether it takes payments (`Active`) or not (`Archived`), not whether it was paid. To see what was paid, list its payments.
@@ -47,14 +47,14 @@ A link's `status` is whether it takes payments (`Active`) or not (`Archived`), n
 
 `archive()` stops a link from taking payments, and `unarchive()` opens it again:
 
-```php include=../examples/payment-links/archive.php
+```php include=examples/payment-links/archive.php
 ```
 
 ## List links
 
 `list()` returns a page of links. Pass `status`, `reference_number`, or `mode` (`live` or `test`) to filter them:
 
-```php include=../examples/payment-links/list.php
+```php include=examples/payment-links/list.php
 ```
 
 The page is a `Luigel\Paymongo\Pagination\CursorPage`. Iterate it for its links, check `hasMore`, and call `nextPage()` for the next one, or `lazy()` to walk every page.
@@ -63,14 +63,14 @@ The page is a `Luigel\Paymongo\Pagination\CursorPage`. Iterate it for its links,
 
 `payments()` returns a page of the [payments](./reference/data-objects.md#payment) made through a link:
 
-```php include=../examples/payment-links/payments.php
+```php include=examples/payment-links/payments.php
 ```
 
 ## Refund a link's payment
 
 Refund a payment made through a link as you would any other payment, with `Paymongo::refunds()`, which returns a typed `Refund`:
 
-```php include=../examples/payment-links/refund.php
+```php include=examples/payment-links/refund.php
 ```
 
 `paymentLinks()->refund()` calls PayMongo's refund endpoint for payment links instead. It returns the response as a plain array, not a data object, and PayMongo documents that endpoint's `amount` in pesos rather than centavos, unlike every other amount, so prefer `refunds()`.

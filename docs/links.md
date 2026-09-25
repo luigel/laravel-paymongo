@@ -34,28 +34,28 @@ A single link comes back as a [`Link`](./reference/data-objects.md#link).
 
 `create()` takes the amount in integer centavos and a description. Send the customer the `checkoutUrl` it returns:
 
-```php include=../examples/links/create.php
+```php include=examples/links/create.php
 ```
 
 ## Retrieve a link
 
 `retrieve()` finds a link by its id. `retrieveByReference()` finds it by the short reference number at the end of its URL, and returns `null` when no link has that reference:
 
-```php include=../examples/links/retrieve.php
+```php include=examples/links/retrieve.php
 ```
 
 ## List links
 
 `list()` returns a `CursorPage` of links. Iterate it, or call `lazy()` to walk every page:
 
-```php include=../examples/links/list.php
+```php include=examples/links/list.php
 ```
 
 ## Archive and unarchive a link
 
 `archive()` stops a link from being paid, and `unarchive()` opens it again:
 
-```php include=../examples/links/archive.php
+```php include=examples/links/archive.php
 ```
 
 ## Know when it was paid

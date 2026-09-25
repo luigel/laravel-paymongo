@@ -15,7 +15,7 @@ The examples on this page test the app from [Your first payment](./your-first-pa
 
 Call `Paymongo::fake()` before the code under test runs, then assert on what it sent:
 
-```php include=../examples/testing/CheckoutTest.php
+```php include=examples/testing/CheckoutTest.php
 ```
 
 With no stubs, the fake answers every endpoint of PayMongo's API:
@@ -33,7 +33,7 @@ A request to an endpoint the fake does not know gets a `404`, which the package 
 
 Pass `Paymongo::fake()` URL patterns mapped to responses, as you would to `Http::fake()`. Your stubs win over the fake's own answers, so you can return a particular resource, a page, or an error. An error response throws the exception the package would throw for it (see [Errors](./errors.md)):
 
-```php include=../examples/testing/PaymongoErrorTest.php
+```php include=examples/testing/PaymongoErrorTest.php
 ```
 
 Patterns match the whole URL, so start them with `*/`: `'*/checkout_sessions'`, `'*/payment_intents/pi_failing*'`. Stub a list with `Fixtures::list([Fixtures::payment(['amount' => 150050])])`.
@@ -61,7 +61,7 @@ Every factory on `Fixtures` returns a response body, `{"data": ...}`, and takes 
 
 Post an event built with `Fixtures::event()` to your webhook route, signed with your endpoint's secret the way PayMongo signs it. That runs everything a real delivery does: the signature check, deduplication, and your listeners. To test just the listener, call it with the event object:
 
-```php include=../examples/testing/WebhookTest.php
+```php include=examples/testing/WebhookTest.php
 ```
 
 With the `array` cache store, which Laravel's default `phpunit.xml` sets, each test starts with an empty cache, so deduplication does not carry over from one test to the next. Within one test, a second post of the same event is dropped: pass another id, `Fixtures::event('payment.paid', $payment, ['id' => 'evt_2'])`, to send a different event.
@@ -70,7 +70,7 @@ With the `array` cache store, which Laravel's default `phpunit.xml` sets, each t
 
 `Paymongo::fake()` is built on Laravel's `Http::fake()`, so the rest of Laravel's HTTP testing tools see the same requests: `Http::assertSent()`, `Http::assertSentCount()`, `Http::assertNotSent()`, and `Http::preventStrayRequests()`, which fails any request nothing is faking:
 
-```php include=../examples/testing/HttpFakeTest.php
+```php include=examples/testing/HttpFakeTest.php
 ```
 
 You can skip `Paymongo::fake()` and stub PayMongo with `Http::fake()` alone, using `Fixtures` for the bodies.

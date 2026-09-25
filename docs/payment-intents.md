@@ -29,7 +29,7 @@ The flow:
 
 `create()` takes the intent's attributes:
 
-```php include=../examples/payment-intents/create.php
+```php include=examples/payment-intents/create.php
 ```
 
 - `amount` is integer centavos, at least `100` (PHP 1.00). `currency` is `PHP`.
@@ -42,12 +42,12 @@ The flow:
 
 For a card, your frontend usually creates the payment method with your public key, so the card number never reaches your server, and sends you its id. A card that needs 3D Secure comes back `awaiting_next_action`:
 
-```php include=../examples/payment-intents/attach-card.php
+```php include=examples/payment-intents/attach-card.php
 ```
 
 E-wallets, online banking, and buy now, pay later always need the customer to authorize on the provider's page, and `returnUrl:` is required for them. Their payment method takes only a type:
 
-```php include=../examples/payment-intents/attach-e-wallet.php
+```php include=examples/payment-intents/attach-e-wallet.php
 ```
 
 When your frontend attaches with the public key instead, it passes the intent's `clientKey`. On the server, `attach()` also accepts `clientKey:`, but the secret key does not need it.
@@ -58,19 +58,19 @@ When the customer lands back on your return URL, retrieve the intent to show its
 
 `retrieve()` returns the intent with its status, its payments, and the last payment error:
 
-```php include=../examples/payment-intents/retrieve.php
+```php include=examples/payment-intents/retrieve.php
 ```
 
 `retrieveUsingClientKey()` retrieves an intent the way a browser does, with your **public** key and the intent's `clientKey` instead of the secret key. It needs `PAYMONGO_PUBLIC_KEY` set and throws `AuthenticationException` without it:
 
-```php include=../examples/payment-intents/retrieve-using-client-key.php
+```php include=examples/payment-intents/retrieve-using-client-key.php
 ```
 
 ## Authorize now, capture later
 
 Create the intent with `'capture_type' => 'manual'` to hold the amount on the customer's card without charging it. After the customer attaches a card and passes 3D Secure, the intent waits in `awaiting_capture` until `capture()` charges the full amount, or a smaller one in centavos:
 
-```php include=../examples/payment-intents/capture.php
+```php include=examples/payment-intents/capture.php
 ```
 
 PayMongo releases a hold it has not captured after 7 days. Holds work for Visa and Mastercard only, and PayMongo must enable them on your account first. See PayMongo's [Hold then capture](https://docs.paymongo.com/docs/payment-acceptance-hold-then-capture) guide.
@@ -79,7 +79,7 @@ PayMongo releases a hold it has not captured after 7 days. Holds work for Visa a
 
 `cancel()` cancels an intent that has not succeeded, such as a hold you decide not to capture. Nothing is charged:
 
-```php include=../examples/payment-intents/cancel.php
+```php include=examples/payment-intents/cancel.php
 ```
 
 ## Statuses

@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Finder;
 
 /*
  * Every public service method must be mentioned on a guide page in
- * docs/docs, so adding one without documenting it fails the suite. The
+ * docs/, so adding one without documenting it fails the suite. The
  * generated Reference pages list every method anyway, so they don't count,
  * and they are built by the docs site rather than shipped here.
  *
@@ -28,7 +28,7 @@ function docs_guide_pages(): array
 {
     $pages = [];
 
-    foreach (Finder::create()->files()->name('*.md')->in(dirname(__DIR__, 2).'/docs/docs')->sortByName() as $file) {
+    foreach (Finder::create()->files()->name('*.md')->depth(0)->in(dirname(__DIR__, 2).'/docs')->sortByName() as $file) {
         $pages[$file->getRelativePathname()] = (string) preg_replace_callback(
             '/```php include=(\S+)/',
             static function (array $match) use ($file): string {
@@ -86,7 +86,7 @@ function docs_undocumented_service_methods(string $manager, array $pages): array
 it('mentions every public service method on a guide page', function () {
     $undocumented = docs_undocumented_service_methods(PaymongoManager::class, docs_guide_pages());
 
-    expect($undocumented)->toBe([], 'Not mentioned on any guide page in docs/docs: '.implode(', ', $undocumented));
+    expect($undocumented)->toBe([], 'Not mentioned on any guide page in docs/: '.implode(', ', $undocumented));
 });
 
 it('names a public service method no guide page mentions', function () {

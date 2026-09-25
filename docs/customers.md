@@ -22,7 +22,7 @@ Every method lives on `Paymongo::customers()`, and a single customer comes back 
 
 `create()` takes the customer's details. Create one per user and store its id on your user:
 
-```php include=../examples/customers/create.php
+```php include=examples/customers/create.php
 ```
 
 - `first_name`, `last_name`, `email`, and `default_device` are required. `default_device` is a `Luigel\Paymongo\Enums\DefaultDevice` case (`Phone` or `Email`) or its value.
@@ -33,28 +33,28 @@ Every method lives on `Paymongo::customers()`, and a single customer comes back 
 
 `retrieve()` returns the customer. `update()` changes only the keys you pass:
 
-```php include=../examples/customers/retrieve-and-update.php
+```php include=examples/customers/retrieve-and-update.php
 ```
 
 ## Delete a customer
 
 `delete()` deletes the customer and returns `true`. When PayMongo refuses, it throws a `Luigel\Paymongo\Exceptions\PaymongoException` instead:
 
-```php include=../examples/customers/delete.php
+```php include=examples/customers/delete.php
 ```
 
 ## Save and reuse a card
 
 PayMongo saves a card to a customer when the customer pays a [payment intent](./payment-intents.md) created with `setup_future_usage` naming them:
 
-```php include=../examples/customers/save-a-card.php
+```php include=examples/customers/save-a-card.php
 ```
 
 Card saving (PayMongo calls it card vaulting) takes Visa and Mastercard only, and PayMongo must enable it on your account first. See PayMongo's [Card vaulting](https://docs.paymongo.com/docs/payment-acceptance-card-vaulting) guide.
 
 `paymentMethods()` lists what is saved, as [`CustomerPaymentMethod`](./reference/data-objects.md#customerpaymentmethod)s, and `deletePaymentMethod()` removes one:
 
-```php include=../examples/customers/payment-methods.php
+```php include=examples/customers/payment-methods.php
 ```
 
 To charge a saved card, [attach](./payment-intents.md#attach-a-payment-method) its `paymentMethodId` to a new payment intent. PayMongo first wants the card's CVC again, set by updating the payment method, which the package does not wrap yet. See the Card vaulting guide for that request.

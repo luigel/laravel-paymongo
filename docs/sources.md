@@ -24,7 +24,7 @@ The package has no `payments()->create()`, so it cannot do step 3. A source you 
 
 `create()` takes the e-wallet, the amount, and where to send the customer afterwards. It returns a `Luigel\Paymongo\Data\Source` (see the [Source reference](./reference/data-objects.md#source)):
 
-```php include=../examples/sources/create.php
+```php include=examples/sources/create.php
 ```
 
 - `type` is `gcash` or `grab_pay`.
@@ -33,7 +33,7 @@ The package has no `payments()->create()`, so it cannot do step 3. A source you 
 
 ## Retrieve a source
 
-```php include=../examples/sources/retrieve.php
+```php include=examples/sources/retrieve.php
 ```
 
 `status` is a plain string, not an enum. PayMongo lists `pending`, `chargeable`, `cancelled`, `expired` and `paid`. A source is `pending` until the customer authorizes it, and `chargeable` after.

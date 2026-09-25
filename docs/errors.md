@@ -9,7 +9,7 @@ section: Concepts
 
 Every request that does not succeed throws a subclass of `Luigel\Paymongo\Exceptions\PaymongoException`, chosen by the HTTP status PayMongo answered with. Catch the ones you can do something about, and let the rest reach your exception handler:
 
-```php include=../examples/errors/catch.php
+```php include=examples/errors/catch.php
 ```
 
 | Exception | Status | What to do |

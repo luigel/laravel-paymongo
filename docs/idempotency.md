@@ -29,7 +29,7 @@ Set `PAYMONGO_AUTO_IDEMPOTENCY=false` to stop sending keys. A `POST` without a k
 
 An automatic key only protects one call. When your own code runs twice, a queued job retried, a customer who clicks **Pay** twice, a request that times out in the browser, it makes a new call with a new key, and PayMongo acts twice. Pass `idempotencyKey:` with a key made from your order, so every attempt for that order sends the same one:
 
-```php include=../examples/idempotency/order-key.php
+```php include=examples/idempotency/order-key.php
 ```
 
 `create()` takes `idempotencyKey:` on `paymentIntents()`, `checkoutSessions()`, `paymentLinks()` and `refunds()`, the calls where a repeat costs money or confuses a customer. Every other `POST` sends an automatic key.

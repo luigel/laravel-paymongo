@@ -9,7 +9,7 @@ section: Integration
 
 The `Paymongo` facade uses the account whose secret key is in `PAYMONGO_SECRET_KEY`. When one app takes payments for several PayMongo accounts, such as a marketplace where each merchant has their own, call `Paymongo::withSecretKey()` for a copy that uses another account's key:
 
-```php include=../examples/multiple-accounts/with-secret-key.php
+```php include=examples/multiple-accounts/with-secret-key.php
 ```
 
 - `withSecretKey()` returns a new, separate `PaymongoManager` with every service, `paymentIntents()` through `payouts()`. Everything else, such as the timeout, retries and idempotency, comes from your config.
@@ -23,7 +23,7 @@ Each account registers its own webhook endpoints, and each endpoint has its own 
 
 A named secret lives in `config/paymongo.php`, so this suits a handful of accounts known up front. For accounts that come and go, register a route of your own that finds the account from the URL, and check each delivery against that account's secret with `Luigel\Paymongo\Webhooks\SignatureVerifier`:
 
-```php include=../examples/receiving-webhooks/per-account-route.php
+```php include=examples/receiving-webhooks/per-account-route.php
 ```
 
 `verify()` throws an `InvalidWebhookSignatureException` for a delivery that fails the checks described under [Signature verification](./webhooks.md#signature-verification). Dispatching `WebhookReceived` hands the event to the same listeners as `Route::paymongoWebhooks()`. This route does not drop repeat deliveries, so make those listeners idempotent.

@@ -46,7 +46,7 @@ composer require luigel/laravel-paymongo:^3.0@beta
 
 v2 took float pesos and multiplied them by 100 (the `amount_type` config). v3 sends amounts exactly as you pass them, so pass integer centavos, as the PayMongo API expects. Amounts in responses are integer centavos too:
 
-```php include=../examples/upgrading/amounts.php
+```php include=examples/upgrading/amounts.php
 ```
 
 Check every `amount` you send, including checkout `line_items[].amount`: multiply pesos by 100 and cast to `int`. See [Amounts & Money](./amounts-and-money.md). The `amount_type` config key, the `Paymongo::AMOUNT_TYPE_FLOAT` and `Paymongo::AMOUNT_TYPE_INT` constants, and `AmountTypeNotSupportedException` are gone.
@@ -100,7 +100,7 @@ New in v3, with no v2 counterpart: [Payment Links](./payment-links.md), [QR Ph](
 
 v2's `getData()`, `__get` and `get*()` methods are gone. v3 returns data objects from `Luigel\Paymongo\Data` with read-only typed properties, and fields with a fixed set of values, such as statuses, are enums:
 
-```php include=../examples/upgrading/responses.php
+```php include=examples/upgrading/responses.php
 ```
 
 A value the package does not know yet, such as a status PayMongo added after this release, reads as `null`. `->attribute('status')` always has the raw string. The [Data objects reference](./reference/data-objects.md) lists every property.
@@ -153,7 +153,7 @@ PAYMONGO_WEBHOOK_SECRET=whsk_...
 
 The middleware alias is still `paymongo.signature`, now `Luigel\Paymongo\Http\Middleware\VerifyWebhookSignature`, but its parameter means something else. In v2 it named an event, such as `paymongo.signature:payment_paid`, and you had a route and a controller action per event. In v3 it names an endpoint's secret. A PayMongo endpoint has one secret for all the events it receives, so most apps need one route, with no parameter:
 
-```php include=../examples/receiving-webhooks/routes.php
+```php include=examples/receiving-webhooks/routes.php
 ```
 
 A second endpoint, with a secret of its own, gets a second route; see [More than one endpoint](./webhooks.md#more-than-one-endpoint).
@@ -176,7 +176,7 @@ PayMongo removed the Tokens API, and `Paymongo::token()` is gone with it. Card d
 
 The Sources API still works but PayMongo has deprecated it, and v3 cannot finish its flow, because there is no `payments()->create()` to charge a chargeable source. Move GCash and GrabPay to a payment intent with an e-wallet payment method. PayMongo creates the payment when the customer authorizes it, so there is no step for you to charge:
 
-```php include=../examples/upgrading/e-wallet.php
+```php include=examples/upgrading/e-wallet.php
 ```
 
 Listen for `payment.paid` (`PaymentPaid`) instead of `source.chargeable`. See [Sources](./sources.md) and [Payment Intents](./payment-intents.md).

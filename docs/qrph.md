@@ -29,7 +29,7 @@ To take payments, use the first two. Wallet QR is not a payment method: it moves
 
 A QR Ph payment at checkout is a [payment intent](./payment-intents.md) paid with the `qrph` payment method. Attaching the method returns a QR code for the intent's exact amount:
 
-```php include=../examples/qrph/checkout.php
+```php include=examples/qrph/checkout.php
 ```
 
 1. Show the image in `next_action.code.image_url` on your page. It is a base64 image, ready for an `<img>` tag.
@@ -44,7 +44,7 @@ With a [Checkout Session](./checkout-sessions.md), add `qrph` to `payment_method
 
 `generateStatic()` creates a permanent code to print and put at a counter. The customer scans it and types in the amount they owe:
 
-```php include=../examples/qrph/generate-static.php
+```php include=examples/qrph/generate-static.php
 ```
 
 Payments to it show up in your PayMongo dashboard, and PayMongo texts each one to `mobile_number` if you set it. It returns a [`StaticQr`](./reference/data-objects.md#staticqr).
@@ -57,7 +57,7 @@ Wallet QR codes move money into or out of your PayMongo Wallet over QR Ph. They 
 
 `generate()` creates a code anyone can scan to send money to your Wallet. It returns an [`MpmQr`](./reference/data-objects.md#mpmqr):
 
-```php include=../examples/qrph/generate.php
+```php include=examples/qrph/generate.php
 ```
 
 - A `dynamic` code carries a fixed `transaction_amount` in centavos, can be paid once, and expires after `expiry_seconds`.
@@ -66,7 +66,7 @@ Wallet QR codes move money into or out of your PayMongo Wallet over QR Ph. They 
 
 `retrieve()` fetches a code, leaving out the QR string and image unless you ask for them. `expire()` stops a code from being paid:
 
-```php include=../examples/qrph/retrieve-and-expire.php
+```php include=examples/qrph/retrieve-and-expire.php
 ```
 
 PayMongo sends `qr.paid` when a code is paid and `qr.expired` when it expires, dispatched as `QrPaid` and `QrExpired`.
@@ -75,7 +75,7 @@ PayMongo sends `qr.paid` when a code is paid and `qr.expired` when it expires, d
 
 `execute()` pays a scanned QR Ph code from your Wallet. It returns a [`QrExecution`](./reference/data-objects.md#qrexecution):
 
-```php include=../examples/qrph/execute.php
+```php include=examples/qrph/execute.php
 ```
 
 **This moves real money out of your Wallet.** The response only acknowledges the request. PayMongo sends the outcome as a webhook: `qr.paid` when the transfer succeeds, and `qr.expired` when it fails. See [Webhooks](./webhooks.md).

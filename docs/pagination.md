@@ -13,7 +13,7 @@ PayMongo returns lists a page at a time. A `list()` method returns the first pag
 
 These return a `Luigel\Paymongo\Pagination\CursorPage`: `payments()->list()`, `refunds()->list()`, `links()->list()`, `paymentLinks()->list()`, `paymentLinks()->payments()`, `plans()->list()` and `subscriptions()->list()`.
 
-```php include=../examples/pagination/page.php
+```php include=examples/pagination/page.php
 ```
 
 - Iterate the page, or read `items`, for what is on it. It also has `count()`, `first()` and `toArray()`.
@@ -25,7 +25,7 @@ These return a `Luigel\Paymongo\Pagination\CursorPage`: `payments()->list()`, `r
 
 `lazy()` walks every page as a Laravel `LazyCollection`, requesting each page only when you reach it, so you can stop early without fetching the rest:
 
-```php include=../examples/pagination/lazy.php
+```php include=examples/pagination/lazy.php
 ```
 
 Walking a long history takes one request per page. Narrow the list with the endpoint's filters where it has them, such as `payment_id` on refunds.
@@ -34,7 +34,7 @@ Walking a long history takes one request per page. Narrow the list with the endp
 
 `payouts()->list()` and `payouts()->transactions()` return a `Luigel\Paymongo\Pagination\CursorTokenPage`, because the Payouts API pages with cursor tokens instead of `has_more`. It iterates, counts, and has `first()`, `nextPage()` and `lazy()` in the same way, and adds:
 
-```php include=../examples/pagination/payouts.php
+```php include=examples/pagination/payouts.php
 ```
 
 `nextPage()` is `null` when `nextCursor` is. See [Payouts](./payouts.md).

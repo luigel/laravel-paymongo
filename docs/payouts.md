@@ -20,7 +20,7 @@ Every method lives on `Paymongo::payouts()`, and a single payout comes back as a
 
 `list()` returns a page of payouts. Every filter is optional:
 
-```php include=../examples/payouts/list.php
+```php include=examples/payouts/list.php
 ```
 
 - `payout_status` is a `Luigel\Paymongo\Enums\PayoutStatus` case or its value.
@@ -34,7 +34,7 @@ Payout lists page differently from every other list. Instead of `hasMore`, the p
 
 `retrieve()` returns a payout with what went into it:
 
-```php include=../examples/payouts/retrieve.php
+```php include=examples/payouts/retrieve.php
 ```
 
 Every amount is integer centavos. `amount` is the gross, the other amounts are what was taken from it, and `netAmount` is what reaches your account. `money()` formats the net amount.
@@ -54,7 +54,7 @@ The API reference also lists `pending` and `cancelled` (`Pending` and `Cancelled
 
 `transactions()` returns the payments, refunds, disputes, and adjustments a payout adds up, to match against your orders:
 
-```php include=../examples/payouts/transactions.php
+```php include=examples/payouts/transactions.php
 ```
 
 Each one is a [`PayoutTransaction`](./reference/data-objects.md#payouttransaction), and its page is a `CursorTokenPage` too. `transactionType()` says what kind it is.
@@ -63,7 +63,7 @@ Each one is a [`PayoutTransaction`](./reference/data-objects.md#payouttransactio
 
 `schedule()` takes your organization id (`org_...`) and returns your payout schedule with the payouts lined up on it:
 
-```php include=../examples/payouts/schedule.php
+```php include=examples/payouts/schedule.php
 ```
 
 It comes back as a [`PayoutSchedule`](./reference/data-objects.md#payoutschedule). The first entry in `lineup` is your next payout, and the second the one after it. Change the schedule itself in the PayMongo Dashboard.

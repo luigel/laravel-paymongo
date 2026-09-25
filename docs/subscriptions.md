@@ -37,7 +37,7 @@ The flow:
 
 `create()` takes the plan's attributes:
 
-```php include=../examples/subscriptions/create-plan.php
+```php include=examples/subscriptions/create-plan.php
 ```
 
 - `name`, `description`, `amount`, `currency`, `interval`, and `interval_count` are required.
@@ -50,7 +50,7 @@ The flow:
 
 `retrieve()` returns a plan, `update()` changes its `name`, `description`, `amount`, or `metadata`, and `list()` returns a page of plans:
 
-```php include=../examples/subscriptions/plans.php
+```php include=examples/subscriptions/plans.php
 ```
 
 The page is a `Luigel\Paymongo\Pagination\CursorPage`. Iterate it for its plans, check `hasMore`, and call `nextPage()` for the next one, or `lazy()` to walk every page.
@@ -59,7 +59,7 @@ The page is a `Luigel\Paymongo\Pagination\CursorPage`. Iterate it for its plans,
 
 `create()` takes the customer's id and the plan's id:
 
-```php include=../examples/subscriptions/create.php
+```php include=examples/subscriptions/create.php
 ```
 
 PayMongo issues the subscription's first invoice straight away, with a payment intent on it. Take the payment on that intent the way you take any other: [attach](./payment-intents.md#attach-a-payment-method) a payment method, and send the customer to authorize it. Paying it saves the payment method for the next cycles and makes the subscription `active`.
@@ -70,7 +70,7 @@ The customer has 24 hours to pay. After that PayMongo cancels the subscription (
 
 `retrieve()` returns a subscription with its plan, its latest invoice, and when it bills next. `list()` returns a page of subscriptions:
 
-```php include=../examples/subscriptions/retrieve-and-list.php
+```php include=examples/subscriptions/retrieve-and-list.php
 ```
 
 `latestInvoice` and `setupIntent` are the raw arrays PayMongo sends, with their own `id`, `status`, and `payment_intent` or `next_action_url`.
@@ -81,7 +81,7 @@ PayMongo sends `anchor_date` and `next_billing_schedule` as `YYYY-MM-DD` dates, 
 
 `changePlan()` moves the subscription to another plan from the next cycle on. The current cycle stays at the old plan's price. `changePaymentMethod()` charges a different payment method from the next cycle on:
 
-```php include=../examples/subscriptions/change.php
+```php include=examples/subscriptions/change.php
 ```
 
 The customer authenticates a new card before it is used: PayMongo authorizes a small amount on it and then cancels that. `redirectUrl:` is where PayMongo sends them back afterwards, and it applies to cards only.
@@ -90,7 +90,7 @@ The customer authenticates a new card before it is used: PayMongo authorizes a s
 
 `cancel()` takes the subscription and a reason, a `Luigel\Paymongo\Enums\CancellationReason` case (`TooExpensive`, `MissingFeatures`, `SwitchedService`, `Unused`, or `Other`) or its value. PayMongo requires the reason:
 
-```php include=../examples/subscriptions/cancel.php
+```php include=examples/subscriptions/cancel.php
 ```
 
 Cancelling takes effect immediately, and no new invoices follow. An invoice that is already open can still be paid.
@@ -99,7 +99,7 @@ Cancelling takes effect immediately, and no new invoices follow. An invoice that
 
 In test mode, `triggerTestCycle()` bills the subscription's next cycle now, so you can test renewals and failed payments without waiting for the billing date. It returns nothing:
 
-```php include=../examples/subscriptions/test-cycle.php
+```php include=examples/subscriptions/test-cycle.php
 ```
 
 ## Statuses

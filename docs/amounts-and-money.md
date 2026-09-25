@@ -15,7 +15,7 @@ This applies to every `amount` attribute, checkout `line_items[].amount`, refund
 
 Store prices as integer centavos, in an `unsignedInteger` or `unsignedBigInteger` column, and you never convert. When a price arrives in pesos, multiply by 100 and round before casting:
 
-```php include=../examples/amounts/convert.php
+```php include=examples/amounts/convert.php
 ```
 
 Round before casting to `int`. Floats cannot hold most decimal fractions exactly, and a cast alone drops the fraction: `(int) (19.99 * 100)` is `1998`, while `(int) round(19.99 * 100)` is `1999`.
@@ -26,7 +26,7 @@ PayMongo sets a minimum and maximum amount for each endpoint and payment method,
 
 `Luigel\Paymongo\Support\Money` is an immutable amount in centavos. Every data object with an amount has a `money()` method that returns it, or `null` when the amount is missing (a payout's is its net amount), and you can make your own with `Money::ofCentavos()`:
 
-```php include=../examples/amounts/money.php
+```php include=examples/amounts/money.php
 ```
 
 | Method | Returns |

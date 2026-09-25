@@ -18,7 +18,7 @@ Both methods live on `Paymongo::payments()`, and a single payment comes back as 
 
 `retrieve()` returns one payment. Take its id from the `payment.paid` webhook, or from `$intent->payments` on the intent it paid:
 
-```php include=../examples/payments/retrieve.php
+```php include=examples/payments/retrieve.php
 ```
 
 - Every amount is integer centavos. `money()` wraps `amount` in a `Luigel\Paymongo\Support\Money` for display.
@@ -40,7 +40,7 @@ Both methods live on `Paymongo::payments()`, and a single payment comes back as 
 
 `list()` returns a page of payments:
 
-```php include=../examples/payments/list.php
+```php include=examples/payments/list.php
 ```
 
 The page is a `Luigel\Paymongo\Pagination\CursorPage`. Iterate it for its payments, check `hasMore`, and call `nextPage()` for the next one, or `lazy()` to walk every page. `limit` defaults to 10. PayMongo also documents `status` and `created_at` filters on this endpoint, which `list()` passes through as they are.
