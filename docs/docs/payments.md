@@ -1,7 +1,8 @@
 ---
-sidebar_position: 3
-slug: /payments
-id: payments
+title: Payments
+slug: payments
+order: 30
+section: After payment
 ---
 
 # Payments

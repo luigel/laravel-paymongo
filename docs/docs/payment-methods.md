@@ -1,7 +1,8 @@
 ---
-sidebar_position: 2
-slug: /payment-methods
-id: payment-methods
+title: Payment Methods
+slug: payment-methods
+order: 22
+section: Accept payments
 ---
 
 # Payment Methods

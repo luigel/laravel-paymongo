@@ -1,7 +1,8 @@
 ---
-sidebar_position: 14
-slug: /sources
-id: sources
+title: Sources (deprecated)
+slug: sources
+order: 60
+section: Legacy
 ---
 
 # Sources (deprecated)

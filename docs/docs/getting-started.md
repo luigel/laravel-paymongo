@@ -1,7 +1,8 @@
 ---
-sidebar_position: 1
-slug: /
-id: getting-started
+title: Getting started
+slug: getting-started
+order: 10
+section: Start
 ---
 
 # Getting Started
@@ -124,7 +125,7 @@ if ($intent->status === PaymentIntentStatus::Succeeded) {
 }
 ```
 
-See [Payment Intents](./Usage/payment-intents.md) for the full lifecycle including e-wallet redirects.
+See [Payment Intents](./payment-intents.md) for the full lifecycle including e-wallet redirects.
 
 ## Amounts are centavos
 

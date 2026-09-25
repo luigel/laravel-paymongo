@@ -1,7 +1,8 @@
 ---
-sidebar_position: 9
-slug: /qrph
-id: qrph
+title: QR Ph
+slug: qrph
+order: 25
+section: Accept payments
 ---
 
 # QR Ph

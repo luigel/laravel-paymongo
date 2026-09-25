@@ -1,7 +1,8 @@
 ---
-sidebar_position: 8
-slug: /payment-links
-id: payment-links
+title: Payment Links
+slug: payment-links
+order: 23
+section: Accept payments
 ---
 
 # Payment Links

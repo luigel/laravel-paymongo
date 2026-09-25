@@ -1,7 +1,8 @@
 ---
-sidebar_position: 6
-slug: /checkout-sessions
-id: checkout-sessions
+title: Checkout Sessions
+slug: checkout-sessions
+order: 20
+section: Accept payments
 ---
 
 # Checkout Sessions

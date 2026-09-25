@@ -1,7 +1,8 @@
 ---
-sidebar_position: 4
-slug: /refunds
-id: refunds
+title: Refunds
+slug: refunds
+order: 31
+section: After payment
 ---
 
 # Refunds

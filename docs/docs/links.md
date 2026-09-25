@@ -1,7 +1,8 @@
 ---
-sidebar_position: 7
-slug: /links
-id: links
+title: Links
+slug: links
+order: 24
+section: Accept payments
 ---
 
 # Links

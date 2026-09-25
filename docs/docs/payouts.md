@@ -1,7 +1,8 @@
 ---
-sidebar_position: 11
-slug: /payouts
-id: payouts
+title: Payouts
+slug: payouts
+order: 32
+section: After payment
 ---
 
 # Payouts

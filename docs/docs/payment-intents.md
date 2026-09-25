@@ -1,7 +1,8 @@
 ---
-sidebar_position: 1
-slug: /payment-intents
-id: payment-intents
+title: Payment Intents
+slug: payment-intents
+order: 21
+section: Accept payments
 ---
 
 # Payment Intents

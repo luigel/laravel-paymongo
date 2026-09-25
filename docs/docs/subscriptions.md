@@ -1,7 +1,8 @@
 ---
-sidebar_position: 10
-slug: /subscriptions
-id: subscriptions
+title: Plans and Subscriptions
+slug: subscriptions
+order: 41
+section: Recurring
 ---
 
 # Plans and Subscriptions

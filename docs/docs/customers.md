@@ -1,7 +1,8 @@
 ---
-sidebar_position: 5
-slug: /customers
-id: customers
+title: Customers
+slug: customers
+order: 40
+section: Recurring
 ---
 
 # Customers

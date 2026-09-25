@@ -1,7 +1,8 @@
 ---
-sidebar_position: 13
-slug: /testing
-id: testing
+title: Testing
+slug: testing
+order: 51
+section: Integration
 ---
 
 # Testing

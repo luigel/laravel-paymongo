@@ -1,7 +1,8 @@
 ---
-sidebar_position: 12
-slug: /webhooks
-id: webhooks
+title: Webhooks
+slug: webhooks
+order: 50
+section: Integration
 ---
 
 # Webhooks
