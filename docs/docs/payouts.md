@@ -3,100 +3,71 @@ title: Payouts
 slug: payouts
 order: 32
 section: After payment
+operations:
+  - payouts.list
+  - payouts.retrieve
+  - payouts.transactions
+  - payouts.schedule
 ---
 
 # Payouts
 
-Payouts are PayMongo depositing your collected balance to your bank account. The API is **read-only** — you inspect payouts, the transactions inside them, and your payout schedule. New in v3.
+A Payout is PayMongo sending you the money your customers paid. PayMongo generates payouts on its own, from payments that have cleared, and sends them on your payout schedule, so this service only reads them: to reconcile a payout against your orders, or to show what is coming next.
 
-All methods live on `Paymongo::payouts()`. Payouts are standard `{id, type, attributes}` resources, but their lists paginate with **opaque cursor tokens** plus totals metadata instead of `has_more` — so `list()` and `transactions()` return a `CursorTokenPage`, not the usual `CursorPage`.
+Every method lives on `Paymongo::payouts()`, and a single payout comes back as a [`Payout`](./reference/data-objects.md#payout). For how clearing and schedules work, see PayMongo's [Payouts guide](https://docs.paymongo.com/docs/money-movement-payouts), and for every field, its [Payouts reference](https://docs.paymongo.com/reference/getpayoutlist).
 
-## List
+## List payouts
 
-```php
-use Luigel\Paymongo\Enums\PayoutStatus;
-use Luigel\Paymongo\Facades\Paymongo;
+`list()` returns a page of payouts. Every filter is optional:
 
-$page = Paymongo::payouts()->list([
-    'payout_status' => PayoutStatus::Deposited,
-    'provider' => 'paymongo_central_hub', // or unionbank
-    'created_at.between' => '2026-08-01..2026-08-31', // YYYY-MM-DD..YYYY-MM-DD
-    'search' => 'BDO',
-    'sort_by' => 'net_amount', // created_at | net_amount
-    'order' => 'desc',         // asc | desc
-    'limit' => 20,             // default 20
-]); // CursorTokenPage<Payout>
+```php include=../examples/payouts/list.php
 ```
 
-All parameters are optional; `after` / `before` take cursor tokens from a previous page.
+- `payout_status` is a `Luigel\Paymongo\Enums\PayoutStatus` case or its value.
+- `created_at.between` takes two dates, `YYYY-MM-DD..YYYY-MM-DD`.
+- `search` matches a payout id or merchant id. `provider` is `paymongo_central_hub` or `unionbank`.
+- `limit` defaults to 20.
 
-### CursorTokenPage
+Payout lists page differently from every other list. Instead of `hasMore`, the page is a `Luigel\Paymongo\Pagination\CursorTokenPage`, with an opaque `nextCursor` token that is `null` on the last page, and `meta` with the totals PayMongo sends, such as `total_records`. Iterate it, call `nextPage()`, or `lazy()` to walk every page, just like a `CursorPage`.
 
-```php
-$page->items;      // list<Payout>
-$page->nextCursor; // ?string — opaque token, null on the last page
-$page->prevCursor; // ?string
-$page->meta;       // totals: total_records, total_amount, total_per_currency (when present)
-$page->first();    // ?Payout
-count($page);      // items on this page
+## Retrieve a payout
 
-$next = $page->nextPage(); // ?CursorTokenPage — re-queries with after = nextCursor
+`retrieve()` returns a payout with what went into it:
 
-// Every payout, all pages, lazily:
-Paymongo::payouts()->list()->lazy()->each(function ($payout) {
-    // ...
-});
+```php include=../examples/payouts/retrieve.php
 ```
 
-## Retrieve
+Every amount is integer centavos. `amount` is the gross, the other amounts are what was taken from it, and `netAmount` is what reaches your account. `money()` formats the net amount.
 
-```php
-$payout = Paymongo::payouts()->retrieve('po_2fdKBqNAKMvUXTUAvhZDdXbW');
+`$payout->status` is a `Luigel\Paymongo\Enums\PayoutStatus`. PayMongo's guide describes these:
 
-$payout->status;            // ?PayoutStatus (Pending | OnHold | InTransit | Deposited | Returned | Cancelled)
-$payout->amount;            // gross centavos
-$payout->netAmount;         // what actually lands in the bank
-$payout->fee;
-$payout->taxAmount;
-$payout->refundAmount;
-$payout->disputeAmount;
-$payout->adjustmentAmount;
-$payout->bankAccountName;
-$payout->bankAccountNumber;
-$payout->bankName;
+| Case | Value | Meaning |
+|:-----|:------|:--------|
+| `OnHold` | `on_hold` | Paused, usually for a compliance or risk review. PayMongo emails you what to do. |
+| `InTransit` | `in_transit` | Sent, on its way to your account. |
+| `Deposited` | `deposited` | Credited to your account. |
+| `Returned` | `returned` | Could not be delivered, usually because of wrong bank or wallet details. |
 
-$payout->money()->format(); // the net amount (falls back to gross), e.g. "₱4,855.00"
+The API reference also lists `pending` and `cancelled` (`Pending` and `Cancelled`), which PayMongo's guide does not describe further.
+
+## See what a payout paid for
+
+`transactions()` returns the payments, refunds, disputes, and adjustments a payout adds up, to match against your orders:
+
+```php include=../examples/payouts/transactions.php
 ```
 
-## Transactions inside a payout
+Each one is a [`PayoutTransaction`](./reference/data-objects.md#payouttransaction), and its page is a `CursorTokenPage` too. `transactionType()` says what kind it is.
 
-The payments, refunds, disputes, and adjustments lined up in a payout:
+## See what comes next
 
-```php
-$page = Paymongo::payouts()->transactions('po_2fdKBqNAKMvUXTUAvhZDdXbW'); // CursorTokenPage<PayoutTransaction>
+`schedule()` takes your organization id (`org_...`) and returns your payout schedule with the payouts lined up on it:
 
-foreach ($page as $transaction) {
-    $transaction->transactionType(); // payment | refund | dispute | adjustment | split_payment | split_refund
-    $transaction->amount;            // ?int centavos — plus money()
-    $transaction->netAmount;
-    $transaction->fee;
-}
+```php include=../examples/payouts/schedule.php
 ```
 
-Supported parameters: `limit`, `after`, `before`. A transaction's resource `type` *is* its kind, so `$transaction->type` carries the same value `transactionType()` returns (null-safely).
+It comes back as a [`PayoutSchedule`](./reference/data-objects.md#payoutschedule). The first entry in `lineup` is your next payout, and the second the one after it. Change the schedule itself in the PayMongo Dashboard.
 
-## Payout schedule
+## Know when the money lands
 
-Pass your organization (merchant) id:
-
-```php
-$schedule = Paymongo::payouts()->schedule('org_9NxTZ8ZDVQpZC3bDMSKtwEXA'); // Luigel\Paymongo\Data\PayoutSchedule
-
-$schedule->scheduleType; // e.g. "automatic" (from attributes.type)
-$schedule->options;      // list<string> — the schedule kinds available to you
-$schedule->lineup;       // the schedule lineup, e.g. payout days
-```
-
-## Knowing when money lands
-
-Listen for the `payout.deposited` and `payout.returned` webhook events (typed classes `Luigel\Paymongo\Events\PayoutDeposited` / `PayoutReturned`) — see [Webhooks](./webhooks.md).
+PayMongo sends `payout.deposited` when a payout reaches your account and `payout.returned` when it bounces. The package dispatches them as `Luigel\Paymongo\Events\PayoutDeposited` and `PayoutReturned`. See [Webhooks](./webhooks.md).

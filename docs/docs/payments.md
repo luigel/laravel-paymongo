@@ -3,52 +3,48 @@ title: Payments
 slug: payments
 order: 30
 section: After payment
+operations:
+  - payments.retrieve
+  - payments.list
 ---
 
 # Payments
 
-A payment is the money movement itself. You do not create payments directly — PayMongo creates one when a [payment intent](./payment-intents.md) succeeds (or when a checkout session or link is paid). This service is read-only.
+A Payment is the money a customer actually paid: its amount, PayMongo's fee, what you keep, and how they paid. You never create one. PayMongo creates it when a [payment intent](./payment-intents.md), [checkout session](./checkout-sessions.md), or [link](./payment-links.md) is paid, so this service only reads them.
 
-All methods live on `Paymongo::payments()` and return `Luigel\Paymongo\Data\Payment` DTOs.
+Both methods live on `Paymongo::payments()`, and a single payment comes back as a [`Payment`](./reference/data-objects.md#payment). For every attribute PayMongo returns, see its [List all Payments reference](https://docs.paymongo.com/reference/list-all-payments).
 
-## Retrieve
+## Retrieve a payment
 
-```php
-use Luigel\Paymongo\Facades\Paymongo;
+`retrieve()` returns one payment. Take its id from the `payment.paid` webhook, or from `$intent->payments` on the intent it paid:
 
-$payment = Paymongo::payments()->retrieve('pay_i35wBzLNdX8i9nKEPaSKWGib');
-
-$payment->amount;            // 150050 (centavos)
-$payment->money()->format(); // "₱1,500.50"
-$payment->status;            // ?PaymentStatus (Pending | Paid | Failed | Refunded | PartiallyRefunded)
-$payment->fee;               // PayMongo fee in centavos
-$payment->netAmount;         // what you receive, in centavos
-$payment->paymentIntentId;   // "pi_..."
-$payment->billing?->email;
-$payment->paidAt();          // ?CarbonImmutable
+```php include=../examples/payments/retrieve.php
 ```
 
-## List
+- Every amount is integer centavos. `money()` wraps `amount` in a `Luigel\Paymongo\Support\Money` for display.
+- How the customer paid (the card's brand and last four digits, or the e-wallet) is in the raw `source`, which `attribute()` reads by dot-notation key.
 
-Listing is cursor-paginated and returns a `CursorPage<Payment>`:
+## Statuses
 
-```php
-$page = Paymongo::payments()->list(['limit' => 25]);
+`$payment->status` is a `Luigel\Paymongo\Enums\PaymentStatus`:
 
-foreach ($page as $payment) {
-    // ...
-}
+| Case | Value | Meaning |
+|:-----|:------|:--------|
+| `Pending` | `pending` | Not paid yet. |
+| `Paid` | `paid` | Paid. It can be [refunded](./refunds.md). |
+| `Failed` | `failed` | The attempt failed. |
+| `Refunded` | `refunded` | Refunded in full. |
+| `PartiallyRefunded` | `partially_refunded` | Part of it was refunded. |
 
-$page->hasMore;             // bool
-$next = $page->nextPage();  // ?CursorPage — fetched with the `after` cursor
+## List payments
+
+`list()` returns a page of payments:
+
+```php include=../examples/payments/list.php
 ```
 
-Walk every payment across all pages lazily (one request per page):
+The page is a `Luigel\Paymongo\Pagination\CursorPage`. Iterate it for its payments, check `hasMore`, and call `nextPage()` for the next one, or `lazy()` to walk every page. `limit` defaults to 10. PayMongo also documents `status` and `created_at` filters on this endpoint, which `list()` passes through as they are.
 
-```php
-Paymongo::payments()->list()->lazy()->each(function ($payment) {
-    // ...
-});
-```
+## Know when a payment happens
 
-Supported list parameters: `limit`, `before`, `after`.
+Rather than polling `list()`, let PayMongo tell you. It sends `payment.paid` and `payment.failed`, which the package dispatches as `Luigel\Paymongo\Events\PaymentPaid` and `PaymentFailed`. See [Webhooks](./webhooks.md).
