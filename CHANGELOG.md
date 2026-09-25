@@ -2,7 +2,7 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
-## 3.0.0-dev (unreleased)
+## 3.0.0-beta.1 (2026-09-26)
 
 Complete rewrite. See [UPGRADE.md](UPGRADE.md) for the full v2 to v3 migration guide.
 
