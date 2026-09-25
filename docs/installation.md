@@ -82,4 +82,15 @@ php artisan tinker --execute 'dump(Luigel\Paymongo\Facades\Paymongo::webhooks()-
 
 An `AuthenticationException` means the secret key is missing or wrong.
 
+## AI coding agents (Laravel Boost)
+
+The package ships [Laravel Boost](https://github.com/laravel/boost) resources, so AI agents working in your app know the v3 API. You get a guideline covering the centavo rule, the services, data objects, webhooks and the testing fake. You also get two skills: `paymongo-docs`, which has the agent read PayMongo's official docs before answering, and `paymongo-v3-upgrade`, which walks the agent through migrating from 2.x.
+
+```bash
+php artisan boost:install              # new Boost setup
+php artisan boost:update --discover    # existing Boost app: pick up newly installed packages
+```
+
+Select `luigel/laravel-paymongo` when prompted. Boost then loads the guideline into every agent session.
+
 Next: [take your first payment](./your-first-payment.md).
