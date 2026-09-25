@@ -3,128 +3,78 @@ title: Payment Links
 slug: payment-links
 order: 23
 section: Accept payments
+operations:
+  - paymentLinks.create
+  - paymentLinks.retrieve
+  - paymentLinks.update
+  - paymentLinks.archive
+  - paymentLinks.unarchive
+  - paymentLinks.list
+  - paymentLinks.payments
+  - paymentLinks.refund
 ---
 
 # Payment Links
 
-PayMongo's newer `/payment_links` API — a shareable payment URL like [Links](./links.md), on a different API surface. New in v3.
+A Payment Link is a PayMongo-hosted payment page for one amount, at a URL you share wherever you talk to the customer: chat, email, social media, or an invoice. The customer pays with any method your account accepts, and gets an email receipt. There is no checkout on your site and no redirect back to it.
 
-All methods live on `Paymongo::paymentLinks()` and return `Luigel\Paymongo\Data\PaymentLink` DTOs. The legacy `/links` API stays available unchanged as `Paymongo::links()`.
+Every method lives on `Paymongo::paymentLinks()`, and a single link comes back as a [`PaymentLink`](./reference/data-objects.md#paymentlink). For every attribute PayMongo accepts, see its [Payment Links reference](https://docs.paymongo.com/reference/payment-links).
 
-## How it differs from the legacy Links API
+Payment Links are PayMongo's successor to [Classic Links](./links.md). Use them for new integrations.
 
-| | `Paymongo::links()` (legacy `/links`) | `Paymongo::paymentLinks()` (`/payment_links`) |
-|---|---|---|
-| Request body | `data.attributes` envelope | **Flat** JSON body |
-| Response | `{id, type, attributes}` resource | **Flat** object (fields directly on `data`) |
-| Timestamps | Unix seconds | **ISO 8601 strings** |
-| `status` | Payment state (`unpaid` / `paid` / `archived`) | Management state (`active` / `archived`) |
-| Archiving | `POST .../archive` and `.../unarchive` | `PATCH` with `status` (`archive()` / `unarchive()` shorthands) |
+## Create a link
 
-The package absorbs all of this — you still pass plain attribute arrays and get typed DTOs back.
+`create()` takes the link's attributes. Send the customer the `url` it returns:
 
-## Create
-
-```php
-use Luigel\Paymongo\Facades\Paymongo;
-
-$link = Paymongo::paymentLinks()->create([
-    'amount' => 150050, // PHP 1,500.50 in centavos, min 100
-    'currency' => 'PHP',
-    'description' => 'Invoice #1234',
-    'remarks' => 'laravel-paymongo',
-    'restrictions' => ['completed_sessions' => 1], // e.g. stop accepting after 1 paid session
-]);
-
-$link->id;     // "plink_uSJXoxTBNqRrg35kj5w9dTVY"
-$link->url;    // share this with your customer
-$link->status; // ?PaymentLinkStatus (Active | Archived)
+```php include=../examples/payment-links/create.php
 ```
 
-Optional: `metadata`. `create()` also accepts an idempotency key: `create($attributes, idempotencyKey: $orderUuid)`.
+- `amount` is integer centavos, at least `100` (PHP 1.00). `currency` and `description` are required too.
+- `restriction.completed_sessions.limit` is how many times the link can be paid, from 0 to 100. PayMongo defaults it to 1.
+- `remarks` and `metadata` are for you. The customer sees the `description`.
+- `idempotencyKey:` makes a retried request return the same link instead of creating a second one.
 
-## Retrieve and update
+## Retrieve and update a link
 
-```php
-$link = Paymongo::paymentLinks()->retrieve('plink_uSJXoxTBNqRrg35kj5w9dTVY');
+`retrieve()` returns the link. `update()` changes its `amount`, `description`, or `remarks`:
 
-$link = Paymongo::paymentLinks()->update('plink_uSJXoxTBNqRrg35kj5w9dTVY', [
-    'description' => 'Invoice #1234 (rev 2)',
-]);
+```php include=../examples/payment-links/retrieve-and-update.php
 ```
 
-`update()` sends a flat `PATCH`; the updatable fields include `status` (`active` / `archived`).
+A link's `status` is whether it takes payments (`Active`) or not (`Archived`), not whether it was paid. To see what was paid, list its payments.
 
-## Archive and unarchive
+## Archive and unarchive a link
 
-Shorthands for `update()` with a `status`:
+`archive()` stops a link from taking payments, and `unarchive()` opens it again:
 
-```php
-$link = Paymongo::paymentLinks()->archive('plink_uSJXoxTBNqRrg35kj5w9dTVY');   // status: archived
-$link = Paymongo::paymentLinks()->unarchive('plink_uSJXoxTBNqRrg35kj5w9dTVY'); // status: active
+```php include=../examples/payment-links/archive.php
 ```
 
-## List
+## List links
 
-```php
-$page = Paymongo::paymentLinks()->list(['limit' => 10]); // CursorPage<PaymentLink>
+`list()` returns a page of links. Pass `status`, `reference_number`, or `mode` (`live` or `test`) to filter them:
 
-foreach ($page as $link) {
-    // ...
-}
-
-// Every payment link, all pages, lazily:
-Paymongo::paymentLinks()->list()->lazy()->each(function ($link) {
-    // ...
-});
+```php include=../examples/payment-links/list.php
 ```
 
-Supported list parameters: `limit`, `before`, `after`.
+The page is a `Luigel\Paymongo\Pagination\CursorPage`. Iterate it for its links, check `hasMore`, and call `nextPage()` for the next one, or `lazy()` to walk every page.
 
-## Payments made through a link
+## See what a link was paid
 
-```php
-$page = Paymongo::paymentLinks()->payments('plink_uSJXoxTBNqRrg35kj5w9dTVY'); // CursorPage<Payment>
+`payments()` returns a page of the [payments](./reference/data-objects.md#payment) made through a link:
 
-foreach ($page as $payment) {
-    $payment->status; // ?PaymentStatus
-    $payment->money()->format();
-}
+```php include=../examples/payment-links/payments.php
 ```
 
-Items here are standard `Luigel\Paymongo\Data\Payment` resources.
+## Refund a link's payment
 
-## Refund a link's payments
+Refund a payment made through a link as you would any other payment, with `Paymongo::refunds()`, which returns a typed `Refund`:
 
-```php
-$result = Paymongo::paymentLinks()->refund('plink_uSJXoxTBNqRrg35kj5w9dTVY', [
-    'amount' => 150050,
-]);
+```php include=../examples/payment-links/refund.php
 ```
 
-:::caution
-PayMongo does not document this endpoint's response shape, so `refund()` returns the raw `data` payload as a plain array rather than a DTO. Expect the signature to tighten once the shape is verified upstream.
-:::
+`paymentLinks()->refund()` calls PayMongo's refund endpoint for payment links instead. It returns the response as a plain array, not a data object, and PayMongo documents that endpoint's `amount` in pesos rather than centavos, unlike every other amount, so prefer `refunds()`.
 
-## The PaymentLink DTO
+## Know when it was paid
 
-Because the API returns flat objects, `PaymentLink` does not extend the shared `Resource` base:
-
-```php
-$link->id;              // ?string
-$link->amount;          // ?int centavos — plus $link->money()
-$link->currency;        // ?string
-$link->description;     // ?string
-$link->remarks;         // ?string
-$link->status;          // ?PaymentLinkStatus (Active | Archived)
-$link->livemode;        // ?bool
-$link->url;             // ?string
-$link->referenceNumber; // ?string
-$link->metadata;        // ?array
-$link->restrictions;    // ?array
-$link->createdAt;       // ?CarbonImmutable — properties, parsed from the ISO 8601 strings
-$link->updatedAt;       // ?CarbonImmutable
-
-$link->raw;                                          // the full flat payload
-$link->attribute('restrictions.completed_sessions'); // dot-notation access into it
-```
+PayMongo sends `link.payment.paid` when a customer pays a link, and the package dispatches it as `Luigel\Paymongo\Events\LinkPaymentPaid`. See [Webhooks](./webhooks.md).

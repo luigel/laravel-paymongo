@@ -3,68 +3,47 @@ title: Checkout Sessions
 slug: checkout-sessions
 order: 20
 section: Accept payments
+operations:
+  - checkoutSessions.create
+  - checkoutSessions.retrieve
+  - checkoutSessions.expire
 ---
 
 # Checkout Sessions
 
-A checkout session is a PayMongo-hosted payment page: you send line items and allowed payment method types, redirect the customer to the returned `checkoutUrl`, and PayMongo handles the rest.
+A Checkout Session is a payment page that PayMongo hosts for you. You send the line items and the payment methods to offer, redirect the customer to the session's `checkoutUrl`, and PayMongo takes the payment, including 3D Secure and e-wallet authorization. Your app never sees card details.
 
-All methods live on `Paymongo::checkoutSessions()` and return `Luigel\Paymongo\Data\CheckoutSession` DTOs. See the [PayMongo documentation](https://developers.paymongo.com/reference/checkout-session-resource) for payload guidelines.
+Every method lives on `Paymongo::checkoutSessions()` and returns a [`CheckoutSession`](./reference/data-objects.md#checkoutsession). For every attribute PayMongo accepts, see its [Checkout Session reference](https://docs.paymongo.com/reference/create_checkout_sessions).
 
-## Create
+New to Checkout Sessions? [Your first payment](./your-first-payment.md) builds the whole flow, from the **Pay** button to a fulfilled order.
 
-Line item amounts are integer centavos **per unit**:
+## Create a session
 
-```php
-use Luigel\Paymongo\Facades\Paymongo;
+`create()` takes the session's attributes. Redirect the customer to the `checkoutUrl` it returns:
 
-$session = Paymongo::checkoutSessions()->create([
-    'line_items' => [
-        [
-            'name' => 'A payment card',
-            'amount' => 10000,      // PHP 100.00 each
-            'currency' => 'PHP',
-            'quantity' => 2,
-            'description' => 'Something of a product.',
-            'images' => ['https://example.com/product.png'],
-        ],
-    ],
-    'payment_method_types' => ['card', 'gcash', 'paymaya', 'grab_pay'],
-    'success_url' => 'https://example.com/checkout/success',
-    'cancel_url' => 'https://example.com/checkout/cancel',
-    'reference_number' => 'ORDER-1234',
-    'description' => 'Order #1234',
-    'send_email_receipt' => true,
-    'show_line_items' => true,
-    'metadata' => ['order_id' => '1234'],
-]);
-
-return redirect()->away($session->checkoutUrl);
+```php include=../examples/checkout-sessions/create.php
 ```
 
-Create accepts an optional idempotency key: `Paymongo::checkoutSessions()->create($attributes, idempotencyKey: $order->uuid)`.
+- Each line item's `amount` is integer centavos **per unit**. The customer pays `amount × quantity` for each item.
+- `payment_method_types` lists what the customer may pay with, such as `card`, `gcash`, `paymaya`, `grab_pay`, `qrph`, `dob`, and `billease`. Each must be enabled on your PayMongo account.
+- `reference_number` and `metadata` come back on the session and on the webhook, which is how you find your order again.
+- PayMongo sends the customer to `success_url` after paying and to `cancel_url` if they back out. Reaching `success_url` does not prove payment; the webhook does.
+- `idempotencyKey:` makes a retried request return the same session instead of creating a second one. Without it the package sends a random key per call.
 
-## Retrieve
+## Retrieve a session
 
-```php
-$session = Paymongo::checkoutSessions()->retrieve('cs_CbFCTDfxvMFNjwjVi26Uzhtj');
+`retrieve()` returns the session with its line items, the payment intent it charges through, and its payments once there are any:
 
-$session->status;         // ?CheckoutSessionStatus (Active | Expired)
-$session->checkoutUrl;
-$session->referenceNumber;
-$session->lineItems;      // list<LineItem> — each with money(), name, quantity, ...
-$session->paymentIntent;  // ?PaymentIntent created behind the session
-$session->payments;       // list<Payment> once paid
+```php include=../examples/checkout-sessions/retrieve.php
 ```
 
-## Expire
+## Expire a session
 
-Expire an active session so it can no longer be paid:
+`expire()` closes an active session, so its page can no longer be paid. Do this when the order it belongs to is cancelled or changed:
 
-```php
-$session = Paymongo::checkoutSessions()->expire('cs_CbFCTDfxvMFNjwjVi26Uzhtj');
+```php include=../examples/checkout-sessions/expire.php
 ```
 
-## Knowing when it was paid
+## Know when it was paid
 
-Listen for the `checkout_session.payment.paid` webhook event (`Luigel\Paymongo\Events\CheckoutSessionPaymentPaid`) rather than polling — see [Webhooks](./webhooks.md).
+PayMongo sends `checkout_session.payment.paid` when the customer pays, and the package dispatches it as `Luigel\Paymongo\Events\CheckoutSessionPaymentPaid`. Fulfil the order in a listener for it, as in [Your first payment](./your-first-payment.md#4-fulfil-the-order), rather than on the `success_url` page. See [Webhooks](./webhooks.md) for registering the endpoint.

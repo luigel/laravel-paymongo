@@ -49,7 +49,7 @@ You create a link for an amount with `Paymongo::paymentLinks()` and share its UR
 2. The customer opens it and pays. They are never redirected to your app, so there is no page of yours to return to.
 3. `link.payment.paid` confirms the payment.
 
-Pick it when there is no checkout on your site to send the customer to: invoices, and orders taken over chat, email, or social media. See [Payment Links](./payment-links.md). The older `/links` API is still available as `Paymongo::links()`; see [Links](./links.md).
+Pick it when there is no checkout on your site to send the customer to: invoices, and orders taken over chat, email, or social media. See [Payment Links](./payment-links.md). The older Classic Links API is still available as `Paymongo::links()`; see [Classic Links](./links.md).
 
 ## QR Ph
 

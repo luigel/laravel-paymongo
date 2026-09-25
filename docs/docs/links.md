@@ -1,75 +1,63 @@
 ---
-title: Links
+title: Classic Links
 slug: links
 order: 24
 section: Accept payments
+operations:
+  - links.create
+  - links.retrieve
+  - links.retrieveByReference
+  - links.list
+  - links.archive
+  - links.unarchive
 ---
 
-# Links
+# Classic Links
 
-A payment link is a shareable URL for a one-off payment — no code on the paying side needed.
+Classic Links are PayMongo's original payment links API: a PayMongo-hosted payment page for one amount, at a URL you share with the customer. The package still supports them, on `Paymongo::links()`.
 
-All methods live on `Paymongo::links()` and return `Luigel\Paymongo\Data\Link` DTOs. See the [PayMongo documentation](https://developers.paymongo.com/reference/links-resource) for payload guidelines.
+For new integrations, use [Payment Links](./payment-links.md) instead. PayMongo has announced that it will deprecate the Classic Links API and recommends moving existing integrations to Payment Links; see its [migration guide](https://docs.paymongo.com/reference/payment-links#migration-from-legacy-links).
 
-:::info
-This page covers the legacy `/links` API. PayMongo also runs a newer, separate `/payment_links` API — flat request bodies, ISO 8601 timestamps, and an `active`/`archived` management status — available as `Paymongo::paymentLinks()`. See [Payment Links](./payment-links.md) for it and for a side-by-side comparison. Both APIs remain supported.
-:::
+A single link comes back as a [`Link`](./reference/data-objects.md#link).
 
-## Create
+## How they differ from Payment Links
 
-```php
-use Luigel\Paymongo\Facades\Paymongo;
+| | Classic Links, `links()` | Payment Links, `paymentLinks()` |
+|:--|:--|:--|
+| Shareable URL | `$link->checkoutUrl` | `$link->url` |
+| `status` | Whether it was paid: `Unpaid`, `Paid`, or `Archived` | Whether it takes payments: `Active` or `Archived` |
+| Payments | On the link, as `$link->payments` | Fetched with `payments()` |
+| Limit how many times it is paid | No | `restriction.completed_sessions.limit` |
+| `metadata` | No | Yes |
 
-$link = Paymongo::links()->create([
-    'amount' => 150050, // PHP 1,500.50 in centavos
-    'description' => 'Invoice #1234',
-    'remarks' => 'laravel-paymongo',
-]);
+## Create a link
 
-$link->checkoutUrl;     // share this with your customer
-$link->referenceNumber; // short reference, e.g. "WTmSJbV"
+`create()` takes the amount in integer centavos and a description. Send the customer the `checkoutUrl` it returns:
+
+```php include=../examples/links/create.php
 ```
 
-## Retrieve
+## Retrieve a link
 
-By id, or by the short reference number printed on the link:
+`retrieve()` finds a link by its id. `retrieveByReference()` finds it by the short reference number at the end of its URL, and returns `null` when no link has that reference:
 
-```php
-$link = Paymongo::links()->retrieve('link_wWaibr22CzEnficNhQNPUdoo');
-
-$link = Paymongo::links()->retrieveByReference('WTmSJbV'); // ?Link — null when nothing matches
-
-$link->status;   // ?LinkStatus (Unpaid | Paid | Archived)
-$link->payments; // list<Payment> made against the link
-$link->money()->format(); // "₱1,500.50"
+```php include=../examples/links/retrieve.php
 ```
 
-## List
+## List links
 
-```php
-$page = Paymongo::links()->list(['limit' => 10]); // CursorPage<Link>
+`list()` returns a `CursorPage` of links. Iterate it, or call `lazy()` to walk every page:
 
-foreach ($page as $link) {
-    // ...
-}
-
-// Every link, all pages, lazily:
-Paymongo::links()->list()->lazy()->each(function ($link) {
-    // ...
-});
+```php include=../examples/links/list.php
 ```
 
-Supported list parameters: `limit`, `before`, `after`.
+## Archive and unarchive a link
 
-## Archive and unarchive
+`archive()` stops a link from being paid, and `unarchive()` opens it again:
 
-Archived links can no longer be paid:
-
-```php
-$link = Paymongo::links()->archive('link_wWaibr22CzEnficNhQNPUdoo');
-$link = Paymongo::links()->unarchive('link_wWaibr22CzEnficNhQNPUdoo');
+```php include=../examples/links/archive.php
 ```
 
-## Knowing when it was paid
+## Know when it was paid
 
-Listen for the `link.payment.paid` webhook event (`Luigel\Paymongo\Events\LinkPaymentPaid`) — see [Webhooks](./webhooks.md).
+PayMongo sends `link.payment.paid` when a customer pays a link, and the package dispatches it as `Luigel\Paymongo\Events\LinkPaymentPaid`. See [Webhooks](./webhooks.md).

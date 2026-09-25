@@ -3,102 +3,100 @@ title: Payment Intents
 slug: payment-intents
 order: 21
 section: Accept payments
+operations:
+  - paymentIntents.create
+  - paymentIntents.retrieve
+  - paymentIntents.retrieveUsingClientKey
+  - paymentIntents.attach
+  - paymentIntents.capture
+  - paymentIntents.cancel
 ---
 
 # Payment Intents
 
-A payment intent tracks one payment from creation through authorization to success, across card 3DS flows and e-wallet redirects alike. It is the primary way to charge with PayMongo.
+A Payment Intent tracks one payment from start to finish: you create it for an amount, attach a [payment method](./payment-methods.md) to it, and it moves through its statuses until the payment succeeds. Use it when you build the payment form yourself instead of sending the customer to a [Checkout Session](./checkout-sessions.md).
 
-All methods live on `Paymongo::paymentIntents()` and return `Luigel\Paymongo\Data\PaymentIntent` DTOs. Refer to the [PayMongo documentation](https://developers.paymongo.com/reference/the-payment-intent-object) for every accepted attribute.
+Every method lives on `Paymongo::paymentIntents()` and returns a [`PaymentIntent`](./reference/data-objects.md#paymentintent). For every attribute PayMongo accepts, see its [Payment Intent reference](https://docs.paymongo.com/reference/create-a-paymentintent).
 
-## Create
+The flow:
 
-Amounts are integer centavos (`150050` = PHP 1,500.50), minimum `100`.
+1. Create the intent on your server, for the amount and the payment methods you accept.
+2. Create a payment method for what the customer pays with, and attach it to the intent.
+3. If the intent comes back `awaiting_next_action`, redirect the customer to authorize the payment. PayMongo sends them back to your return URL.
+4. Wait for the `payment.paid` webhook to confirm it.
+
+## Create an intent
+
+`create()` takes the intent's attributes:
 
 ```php include=../examples/payment-intents/create.php
 ```
 
-Pass your own idempotency key to make retries safe end-to-end (one is auto-generated otherwise):
-
-```php
-$intent = Paymongo::paymentIntents()->create($attributes, idempotencyKey: $order->uuid);
-```
-
-## Retrieve
-
-```php
-$intent = Paymongo::paymentIntents()->retrieve('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
-```
-
-### Retrieve with a client key
-
-For client-side status polling, authenticate with your **public key** and the intent's `client_key` instead of the secret key:
-
-```php
-$intent = Paymongo::paymentIntents()->retrieveUsingClientKey(
-    'pi_hsJNpsRFU1LxgVbxW4YJHRs6',
-    'pi_hsJNpsRFU1LxgVbxW4YJHRs6_client_...'
-);
-```
-
-Requires `PAYMONGO_PUBLIC_KEY` to be configured; throws `AuthenticationException` otherwise.
+- `amount` is integer centavos, at least `100` (PHP 1.00). `currency` is `PHP`.
+- `payment_method_allowed` lists what the intent may be paid with: `card`, `gcash`, `paymaya`, `grab_pay`, `shopee_pay`, `qrph`, `dob`, `brankas`, or `billease`.
+- `idempotencyKey:` makes a retried request return the same intent instead of creating a second one. Use a key unique to the order. Without it the package sends a random key per call.
 
 ## Attach a payment method
 
-Attaching triggers the payment attempt:
+`attach()` attaches a payment method to the intent, and that starts the payment. Pass `returnUrl:`, the page PayMongo sends the customer back to after they authorize.
 
-```php
-$intent = Paymongo::paymentIntents()->attach('pi_hsJNpsRFU1LxgVbxW4YJHRs6', 'pm_wr98R2gwWroVxfkcNVZBuXg2');
+For a card, your frontend usually creates the payment method with your public key, so the card number never reaches your server, and sends you its id. A card that needs 3D Secure comes back `awaiting_next_action`:
+
+```php include=../examples/payment-intents/attach-card.php
 ```
 
-### E-wallets need a return URL
+E-wallets, online banking, and buy now, pay later always need the customer to authorize on the provider's page, and `returnUrl:` is required for them. Their payment method takes only a type:
 
-For `gcash`, `grab_pay`, `paymaya`, and other redirect-based methods (also `dob` and `billease`), pass `returnUrl` — where the customer lands after authorizing — then send them to the authorization page:
-
-```php
-use Luigel\Paymongo\Enums\PaymentIntentStatus;
-
-$method = Paymongo::paymentMethods()->create(['type' => 'gcash']);
-
-$intent = Paymongo::paymentIntents()->attach(
-    'pi_hsJNpsRFU1LxgVbxW4YJHRs6',
-    $method->id,
-    returnUrl: route('checkout.complete'),
-);
-
-if ($intent->status === PaymentIntentStatus::AwaitingNextAction) {
-    return redirect()->away($intent->nextAction->url);
-}
+```php include=../examples/payment-intents/attach-e-wallet.php
 ```
 
-On your return URL, retrieve the intent again and check `status` — but treat the `payment.paid` webhook as the source of truth (see [Webhooks](./webhooks.md)).
+When your frontend attaches with the public key instead, it passes the intent's `clientKey`. On the server, `attach()` also accepts `clientKey:`, but the secret key does not need it.
 
-## Capture and cancel
+When the customer lands back on your return URL, retrieve the intent to show its status. Treat it as a hint only: the `payment.paid` webhook is the proof of payment.
 
-Create the intent with `'capture_type' => 'manual'` to authorize first and capture later:
+## Retrieve an intent
 
-```php
-// Full capture
-$intent = Paymongo::paymentIntents()->capture('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
+`retrieve()` returns the intent with its status, its payments, and the last payment error:
 
-// Partial capture (centavos)
-$intent = Paymongo::paymentIntents()->capture('pi_hsJNpsRFU1LxgVbxW4YJHRs6', 100000);
+```php include=../examples/payment-intents/retrieve.php
+```
 
-// Cancel an unfinished intent
-$intent = Paymongo::paymentIntents()->cancel('pi_hsJNpsRFU1LxgVbxW4YJHRs6');
+`retrieveUsingClientKey()` retrieves an intent the way a browser does, with your **public** key and the intent's `clientKey` instead of the secret key. It needs `PAYMONGO_PUBLIC_KEY` set and throws `AuthenticationException` without it:
+
+```php include=../examples/payment-intents/retrieve-using-client-key.php
+```
+
+## Authorize now, capture later
+
+Create the intent with `'capture_type' => 'manual'` to hold the amount on the customer's card without charging it. After the customer attaches a card and passes 3D Secure, the intent waits in `awaiting_capture` until `capture()` charges the full amount, or a smaller one in centavos:
+
+```php include=../examples/payment-intents/capture.php
+```
+
+PayMongo releases a hold it has not captured after 7 days. Holds work for Visa and Mastercard only, and PayMongo must enable them on your account first. See PayMongo's [Hold then capture](https://docs.paymongo.com/docs/payment-acceptance-hold-then-capture) guide.
+
+## Cancel an intent
+
+`cancel()` cancels an intent that has not succeeded, such as a hold you decide not to capture. Nothing is charged:
+
+```php include=../examples/payment-intents/cancel.php
 ```
 
 ## Statuses
 
 `$intent->status` is a `Luigel\Paymongo\Enums\PaymentIntentStatus`:
 
-| Case | Value |
-|---|---|
-| `AwaitingPaymentMethod` | `awaiting_payment_method` |
-| `AwaitingNextAction` | `awaiting_next_action` (redirect the customer to `$intent->nextAction->url`) |
-| `AwaitingCapture` | `awaiting_capture` (manual capture type only) |
-| `Processing` | `processing` |
-| `Succeeded` | `succeeded` |
-| `Cancelled` | `cancelled` |
+| Case | Value | Meaning |
+|:-----|:------|:--------|
+| `AwaitingPaymentMethod` | `awaiting_payment_method` | Created, or the last attempt failed. Attach a payment method. |
+| `AwaitingNextAction` | `awaiting_next_action` | The customer must authorize at `$intent->nextAction->url`. |
+| `Processing` | `processing` | The provider is confirming the payment. |
+| `AwaitingCapture` | `awaiting_capture` | Authorized with manual capture. Capture or cancel it. |
+| `Succeeded` | `succeeded` | Paid. `$intent->payments` holds the payment. |
+| `Cancelled` | `cancelled` | Cancelled. It cannot be paid. |
 
-Useful properties: `amount`, `currency`, `description`, `statementDescriptor`, `clientKey`, `captureType`, `paymentMethodAllowed`, `payments` (the resulting `Payment` DTOs), `nextAction`, `lastPaymentError`, `metadata`, plus `money()` for display.
+After a failed attempt, the intent goes back to `awaiting_payment_method` and `$intent->lastPaymentError` says why, so the customer can try another method on the same intent.
+
+## Know when it was paid
+
+PayMongo sends `payment.paid` when a payment succeeds and `payment.failed` when an attempt fails. The package dispatches them as `Luigel\Paymongo\Events\PaymentPaid` and `PaymentFailed`. See [Webhooks](./webhooks.md).
