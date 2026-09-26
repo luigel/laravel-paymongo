@@ -15,7 +15,7 @@ section: Start
 ## Install
 
 ```bash
-composer require luigel/laravel-paymongo:^3.0@beta
+composer require luigel/laravel-paymongo:^3.0
 ```
 
 The service provider and the `Paymongo` facade are auto-discovered, so there is nothing to register.

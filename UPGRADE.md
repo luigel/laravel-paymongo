@@ -16,7 +16,7 @@ The philosophy behind the breaks:
 | Laravel | 10 – 13 | 11 – 13 |
 
 ```bash
-composer require luigel/laravel-paymongo:^3.0@beta
+composer require luigel/laravel-paymongo:^3.0
 ```
 
 ## Breaking changes at a glance

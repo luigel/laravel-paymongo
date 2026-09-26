@@ -23,7 +23,7 @@ Three ideas drive the breaking changes:
 | Laravel | 10 to 13 | 11 to 13 |
 
 ```bash
-composer require luigel/laravel-paymongo:^3.0@beta
+composer require luigel/laravel-paymongo:^3.0
 ```
 
 ## At a glance

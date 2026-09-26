@@ -23,7 +23,7 @@ This package is not affiliated with PayMongo.
 ## Installation
 
 ```bash
-composer require luigel/laravel-paymongo:^3.0@beta
+composer require luigel/laravel-paymongo:^3.0
 ```
 
 Add your keys to `.env` (grab them from the [PayMongo dashboard](https://dashboard.paymongo.com/developers)):

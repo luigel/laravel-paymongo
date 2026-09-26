@@ -2,7 +2,9 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
-## Unreleased
+## 3.0.0 (2026-09-26)
+
+First stable release of v3. See [UPGRADE.md](UPGRADE.md) to migrate from v2. Changes since `3.0.0-beta.2`:
 
 ### Added
 - `http.max_retry_delay` (`PAYMONGO_MAX_RETRY_DELAY`, 5000 ms) caps any single wait between attempts.
