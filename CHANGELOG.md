@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
+## v3.0.1 - 2026-09-26
+
+### 🐛 Fixed
+
+- Registering a webhook no longer fails with `parameter_invalid` because of event types PayMongo doesn't support. Removed `payment_intent.succeeded`, `payment_intent.awaiting_payment_method`, `subscription.activated`, `qr.paid`, `qr.expired`, `refund.succeeded`, `dispute.created`, `dispute.resolved`, `payout.deposited` and `payout.returned`. Their `WebhookEventType` cases and `Luigel\Paymongo\Events` classes are gone too. PayMongo never delivered these events, so no listener could have fired. If one of those names does arrive, the package still dispatches `WebhookReceived`.
+
 ## v3.0.0 🎉 - 2026-09-26
 
 ### 🎉 Laravel PayMongo 3.0.0
@@ -10,6 +16,7 @@ The first stable release of v3: a complete rewrite with typed services, first-cl
 
 ```bash
 composer require luigel/laravel-paymongo:^3.0
+
 
 ```
 Requires PHP 8.2+ and Laravel 11 – 13.
@@ -185,6 +192,7 @@ $paymentMethod->getBilling();
 
 // Get the billing name of the payment method.
 $paymentMethod->getBillingName();
+
 
 ```
 - Added artisan commands for webhooks.
