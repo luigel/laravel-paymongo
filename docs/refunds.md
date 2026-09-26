@@ -63,4 +63,4 @@ A refund PayMongo rejects throws a `Luigel\Paymongo\Exceptions\PaymongoException
 
 ## Know when it went through
 
-PayMongo sends `payment.refunded` and `payment.refund.updated`, which the package dispatches as `Luigel\Paymongo\Events\PaymentRefunded` and `PaymentRefundUpdated`. It also dispatches `refund.succeeded` as `RefundSucceeded` if PayMongo sends it, though PayMongo's webhook reference does not list it. See [Webhooks](./webhooks.md).
+PayMongo sends `payment.refunded` and `payment.refund.updated`, which the package dispatches as `Luigel\Paymongo\Events\PaymentRefunded` and `PaymentRefundUpdated`. See [Webhooks](./webhooks.md).

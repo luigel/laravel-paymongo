@@ -11,9 +11,9 @@ use Luigel\Paymongo\Support\Money;
 /**
  * A dispute (chargeback) a cardholder's bank filed against a payment.
  *
- * PayMongo documents the dispute resource only through its
- * `dispute.created` / `dispute.resolved` webhook events, so only those
- * attributes are typed; read anything else with {@see attribute()}.
+ * PayMongo's API reference does not document the dispute resource, so only
+ * the attributes seen on it are typed; read anything else with
+ * {@see attribute()}.
  */
 final class Dispute extends Resource
 {

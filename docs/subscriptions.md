@@ -121,7 +121,6 @@ Every cycle happens on PayMongo's side, so webhooks are how your app hears about
 
 | PayMongo event | Event class | When |
 |:---------------|:------------|:-----|
-| `subscription.activated` | `SubscriptionActivated` | The subscription became `active`. |
 | `subscription.updated` | `SubscriptionUpdated` | The subscription changed. |
 | `subscription.past_due` | `SubscriptionPastDue` | It became `past_due`: a cycle's payment failed. |
 | `subscription.unpaid` | `SubscriptionUnpaid` | It became `unpaid`: the retries ran out. |
@@ -130,4 +129,4 @@ Every cycle happens on PayMongo's side, so webhooks are how your app hears about
 | `subscription.invoice.paid` | `SubscriptionInvoicePaid` | The invoice was paid. |
 | `subscription.invoice.payment_failed` | `SubscriptionInvoicePaymentFailed` | The invoice's payment failed. |
 
-PayMongo's [webhook reference](https://docs.paymongo.com/reference/create-a-webhook) lists every one of these except `subscription.activated`, which the package dispatches if PayMongo sends it. See [Webhooks](./webhooks.md).
+See [Webhooks](./webhooks.md).

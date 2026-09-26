@@ -35,8 +35,8 @@ final class QrphService extends AbstractService
 
     /**
      * Execute an MPM QR string, moving real money from the scanner's
-     * account. The outcome arrives via the `qr.paid` / `qr.expired`
-     * webhooks.
+     * account. The response only acknowledges the request; PayMongo
+     * settles the transfer asynchronously.
      *
      * @param  array<string, mixed>  $attributes  Supported keys: qr_string, amount, reference_number, metadata.
      *

@@ -108,17 +108,11 @@ The built-in controller dispatches `Luigel\Paymongo\Events\WebhookReceived` for 
 | `source.chargeable` | `SourceChargeable` | `source_chargeable` |
 | `payment.refunded` | `PaymentRefunded` | `payment_refunded` |
 | `payment.refund.updated` | `PaymentRefundUpdated` | `payment_refund_updated` |
-| `payment_intent.succeeded` | `PaymentIntentSucceeded` | — |
-| `payment_intent.awaiting_payment_method` | `PaymentIntentAwaitingPaymentMethod` | — |
 | `checkout_session.payment.paid` | `CheckoutSessionPaymentPaid` | — |
 | `link.payment.paid` | `LinkPaymentPaid` | — |
-| `refund.succeeded` | `RefundSucceeded` | — |
 | `qrph.expired` | `QrphExpired` | — |
-| `qr.paid` / `qr.expired` | `QrPaid` / `QrExpired` | — |
-| `subscription.activated` / `.past_due` / `.unpaid` / `.updated` | `SubscriptionActivated` / `SubscriptionPastDue` / `SubscriptionUnpaid` / `SubscriptionUpdated` | — |
+| `subscription.past_due` / `.unpaid` / `.updated` | `SubscriptionPastDue` / `SubscriptionUnpaid` / `SubscriptionUpdated` | — |
 | `subscription.invoice.created` / `.finalized` / `.paid` / `.payment_failed` | `SubscriptionInvoiceCreated` / `SubscriptionInvoiceFinalized` / `SubscriptionInvoicePaid` / `SubscriptionInvoicePaymentFailed` | — |
-| `dispute.created` / `dispute.resolved` | `DisputeCreated` / `DisputeResolved` | — |
-| `payout.deposited` / `payout.returned` | `PayoutDeposited` / `PayoutReturned` | — |
 
 ### `WebhookEvent` (the `$event->event` property on every event)
 

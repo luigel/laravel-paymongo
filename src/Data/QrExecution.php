@@ -8,8 +8,8 @@ use Luigel\Paymongo\Support\Money;
 
 /**
  * The result of executing an MPM QR string (v3 QR API): real money movement
- * from the scanner's account. The final outcome arrives asynchronously via
- * the `qr.paid` / `qr.expired` webhooks.
+ * from the scanner's account. The response only acknowledges the request;
+ * PayMongo settles the transfer asynchronously.
  *
  * Flat v3 payload, so this DTO does not extend {@see Resource}; the full
  * payload stays available through {@see attribute()} and {@see $raw}.

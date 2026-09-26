@@ -68,6 +68,3 @@ Each one is a [`PayoutTransaction`](./reference/data-objects.md#payouttransactio
 
 It comes back as a [`PayoutSchedule`](./reference/data-objects.md#payoutschedule). The first entry in `lineup` is your next payout, and the second the one after it. Change the schedule itself in the PayMongo Dashboard.
 
-## Know when the money lands
-
-PayMongo sends `payout.deposited` when a payout reaches your account and `payout.returned` when it bounces. The package dispatches them as `Luigel\Paymongo\Events\PayoutDeposited` and `PayoutReturned`. See [Webhooks](./webhooks.md).

@@ -59,7 +59,7 @@ QR Ph is the Philippine national QR standard: any participating bank or e-wallet
 2. Show the QR code image from the attached intent, `$intent->attribute('next_action.code.image_url')`. The customer scans it in their app; nobody is redirected.
 3. `payment.paid` confirms the payment. If the code is not paid within 30 minutes, `qrph.expired` (`QrphExpired`) fires instead.
 
-Pick it for customers who pay from a banking app, and for paying in person from a screen. `Paymongo::qrph()` also generates a static code to print at a counter, and QR codes that move money into your PayMongo Wallet, confirmed by `qr.paid` (`QrPaid`). See [QR Ph](./qrph.md).
+Pick it for customers who pay from a banking app, and for paying in person from a screen. `Paymongo::qrph()` also generates a static code to print at a counter, and QR codes that move money into your PayMongo Wallet. See [QR Ph](./qrph.md).
 
 ## Still deciding?
 

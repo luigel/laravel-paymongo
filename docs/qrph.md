@@ -21,7 +21,7 @@ The package covers three uses of it:
 |:----|:----|:-----|:-------------|
 | [At checkout](#take-a-qr-ph-payment-at-checkout) | An online payment for a known amount | `paymentIntents()` with the `qrph` method | `payment.paid` |
 | [In store](#print-a-static-code-for-your-store) | A permanent code at a counter; the customer types the amount | `qrph()->generateStatic()` | Your PayMongo dashboard, and an SMS |
-| [Wallet QR](#move-money-with-wallet-qr) | Moving money into or out of your PayMongo Wallet | `qrph()->generate()`, `execute()` | `qr.paid` |
+| [Wallet QR](#move-money-with-wallet-qr) | Moving money into or out of your PayMongo Wallet | `qrph()->generate()`, `execute()` | Your PayMongo dashboard |
 
 To take payments, use the first two. Wallet QR is not a payment method: it moves money like a bank transfer.
 
@@ -69,8 +69,6 @@ Wallet QR codes move money into or out of your PayMongo Wallet over QR Ph. They 
 ```php include=examples/qrph/retrieve-and-expire.php
 ```
 
-PayMongo sends `qr.paid` when a code is paid and `qr.expired` when it expires, dispatched as `QrPaid` and `QrExpired`.
-
 ### Send money
 
 `execute()` pays a scanned QR Ph code from your Wallet. It returns a [`QrExecution`](./reference/data-objects.md#qrexecution):
@@ -78,4 +76,4 @@ PayMongo sends `qr.paid` when a code is paid and `qr.expired` when it expires, d
 ```php include=examples/qrph/execute.php
 ```
 
-**This moves real money out of your Wallet.** The response only acknowledges the request. PayMongo sends the outcome as a webhook: `qr.paid` when the transfer succeeds, and `qr.expired` when it fails. See [Webhooks](./webhooks.md).
+**This moves real money out of your Wallet.** The response only acknowledges the request, and PayMongo settles the transfer afterwards. PayMongo has no webhook event for it, so check the outcome in your PayMongo dashboard.

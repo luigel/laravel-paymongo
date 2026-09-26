@@ -14,11 +14,7 @@ A Dispute, or chargeback, is a card payment the cardholder's bank is reversing. 
 
 The package reads disputes. Answering one, by submitting evidence or accepting it, happens in the PayMongo dashboard under **Transactions > Disputes**; PayMongo has no API for it.
 
-Every method lives on `Paymongo::disputes()`, and a single dispute comes back as a `Luigel\Paymongo\Data\Dispute`. PayMongo's API reference does not document these endpoints yet. The typed attributes (`amount`, `currency`, `status`, `reason`) are the ones its dispute webhook events carry, and the rest of the payload is available through `attribute()`.
-
-## Know when one is filed
-
-PayMongo sends `dispute.created` when a dispute is filed and `dispute.resolved` when the bank decides it, and the package dispatches them as `Luigel\Paymongo\Events\DisputeCreated` and `DisputeResolved`. React to `DisputeCreated` quickly: stop fulfilling the order, and do not refund the payment, because a refund on a disputed payment can be lost twice. See [Webhooks](./webhooks.md).
+Every method lives on `Paymongo::disputes()`, and a single dispute comes back as a `Luigel\Paymongo\Data\Dispute`. PayMongo's API reference does not document these endpoints yet. The typed attributes are `amount`, `currency`, `status` and `reason`, and the rest of the payload is available through `attribute()`.
 
 ## Retrieve a dispute
 
