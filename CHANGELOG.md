@@ -2,7 +2,7 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
-## Unreleased
+## 3.0.0-beta.2 (2026-09-26)
 
 ### Added
 - `payments()->create()` charges a chargeable source (`POST /v1/payments`), so the deprecated Sources flow can be finished with the package.
