@@ -13,17 +13,24 @@ A request can fail after PayMongo has already acted on it: the connection drops,
 
 The package sends a fresh `Idempotency-Key`, a UUID, with every `POST`. Because the key is the same on every attempt of one call, the package can retry a `POST` safely:
 
-| Request | Idempotency key | Retried |
-|:--------|:----------------|:--------|
-| `POST`: create, attach, capture, cancel, expire, archive, enable, ... | A new UUID per call, or yours | Yes, while it has a key |
-| `GET` and `DELETE`: retrieve, list, delete | None | Yes |
-| `PUT` and `PATCH`: update, change plan, ... | None | No |
+| Failure | `GET`, `DELETE`, and `POST` with a key | `POST` without a key, `PUT`, `PATCH` |
+|:--------|:---------------------------------------|:-------------------------------------|
+| 429 Too Many Requests | Retried | Retried |
+| Connection never opened: host not resolved, connection refused, TLS handshake failed | Retried | Retried |
+| 5xx, or a timeout after the request was sent | Retried | Thrown |
+| Any other 4xx | Thrown | Thrown |
 
-PayMongo documents idempotency for requests that create a resource. The package sends a key and retries every `POST` all the same, including actions such as `attach()` and `capture()`; set `PAYMONGO_RETRIES=1` if you would rather retry those yourself.
+A 429 and a connection that never opened both prove PayMongo did not act, so any request is retried after them. After a 5xx or a timeout PayMongo may have acted, so only a request that is safe to repeat is retried.
 
-A retried request is repeated after a connection error, a 429, or a 5xx. `PAYMONGO_RETRIES` is the number of attempts in all, the first included: `2` by default, so one retry, and `1` for none. Attempts are `PAYMONGO_RETRY_DELAY` milliseconds apart (`200`). Any other failure throws straight away. After the last attempt, the package throws the exception for the last response; see [Errors](./errors.md).
+PayMongo documents idempotency for requests that create a resource. The package sends a key and retries every `POST` all the same, including actions such as `attach()` and `capture()`; set `PAYMONGO_RETRIES=0` if you would rather retry those yourself.
 
-Set `PAYMONGO_AUTO_IDEMPOTENCY=false` to stop sending keys. A `POST` without a key is then never retried, unless you pass a key yourself.
+`PAYMONGO_RETRIES` is the number of retries after the first attempt: `2` by default, so up to three attempts, and `0` for none. The wait between attempts starts at `PAYMONGO_RETRY_DELAY` milliseconds (`200`), doubles on each retry, and is jittered to between half and all of that, so clients that failed together spread their retries out. No wait is longer than `PAYMONGO_MAX_RETRY_DELAY` (`5000`). When a 429 or 5xx carries a `Retry-After` header, the package waits that many seconds instead; a `Retry-After` longer than `PAYMONGO_MAX_RETRY_DELAY` is not waited for, and the `RateLimitException` is thrown at once with `retryAfter` set. After the last attempt, the package throws the exception for the last response; see [Errors](./errors.md).
+
+A retried request blocks the PHP process while it waits. The longest a call can take is `PAYMONGO_TIMEOUT` for each attempt plus the waits between them: over 90 seconds with the defaults. Lower `PAYMONGO_TIMEOUT` or `PAYMONGO_RETRIES` for calls made during a web request, or make the call from a queued job.
+
+A `DELETE` retried after a 5xx or a timeout may find the resource already gone, deleted by the attempt whose response was lost. The package treats that `404` as a successful delete.
+
+Set `PAYMONGO_AUTO_IDEMPOTENCY=false` to stop sending keys. A `POST` without a key is then only retried after a 429 or a connection that never opened, unless you pass a key yourself.
 
 ## Your own key
 

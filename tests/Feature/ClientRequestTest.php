@@ -82,6 +82,15 @@ it('sends DELETE requests without a body', function () {
         && $request->body() === '');
 });
 
+it('accepts a successful bodyless DELETE response', function () {
+    Http::fake(['api.paymongo.com/*' => Http::response('', 204)]);
+
+    $response = app('paymongo')->client()->delete('/customers/cus_1');
+
+    expect($response->status)->toBe(204)
+        ->and($response->body)->toBe([]);
+});
+
 it('authenticates with the secret key as basic auth username', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(['data' => []])]);
 

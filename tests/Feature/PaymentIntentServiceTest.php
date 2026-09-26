@@ -9,6 +9,7 @@ use Luigel\Paymongo\Enums\CaptureType;
 use Luigel\Paymongo\Enums\Currency;
 use Luigel\Paymongo\Enums\PaymentIntentStatus;
 use Luigel\Paymongo\Exceptions\AuthenticationException;
+use Luigel\Paymongo\Exceptions\InvalidResponseException;
 use Luigel\Paymongo\Facades\Paymongo;
 use Luigel\Paymongo\Services\PaymentIntentService;
 
@@ -73,6 +74,17 @@ it('retrieves a payment intent', function () {
     expect($intent->id)->toBe('pi_UWL2ZP2rBjMPS9UfnqAROSXg');
 });
 
+it('throws when a successful resource response omits or corrupts its data payload', function (array $payload) {
+    Http::fake(['api.paymongo.com/*' => Http::response($payload)]);
+
+    expect(fn () => Paymongo::paymentIntents()->retrieve('pi_missing_data'))
+        ->toThrow(InvalidResponseException::class);
+})->with([
+    'missing data' => [['meta' => []]],
+    'missing id' => [['data' => ['type' => 'payment_intent', 'attributes' => []]]],
+    'invalid attributes' => [['data' => ['id' => 'pi_1', 'type' => 'payment_intent', 'attributes' => 'invalid']]],
+]);
+
 it('retrieves using the client key with public-key authentication', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('payment_intent'))]);
 
@@ -85,6 +97,21 @@ it('retrieves using the client key with public-key authentication', function () 
 
     expect($intent)->toBeInstanceOf(PaymentIntent::class);
 });
+
+it('uses the matching public key when retrieving for another account', function () {
+    Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('payment_intent'))]);
+
+    Paymongo::withSecretKey('sk_test_other', publicKey: 'pk_test_other')
+        ->paymentIntents()->retrieveUsingClientKey('pi_other', 'ck_other');
+
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader(
+        'Authorization', 'Basic '.base64_encode('pk_test_other:')
+    ));
+});
+
+it('does not use the default public key for another account', function () {
+    Paymongo::withSecretKey('sk_test_other')->paymentIntents()->retrieveUsingClientKey('pi_other', 'ck_other');
+})->throws(AuthenticationException::class);
 
 it('does not switch the manager client to the public key permanently', function () {
     Http::fake(['api.paymongo.com/*' => Http::response(fixture_data('payment_intent'))]);

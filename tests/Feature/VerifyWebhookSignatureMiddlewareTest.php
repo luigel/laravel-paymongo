@@ -89,6 +89,33 @@ it('looks up a named secret from paymongo.webhooks.secrets', function () {
         ->assertUnauthorized();
 });
 
+it('uses each named endpoint mode for mixed test and live webhooks', function () {
+    config()->set('paymongo.livemode', true);
+    config()->set('paymongo.webhooks.secrets.orders', 'whsk_orders_secret');
+    config()->set('paymongo.webhooks.modes.orders', false);
+
+    Route::post('/orders-hook', fn () => response()->json(['ok' => true]))
+        ->middleware('paymongo.signature:orders');
+
+    $body = '{"data":{"id":"evt_1"}}';
+
+    post_signed_webhook('/orders-hook', $body, middleware_signature_header($body, 'whsk_orders_secret', time()))
+        ->assertOk();
+    post_signed_webhook('/orders-hook', $body, middleware_signature_header($body, 'whsk_orders_secret', time(), livemode: true))
+        ->assertUnauthorized();
+
+    post_signed_webhook('/test-hook', $body, middleware_signature_header($body, 'whsk_test_fake', time(), livemode: true))
+        ->assertOk();
+
+    config()->set('paymongo.livemode', false);
+    config()->set('paymongo.webhooks.modes.orders', true);
+
+    post_signed_webhook('/orders-hook', $body, middleware_signature_header($body, 'whsk_orders_secret', time(), livemode: true))
+        ->assertOk();
+    post_signed_webhook('/orders-hook', $body, middleware_signature_header($body, 'whsk_orders_secret', time()))
+        ->assertUnauthorized();
+});
+
 it('fails with a 500 when the webhook secret is not configured', function () {
     config()->set('paymongo.webhooks.secret');
 

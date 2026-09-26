@@ -31,7 +31,7 @@ final class VerifyWebhookSignature
                 $request->getContent(),
                 $request->header('Paymongo-Signature'),
                 $this->secret($secretName),
-                (bool) config('paymongo.livemode', false),
+                $this->livemode($secretName),
             );
         } catch (InvalidWebhookSignatureException) {
             abort(401, 'Invalid PayMongo webhook signature.');
@@ -60,5 +60,12 @@ final class VerifyWebhookSignature
         $tolerance = config('paymongo.webhooks.tolerance', 300);
 
         return is_numeric($tolerance) ? (int) $tolerance : 300;
+    }
+
+    private function livemode(?string $secretName): bool
+    {
+        $default = config('paymongo.livemode', false);
+
+        return (bool) ($secretName === null ? $default : config("paymongo.webhooks.modes.{$secretName}", $default));
     }
 }

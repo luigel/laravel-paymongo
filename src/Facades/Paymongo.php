@@ -38,7 +38,7 @@ use Luigel\Paymongo\Services\WebhookService;
  * @method static SubscriptionService subscriptions()
  * @method static QrphService qrph()
  * @method static PayoutService payouts()
- * @method static PaymongoManager withSecretKey(string $secretKey)
+ * @method static PaymongoManager withSecretKey(string $secretKey, ?string $publicKey = null)
  * @method static void fake(array<string, mixed> $stubs = [])
  * @method static void assertSent(callable $callback)
  * @method static void assertNothingSent()

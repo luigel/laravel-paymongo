@@ -8,8 +8,12 @@ return [
 
     'http' => [
         'timeout' => (int) env('PAYMONGO_TIMEOUT', 30),
+        // Retries after the first attempt; 0 disables retrying.
         'retries' => (int) env('PAYMONGO_RETRIES', 2),
+        // Base delay in milliseconds; it doubles on every retry, with jitter.
         'retry_delay' => (int) env('PAYMONGO_RETRY_DELAY', 200),
+        // Longest single wait in milliseconds. A Retry-After beyond it is not waited for.
+        'max_retry_delay' => (int) env('PAYMONGO_MAX_RETRY_DELAY', 5000),
     ],
 
     'idempotency' => [
@@ -21,6 +25,8 @@ return [
         'secret' => env('PAYMONGO_WEBHOOK_SECRET'),
         // Named secrets for multiple endpoints: ['orders' => env(...)]
         'secrets' => [],
+        // Named endpoint modes: ['orders' => false]. Unlisted names use livemode above.
+        'modes' => [],
         // Max allowed clock drift for the signature timestamp, seconds. 0 disables the check.
         'tolerance' => (int) env('PAYMONGO_WEBHOOK_TOLERANCE', 300),
         'dedupe' => [

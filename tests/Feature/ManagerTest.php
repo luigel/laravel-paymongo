@@ -36,9 +36,17 @@ it('clones the manager with a fresh client when the secret key changes', functio
     expect($other)->toBeInstanceOf(PaymongoManager::class)
         ->and($other)->not->toBe($manager)
         ->and($other->client()->config()->secretKey)->toBe('sk_test_other')
-        ->and($other->client()->config()->publicKey)->toBe('pk_test_fake')
+        ->and($other->client()->config()->publicKey)->toBeNull()
         ->and($other->client())->not->toBe($manager->client())
         ->and($manager->client()->config()->secretKey)->toBe('sk_test_fake');
+});
+
+it('uses the public key supplied for another account', function () {
+    $other = app('paymongo')->withSecretKey('sk_test_other', publicKey: 'pk_test_other');
+
+    expect($other->client()->config()->secretKey)->toBe('sk_test_other')
+        ->and($other->client()->config()->publicKey)->toBe('pk_test_other')
+        ->and(app('paymongo')->client()->config()->publicKey)->toBe('pk_test_fake');
 });
 
 it('clones the client with a new secret key', function () {

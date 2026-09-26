@@ -12,7 +12,7 @@ The `Paymongo` facade uses the account whose secret key is in `PAYMONGO_SECRET_K
 ```php include=examples/multiple-accounts/with-secret-key.php
 ```
 
-- `withSecretKey()` returns a new, separate `PaymongoManager` with every service, `paymentIntents()` through `payouts()`. Everything else, such as the timeout, retries and idempotency, comes from your config.
+- `withSecretKey()` returns a new, separate `PaymongoManager` with every service, `paymentIntents()` through `payouts()`. Pass that account's public key as the optional `publicKey:` argument if you use `retrieveUsingClientKey()`; without it, the copy has no public key. The timeout, retries and idempotency settings still come from your config.
 - The facade itself is unchanged, so one merchant's key never leaks into a request made for another. Keep the copy in a variable for as long as you work with that account.
 - Store each merchant's secret key encrypted, for example with Laravel's `encrypted` cast.
 - `Paymongo::fake()` fakes the copies too, and `Paymongo::assertSent()` sees their requests. Check which account a request was made for with its `Authorization` header, which is HTTP Basic auth with the secret key as the username.

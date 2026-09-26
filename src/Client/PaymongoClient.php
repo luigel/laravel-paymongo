@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Luigel\Paymongo\Client;
 
 use BackedEnum;
+use GuzzleHttp\Exception\ConnectException as GuzzleConnectException;
 use Illuminate\Http\Client\ConnectionException as HttpConnectionException;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\PendingRequest;
@@ -12,6 +13,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Str;
 use Luigel\Paymongo\Exceptions\ConnectionException;
+use Luigel\Paymongo\Exceptions\InvalidResponseException;
 use Luigel\Paymongo\Exceptions\PaymongoException;
 use Throwable;
 
@@ -20,6 +22,12 @@ final readonly class PaymongoClient
     use HandlesApiErrors;
 
     private const USER_AGENT = 'luigel/laravel-paymongo v3 (php '.PHP_VERSION.')';
+
+    /**
+     * cURL errors raised before a request leaves the machine: the proxy or host
+     * could not be resolved, the connection was refused, or the TLS handshake failed.
+     */
+    private const UNSENT_CURL_ERRORS = [5, 6, 7, 35];
 
     public function __construct(
         private Factory $http,
@@ -46,7 +54,7 @@ final readonly class PaymongoClient
      */
     public function get(string $path, array $query = []): ApiResponse
     {
-        return $this->request('GET', $path, $query === [] ? [] : ['query' => $query], retryable: true);
+        return $this->request('GET', $path, $query === [] ? [] : ['query' => $query], repeatable: true);
     }
 
     /**
@@ -56,15 +64,19 @@ final readonly class PaymongoClient
      */
     public function post(string $path, array $attributes = [], ?string $idempotencyKey = null): ApiResponse
     {
-        $idempotencyKey ??= $this->config->autoIdempotency ? (string) Str::uuid() : null;
+        return $this->create($path, $this->bodyOptions($attributes), $idempotencyKey);
+    }
 
-        return $this->request(
-            'POST',
-            $path,
-            $this->bodyOptions($attributes),
-            retryable: $idempotencyKey !== null,
-            idempotencyKey: $idempotencyKey,
-        );
+    /**
+     * POST to an action endpoint that may return no content.
+     *
+     * @param  array<string, mixed>  $attributes
+     *
+     * @throws PaymongoException
+     */
+    public function postVoid(string $path, array $attributes = [], ?string $idempotencyKey = null): ApiResponse
+    {
+        return $this->create($path, $this->bodyOptions($attributes), $idempotencyKey, allowEmptyResponse: true);
     }
 
     /**
@@ -80,15 +92,7 @@ final readonly class PaymongoClient
      */
     public function postFlat(string $path, array $body = [], ?string $idempotencyKey = null): ApiResponse
     {
-        $idempotencyKey ??= $this->config->autoIdempotency ? (string) Str::uuid() : null;
-
-        return $this->request(
-            'POST',
-            $path,
-            $this->flatBodyOptions($body),
-            retryable: $idempotencyKey !== null,
-            idempotencyKey: $idempotencyKey,
-        );
+        return $this->create($path, $this->flatBodyOptions($body), $idempotencyKey);
     }
 
     /**
@@ -98,7 +102,7 @@ final readonly class PaymongoClient
      */
     public function put(string $path, array $attributes = []): ApiResponse
     {
-        return $this->request('PUT', $path, $this->bodyOptions($attributes), retryable: false);
+        return $this->request('PUT', $path, $this->bodyOptions($attributes), repeatable: false);
     }
 
     /**
@@ -108,7 +112,7 @@ final readonly class PaymongoClient
      */
     public function patch(string $path, array $attributes = []): ApiResponse
     {
-        return $this->request('PATCH', $path, $this->bodyOptions($attributes), retryable: false);
+        return $this->request('PATCH', $path, $this->bodyOptions($attributes), repeatable: false);
     }
 
     /**
@@ -120,7 +124,7 @@ final readonly class PaymongoClient
      */
     public function patchFlat(string $path, array $body = []): ApiResponse
     {
-        return $this->request('PATCH', $path, $this->flatBodyOptions($body), retryable: false);
+        return $this->request('PATCH', $path, $this->flatBodyOptions($body), repeatable: false);
     }
 
     /**
@@ -128,32 +132,56 @@ final readonly class PaymongoClient
      */
     public function delete(string $path): ApiResponse
     {
-        return $this->request('DELETE', $path, [], retryable: true);
+        return $this->request('DELETE', $path, [], repeatable: true, allowEmptyResponse: true);
     }
 
     /**
+     * Send a POST with the caller's idempotency key, or an automatic one.
+     *
      * @param  array<string, mixed>  $options
      *
      * @throws PaymongoException
      */
-    private function request(string $method, string $path, array $options, bool $retryable, ?string $idempotencyKey = null): ApiResponse
+    private function create(string $path, array $options, ?string $idempotencyKey, bool $allowEmptyResponse = false): ApiResponse
     {
+        $idempotencyKey ??= $this->config->autoIdempotency ? (string) Str::uuid() : null;
+
+        // PayMongo returns the original result for a repeated key, so a keyed POST is safe to repeat.
+        return $this->request('POST', $path, $options, repeatable: $idempotencyKey !== null, idempotencyKey: $idempotencyKey, allowEmptyResponse: $allowEmptyResponse);
+    }
+
+    /**
+     * @param  array<string, mixed>  $options
+     * @param  bool  $repeatable  Whether sending the request twice has the same effect as once, so it
+     *                            may be retried after a failure that PayMongo might have acted on.
+     *
+     * @throws PaymongoException
+     */
+    private function request(string $method, string $path, array $options, bool $repeatable, ?string $idempotencyKey = null, bool $allowEmptyResponse = false): ApiResponse
+    {
+        $repeatedAfterAmbiguousFailure = false;
+
         try {
-            $response = $this->pendingRequest($retryable, $idempotencyKey)->send($method, $path, $options);
+            $response = $this->pendingRequest($repeatable, $idempotencyKey, $repeatedAfterAmbiguousFailure)->send($method, $path, $options);
         } catch (HttpConnectionException $exception) {
             // Even with retry(..., throw: false), a connection failure on the
             // final attempt (or on a request without retries) is still thrown.
             throw new ConnectionException('Could not connect to PayMongo: '.$exception->getMessage(), $exception);
         }
 
+        if ($method === 'DELETE' && $repeatedAfterAmbiguousFailure && $response->notFound()) {
+            // An earlier attempt deleted the resource before its response was lost.
+            return new ApiResponse([], $response->status());
+        }
+
         if (! $response->successful()) {
             $this->throwRequestException($response);
         }
 
-        return new ApiResponse($this->decodeBody($response), $response->status());
+        return new ApiResponse($this->decodeBody($response, $allowEmptyResponse), $response->status());
     }
 
-    private function pendingRequest(bool $retryable, ?string $idempotencyKey): PendingRequest
+    private function pendingRequest(bool $repeatable, ?string $idempotencyKey, bool &$repeatedAfterAmbiguousFailure): PendingRequest
     {
         $request = $this->http
             ->baseUrl($this->config->baseUrl)
@@ -167,26 +195,83 @@ final readonly class PaymongoClient
             $request = $request->withHeaders(['Idempotency-Key' => $idempotencyKey]);
         }
 
-        if ($retryable) {
-            return $request->retry(
-                $this->config->retries,
-                $this->config->retryDelay,
-                fn (Throwable $exception): bool => $this->shouldRetry($exception),
-                throw: false,
-            );
-        }
+        return $request->retry(
+            $this->config->retries + 1,
+            function (int $attempt, Throwable $exception) use (&$repeatedAfterAmbiguousFailure): int {
+                $repeatedAfterAmbiguousFailure = $repeatedAfterAmbiguousFailure || ! $this->wasNotProcessed($exception);
 
-        return $request;
+                return $this->retryDelay($attempt, $exception);
+            },
+            fn (Throwable $exception): bool => $this->shouldRetry($exception, $repeatable),
+            throw: false,
+        );
     }
 
-    private function shouldRetry(Throwable $exception): bool
+    /**
+     * Any request is retried after a failure PayMongo certainly did not act on. A repeatable
+     * request is also retried after a 5xx or a timeout, where PayMongo may have acted.
+     */
+    private function shouldRetry(Throwable $exception, bool $repeatable): bool
     {
-        if ($exception instanceof HttpConnectionException) {
-            return true;
+        if ($exception instanceof RequestException) {
+            $response = $exception->response;
+            $retryAfter = $this->retryAfterMs($exception);
+
+            return ($response->status() === 429 || ($repeatable && $response->serverError()))
+                && ($retryAfter === null || $retryAfter <= $this->config->maxRetryDelay);
         }
 
-        return $exception instanceof RequestException
-            && ($exception->response->status() === 429 || $exception->response->serverError());
+        return $exception instanceof HttpConnectionException
+            && ($repeatable || $this->wasNotProcessed($exception));
+    }
+
+    /**
+     * Whether the failure proves PayMongo never acted on the request: it rate limited
+     * the request, or the connection failed before the request was sent.
+     */
+    private function wasNotProcessed(Throwable $exception): bool
+    {
+        if ($exception instanceof RequestException) {
+            return $exception->response->status() === 429;
+        }
+
+        $previous = $exception->getPrevious();
+        $errno = $previous instanceof GuzzleConnectException ? ($previous->getHandlerContext()['errno'] ?? null) : null;
+
+        if (! is_int($errno) && preg_match('/cURL error (\d+)/', $exception->getMessage(), $matches) === 1) {
+            $errno = (int) $matches[1];
+        }
+
+        return in_array($errno, self::UNSENT_CURL_ERRORS, true);
+    }
+
+    /**
+     * Wait as long as a `Retry-After` header asks, otherwise back off exponentially
+     * with jitter: half the backoff plus a random share of the other half, so
+     * clients failing together spread their retries out.
+     */
+    private function retryDelay(int $attempt, Throwable $exception): int
+    {
+        $retryAfter = $this->retryAfterMs($exception);
+
+        if ($retryAfter !== null) {
+            return $retryAfter;
+        }
+
+        $backoff = min($this->config->retryDelay * 2 ** ($attempt - 1), $this->config->maxRetryDelay);
+        $floor = intdiv($backoff, 2);
+
+        return $floor + random_int(0, $backoff - $floor);
+    }
+
+    /**
+     * The wait in milliseconds that the response's `Retry-After` header asks for, if any.
+     */
+    private function retryAfterMs(Throwable $exception): ?int
+    {
+        $retryAfter = $exception instanceof RequestException ? $this->parseRetryAfter($exception->response) : null;
+
+        return $retryAfter === null ? null : $retryAfter * 1000;
     }
 
     /**
@@ -242,10 +327,24 @@ final readonly class PaymongoClient
     /**
      * @return array<array-key, mixed>
      */
-    private function decodeBody(Response $response): array
+    private function decodeBody(Response $response, bool $allowEmpty): array
     {
-        $decoded = $response->json();
+        $body = ltrim($response->body());
 
-        return is_array($decoded) ? $decoded : [];
+        if ($allowEmpty && $body === '') {
+            return [];
+        }
+
+        // Only a body opening with `{` is an object; `[]` or a scalar decodes to a non-object.
+        $decoded = str_starts_with($body, '{') ? json_decode($body, true) : null;
+
+        if (! is_array($decoded)) {
+            throw new InvalidResponseException(
+                'PayMongo returned a successful response with an invalid JSON object.',
+                $response->status(),
+            );
+        }
+
+        return $decoded;
     }
 }

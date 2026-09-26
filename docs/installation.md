@@ -57,8 +57,9 @@ Every option has a sensible default and can be set from `.env`:
 | `PAYMONGO_LIVEMODE` | `false` | Verify webhook signatures as live-mode deliveries |
 | `PAYMONGO_BASE_URL` | `https://api.paymongo.com/v1` | API base URL |
 | `PAYMONGO_TIMEOUT` | `30` | Request timeout, in seconds |
-| `PAYMONGO_RETRIES` | `2` | Retries after a connection error, 429 or 5xx, for requests safe to repeat |
-| `PAYMONGO_RETRY_DELAY` | `200` | Delay between retries, in milliseconds |
+| `PAYMONGO_RETRIES` | `2` | Retries after the first attempt, for failures safe to repeat; `0` disables them |
+| `PAYMONGO_RETRY_DELAY` | `200` | First wait between attempts, in milliseconds; it doubles on every retry |
+| `PAYMONGO_MAX_RETRY_DELAY` | `5000` | Longest wait between attempts, in milliseconds |
 | `PAYMONGO_AUTO_IDEMPOTENCY` | `true` | Send an idempotency key with every `POST` |
 | `PAYMONGO_WEBHOOK_TOLERANCE` | `300` | Oldest webhook timestamp accepted, in seconds; `0` disables the check |
 | `PAYMONGO_WEBHOOK_DEDUPE` | `true` | Skip webhook deliveries already handled |

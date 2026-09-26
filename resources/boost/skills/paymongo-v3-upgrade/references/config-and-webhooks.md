@@ -25,9 +25,10 @@ Never run `config:cache` as part of the upgrade; clear it instead if it was cach
 | `webhook_signature` (`PAYMONGO_WEBHOOK_SIG`) | `webhooks.secret` (`PAYMONGO_WEBHOOK_SECRET`) — the default endpoint secret |
 | `webhook_signatures.{event}` (`PAYMONGO_WEBHOOK_SIG_PAYMENT_PAID`, `..._PAYMENT_FAILED`, `..._SOURCE_CHARGABLE`, `..._PAYMENT_REFUNDED`, `..._PAYMENT_REFUND_UPDATED`) | `webhooks.secrets.{name}` — **per endpoint**, not per event; usually empty |
 | — | `base_url` (`PAYMONGO_BASE_URL`, default `https://api.paymongo.com/v1`) |
-| — | `http.timeout` (`PAYMONGO_TIMEOUT`, 30), `http.retries` (`PAYMONGO_RETRIES`, 2), `http.retry_delay` (`PAYMONGO_RETRY_DELAY`, 200 ms) |
+| — | `http.timeout` (`PAYMONGO_TIMEOUT`, 30), `http.retries` (`PAYMONGO_RETRIES`, 2 retries after the first attempt), `http.retry_delay` (`PAYMONGO_RETRY_DELAY`, 200 ms, doubling), `http.max_retry_delay` (`PAYMONGO_MAX_RETRY_DELAY`, 5000 ms) |
 | — | `idempotency.auto` (`PAYMONGO_AUTO_IDEMPOTENCY`, true — auto `Idempotency-Key` on every POST) |
 | — | `webhooks.tolerance` (`PAYMONGO_WEBHOOK_TOLERANCE`, 300 s; 0 disables the timestamp check) |
+| — | `webhooks.modes.{name}` (optional boolean mode for a named webhook endpoint; defaults to `livemode`) |
 | — | `webhooks.dedupe.enabled` (`PAYMONGO_WEBHOOK_DEDUPE`, true), `webhooks.dedupe.ttl` (86400), `webhooks.dedupe.store` (`PAYMONGO_WEBHOOK_DEDUPE_STORE`, null = default cache) |
 
 ### v3 config shape
@@ -38,11 +39,12 @@ return [
     'public_key' => env('PAYMONGO_PUBLIC_KEY'),
     'base_url' => env('PAYMONGO_BASE_URL', 'https://api.paymongo.com/v1'),
     'livemode' => env('PAYMONGO_LIVEMODE', false),
-    'http' => ['timeout' => 30, 'retries' => 2, 'retry_delay' => 200],
+    'http' => ['timeout' => 30, 'retries' => 2, 'retry_delay' => 200, 'max_retry_delay' => 5000],
     'idempotency' => ['auto' => true],
     'webhooks' => [
         'secret' => env('PAYMONGO_WEBHOOK_SECRET'),
         'secrets' => [], // e.g. ['orders' => env('PAYMONGO_WEBHOOK_SECRET_ORDERS')]
+        'modes' => [], // e.g. ['orders' => false] for a test endpoint in a live-mode app
         'tolerance' => 300,
         'dedupe' => ['enabled' => true, 'ttl' => 86400, 'store' => null],
     ],
@@ -75,6 +77,7 @@ One PayMongo endpoint has one `secret_key` no matter how many events it subscrib
 | Failure | `Illuminate\Routing\Exceptions\InvalidSignatureException` (403) | `abort(401)`; a missing secret throws `RuntimeException` |
 | Header | configurable | always `Paymongo-Signature` |
 | Timestamp check | none | rejects drift beyond `webhooks.tolerance` |
+| Mode | global | `livemode` for the default endpoint, `webhooks.modes.{name}` for a named endpoint when set |
 
 `paymongo.signature:payment_paid` carried over unchanged will fail at runtime because `paymongo.webhooks.secrets.payment_paid` is not configured. Remove the parameter.
 
@@ -171,7 +174,7 @@ Laravel 11+ auto-discovers listeners in `app/Listeners` by the `handle()` type-h
 
 ### Dedupe
 
-The controller stores `paymongo:webhook:{event_id}` in the cache (`webhooks.dedupe.store`, default store) for `webhooks.dedupe.ttl` seconds and answers `{"received": true}` without dispatching on a repeat. Delete any app-side "already processed" checks keyed on the event id, or keep them only if they guard against replays older than the TTL.
+The controller stores `paymongo:webhook:{event_id}` in the cache (`webhooks.dedupe.store`, default store) for `webhooks.dedupe.ttl` seconds after dispatch succeeds. It answers `{"received": true}` without dispatching on a repeat. A concurrent delivery gets `503` while the first one is still being handled, so a failed first attempt can be retried. Delete any app-side "already processed" checks keyed on the event id, or keep them only if they guard against replays older than the TTL.
 
 ## Artisan commands
 

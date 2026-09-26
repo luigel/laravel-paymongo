@@ -97,6 +97,6 @@ final class SubscriptionService extends AbstractService
      */
     public function triggerTestCycle(string $id): void
     {
-        $this->client->post("/subscriptions/{$id}/test_cycle");
+        $this->client->postVoid("/subscriptions/{$id}/test_cycle");
     }
 }

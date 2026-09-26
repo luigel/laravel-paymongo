@@ -40,7 +40,7 @@ final class PaymentIntentService extends AbstractService
 
         if ($publicKey === null || $publicKey === '') {
             throw new AuthenticationException(
-                'No PayMongo public key is configured. Set paymongo.public_key (PAYMONGO_PUBLIC_KEY) to retrieve payment intents with a client key.'
+                'No PayMongo public key is configured for this account. Set paymongo.public_key (PAYMONGO_PUBLIC_KEY), or pass publicKey: to withSecretKey() for another account.'
             );
         }
 

@@ -13,6 +13,7 @@ it('builds from the paymongo config array shape', function () {
             'timeout' => 10,
             'retries' => 5,
             'retry_delay' => 50,
+            'max_retry_delay' => 800,
         ],
         'idempotency' => [
             'auto' => false,
@@ -25,7 +26,8 @@ it('builds from the paymongo config array shape', function () {
         ->and($config->timeout)->toBe(10)
         ->and($config->retries)->toBe(5)
         ->and($config->retryDelay)->toBe(50)
-        ->and($config->autoIdempotency)->toBeFalse();
+        ->and($config->autoIdempotency)->toBeFalse()
+        ->and($config->maxRetryDelay)->toBe(800);
 });
 
 it('applies defaults for missing keys', function () {
@@ -37,7 +39,8 @@ it('applies defaults for missing keys', function () {
         ->and($config->timeout)->toBe(30)
         ->and($config->retries)->toBe(2)
         ->and($config->retryDelay)->toBe(200)
-        ->and($config->autoIdempotency)->toBeTrue();
+        ->and($config->autoIdempotency)->toBeTrue()
+        ->and($config->maxRetryDelay)->toBe(5000);
 });
 
 it('falls back to an empty secret key when unset', function () {
@@ -53,7 +56,7 @@ it('clones with a new secret key', function () {
     $config = ClientConfig::fromArray([
         'secret_key' => 'sk_test_abc',
         'public_key' => 'pk_test_abc',
-        'http' => ['timeout' => 10, 'retries' => 5, 'retry_delay' => 50],
+        'http' => ['timeout' => 10, 'retries' => 5, 'retry_delay' => 50, 'max_retry_delay' => 800],
         'idempotency' => ['auto' => false],
     ]);
 
@@ -67,6 +70,7 @@ it('clones with a new secret key', function () {
         ->and($clone->retries)->toBe(5)
         ->and($clone->retryDelay)->toBe(50)
         ->and($clone->autoIdempotency)->toBeFalse()
+        ->and($clone->maxRetryDelay)->toBe(800)
         ->and($config->secretKey)->toBe('sk_test_abc');
 });
 

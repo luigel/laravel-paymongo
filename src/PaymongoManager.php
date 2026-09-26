@@ -152,12 +152,14 @@ final class PaymongoManager
     }
 
     /**
-     * Clone the manager with a different secret key (multi-account use).
+     * Clone the manager with another account's keys. Omitting its public key
+     * leaves client-key retrieval unavailable on the copy.
      */
-    public function withSecretKey(string $secretKey): self
+    public function withSecretKey(string $secretKey, ?string $publicKey = null): self
     {
         $manager = clone $this;
         $manager->config['secret_key'] = $secretKey;
+        $manager->config['public_key'] = $publicKey;
         $manager->flushMemoized();
 
         return $manager;

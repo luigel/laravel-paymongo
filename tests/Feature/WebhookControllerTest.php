@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
 use Luigel\Paymongo\Events\PaymentPaid;
 use Luigel\Paymongo\Events\WebhookReceived;
@@ -14,6 +16,11 @@ beforeEach(function () {
     // by the middleware tests.
     Route::post('/hook', WebhookController::class);
 });
+
+final class QueuedWebhookListener implements ShouldQueue
+{
+    public function handle(WebhookReceived $event): void {}
+}
 
 it('dispatches the generic event and the mapped typed event', function () {
     Event::fake();
@@ -79,4 +86,52 @@ it('remembers seen event ids in the configured cache store', function () {
 
     expect(Cache::store('paymongo_dedupe')->has('paymongo:webhook:evt_Jk8VbF2c9sQmXhT4wLpNyRd6'))->toBeTrue()
         ->and(Cache::store()->has('paymongo:webhook:evt_Jk8VbF2c9sQmXhT4wLpNyRd6'))->toBeFalse();
+});
+
+it('retries a delivery after synchronous event dispatch fails', function () {
+    $attempts = 0;
+    Event::listen(WebhookReceived::class, function () use (&$attempts): void {
+        $attempts++;
+
+        if ($attempts === 1) {
+            throw new RuntimeException('Listener failed.');
+        }
+    });
+
+    $payload = fixture_data('webhook_event');
+
+    $this->postJson('/hook', $payload)->assertStatus(500);
+    $this->postJson('/hook', $payload)->assertOk();
+    $this->postJson('/hook', $payload)->assertOk();
+
+    expect($attempts)->toBe(2);
+});
+
+it('retries a delivery after a queued listener cannot be pushed', function () {
+    Event::listen(WebhookReceived::class, QueuedWebhookListener::class);
+    Queue::shouldReceive('connection')->once()->andThrow(new RuntimeException('Queue unavailable.'));
+
+    $payload = fixture_data('webhook_event');
+
+    $this->postJson('/hook', $payload)->assertStatus(500);
+
+    $key = 'paymongo:webhook:evt_Jk8VbF2c9sQmXhT4wLpNyRd6';
+    expect(Cache::store()->has($key))->toBeFalse();
+
+    Event::forget(WebhookReceived::class);
+    $this->postJson('/hook', $payload)->assertOk();
+    expect(Cache::store()->has($key))->toBeTrue();
+});
+
+it('does not acknowledge a delivery while the same event is being handled', function () {
+    $concurrentStatus = null;
+    $payload = fixture_data('webhook_event');
+
+    Event::listen(WebhookReceived::class, function () use (&$concurrentStatus, $payload): void {
+        $concurrentStatus = test()->postJson('/hook', $payload)->status();
+    });
+
+    $this->postJson('/hook', $payload)->assertOk();
+
+    expect($concurrentStatus)->toBe(503);
 });

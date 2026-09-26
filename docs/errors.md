@@ -21,8 +21,11 @@ Every request that does not succeed throws a subclass of `Luigel\Paymongo\Except
 | `RateLimitException` | 429 | Slow down. `retryAfter` holds the seconds from PayMongo's `Retry-After` header, when it sends one. |
 | `ServerException` | 5xx | PayMongo failed. Try again later. |
 | `ConnectionException` | none | PayMongo could not be reached: DNS, TLS, or a timeout. `status` is `null`, and `getPrevious()` is Laravel's connection exception. |
+| `InvalidResponseException` | 2xx | PayMongo returned a successful HTTP status with malformed JSON, or a resource endpoint returned a missing or malformed resource payload. The response `status` is available, and `errors()` is empty because PayMongo did not return an API error. |
 
-The package retries a request that fails with a connection error, a 429, or a 5xx before throwing, when repeating it is safe. See [Idempotency & retries](./idempotency.md).
+The package retries a request before throwing when repeating it cannot act twice: any request after a 429 or a connection that never opened, and a `GET`, a `DELETE`, or a `POST` with an idempotency key after a 5xx or a timeout as well. See [Idempotency & retries](./idempotency.md).
+
+Successful responses are checked before resource DTOs are built. A malformed response throws `InvalidResponseException` instead of returning a resource with empty fields. Bodyless action endpoints and successful `DELETE` responses are supported where the endpoint has no response resource.
 
 `InvalidWebhookSignatureException` is the one exception not thrown by an API request. It is thrown for a webhook delivery that fails signature verification, and the webhook route answers those with `401` itself. See [Webhooks](./webhooks.md#signature-verification).
 

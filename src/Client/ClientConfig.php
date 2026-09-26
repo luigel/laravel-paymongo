@@ -14,6 +14,7 @@ final readonly class ClientConfig
         public int $retries = 2,
         public int $retryDelay = 200,
         public bool $autoIdempotency = true,
+        public int $maxRetryDelay = 5000,
     ) {}
 
     /**
@@ -38,6 +39,7 @@ final readonly class ClientConfig
             retries: (int) ($http['retries'] ?? 2),
             retryDelay: (int) ($http['retry_delay'] ?? 200),
             autoIdempotency: (bool) ($idempotency['auto'] ?? true),
+            maxRetryDelay: (int) ($http['max_retry_delay'] ?? 5000),
         );
     }
 
@@ -66,6 +68,7 @@ final readonly class ClientConfig
             retries: $this->retries,
             retryDelay: $this->retryDelay,
             autoIdempotency: $this->autoIdempotency,
+            maxRetryDelay: $this->maxRetryDelay,
         );
     }
 }

@@ -171,7 +171,7 @@ php artisan vendor:publish --tag=paymongo-config
 | `signer`, `signature_header_name` | removed (verification is built in, header is always `Paymongo-Signature`) |
 | `webhook_signature` / `webhook_signatures.{event}` | replaced by **per-endpoint** secrets: `webhooks.secret` (default) and `webhooks.secrets.{name}` (named) |
 | — (new) | `base_url` (`PAYMONGO_BASE_URL`) |
-| — (new) | `http.timeout`, `http.retries`, `http.retry_delay` (`PAYMONGO_TIMEOUT`, `PAYMONGO_RETRIES`, `PAYMONGO_RETRY_DELAY`) |
+| — (new) | `http.timeout`, `http.retries`, `http.retry_delay`, `http.max_retry_delay` (`PAYMONGO_TIMEOUT`, `PAYMONGO_RETRIES`, `PAYMONGO_RETRY_DELAY`, `PAYMONGO_MAX_RETRY_DELAY`) |
 | — (new) | `idempotency.auto` (`PAYMONGO_AUTO_IDEMPOTENCY`, default true — auto `Idempotency-Key` on every POST) |
 | — (new) | `webhooks.tolerance` (`PAYMONGO_WEBHOOK_TOLERANCE`, signature timestamp drift, default 300s) |
 | — (new) | `webhooks.dedupe.enabled` / `ttl` / `store` (`PAYMONGO_WEBHOOK_DEDUPE`, `PAYMONGO_WEBHOOK_DEDUPE_STORE`) |

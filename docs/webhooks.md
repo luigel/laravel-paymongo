@@ -79,7 +79,7 @@ The [Events reference](./reference/events.md) lists every typed event and the Pa
 
 PayMongo expects a `2xx` within 30 seconds. Otherwise it retries the delivery, up to 12 times with exponential backoff, so one event can reach you more than once. So:
 
-- **Queue the work.** Implement `ShouldQueue`, as `MarkOrderPaid` does, so the route answers at once and a slow or failing listener is retried by your queue worker. The package marks an event handled *before* dispatching it, so if a listener that runs inside the request throws, PayMongo's retry is dropped as a repeat and the event is not handled again.
+- **Queue the work.** Implement `ShouldQueue`, as `MarkOrderPaid` does, so the route answers at once and a slow or failing listener is retried by your queue worker. The package marks an event handled after it dispatches both Laravel events. If a synchronous listener throws or a queued listener cannot be pushed, the route fails and PayMongo can retry the delivery. A queued listener that fails after being pushed is retried by your queue worker.
 - **Make the listener idempotent.** Deduplication only remembers an event for 24 hours, in your cache. Check your own state, as `MarkOrderPaid` checks `paid_at`, before acting.
 - **Check what you were paid.** Compare the amount, and whatever reference you put in `metadata`, with your order before fulfilling it.
 
@@ -88,7 +88,7 @@ PayMongo expects a `2xx` within 30 seconds. Otherwise it retries the delivery, u
 The route runs the `paymongo.signature` middleware (`Luigel\Paymongo\Http\Middleware\VerifyWebhookSignature`). It reads the `Paymongo-Signature` header, `t=<timestamp>,te=<test-mode signature>,li=<live-mode signature>`, and recomputes the HMAC-SHA256 of `"{t}.{raw body}"` with your secret, as PayMongo's [Securing a webhook](https://docs.paymongo.com/docs/developer-tools-webhook-setup-management) describes. It answers `401` when:
 
 - the header is missing, or has no timestamp;
-- the signature does not match. It checks `te` unless `PAYMONGO_LIVEMODE=true`, when it checks `li`, so set that in production;
+- the signature does not match. The default endpoint checks `te` unless `PAYMONGO_LIVEMODE=true`, when it checks `li`. Named endpoints can override this with `paymongo.webhooks.modes.{name}`;
 - the timestamp is more than `PAYMONGO_WEBHOOK_TOLERANCE` seconds away from now (`300` by default, `0` turns the check off). This stops an old delivery from being replayed.
 
 Put the middleware on a route of your own when you want to handle deliveries yourself instead of through events:
@@ -98,7 +98,7 @@ Put the middleware on a route of your own when you want to handle deliveries you
 
 ### Deduplication
 
-The route remembers each event id in your cache under `paymongo:webhook:{event id}` for 24 hours, and skips an event it has seen. Settings:
+After dispatch succeeds, the route remembers each event id in your cache under `paymongo:webhook:{event id}` for 24 hours, and skips an event it has handled. While a delivery is in progress, another delivery of the same event gets `503` so PayMongo retries it if the first attempt fails. A short cache lock expires after 60 seconds if the request process stops. Settings:
 
 | Variable or key | Default | What it does |
 |:----------------|:--------|:-------------|
@@ -115,7 +115,7 @@ Each endpoint has its own secret, so a second endpoint, for another PayMongo acc
 ```php include=examples/receiving-webhooks/multiple-endpoints.php
 ```
 
-On a route of your own, name the secret as the middleware's parameter: `paymongo.signature:orders`.
+Set `webhooks.modes.orders` to `false` for a test-mode endpoint or `true` for a live-mode endpoint. An unlisted name uses `PAYMONGO_LIVEMODE`. This lets test and live endpoints share one app. On a route of your own, name the secret as the middleware's parameter: `paymongo.signature:orders`.
 
 ### Test locally
 

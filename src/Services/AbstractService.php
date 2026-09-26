@@ -7,6 +7,7 @@ namespace Luigel\Paymongo\Services;
 use Luigel\Paymongo\Client\ApiResponse;
 use Luigel\Paymongo\Client\PaymongoClient;
 use Luigel\Paymongo\Data\Resource;
+use Luigel\Paymongo\Exceptions\InvalidResponseException;
 use Luigel\Paymongo\Pagination\CursorPage;
 
 abstract class AbstractService
@@ -25,7 +26,13 @@ abstract class AbstractService
      */
     protected function one(ApiResponse $response, string $class): Resource
     {
-        return $class::fromArray($response->data());
+        $data = $this->resource(
+            $response->body['data'] ?? null,
+            $response->status,
+            'PayMongo returned a successful response without a valid resource payload.',
+        );
+
+        return $class::fromArray($data);
     }
 
     /**
@@ -38,15 +45,43 @@ abstract class AbstractService
      */
     protected function many(ApiResponse $response, string $class): array
     {
+        $data = $response->body['data'] ?? null;
+
+        if (! is_array($data) || ! array_is_list($data)) {
+            throw new InvalidResponseException(
+                'PayMongo returned a successful response without a valid resource list.',
+                $response->status,
+            );
+        }
+
         $items = [];
 
-        foreach ($response->data() as $item) {
-            if (is_array($item)) {
-                $items[] = $class::fromArray($item);
-            }
+        foreach ($data as $item) {
+            $items[] = $class::fromArray($this->resource(
+                $item,
+                $response->status,
+                'PayMongo returned a successful response with an invalid resource in its list.',
+            ));
         }
 
         return $items;
+    }
+
+    /**
+     * Return the payload when it has the shape of a single resource, otherwise throw.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function resource(mixed $data, int $status, string $message): array
+    {
+        if (! is_array($data) || array_is_list($data)
+            || ! is_string($data['id'] ?? null) || $data['id'] === ''
+            || ! is_string($data['type'] ?? null) || $data['type'] === ''
+            || ! is_array($data['attributes'] ?? null)) {
+            throw new InvalidResponseException($message, $status);
+        }
+
+        return $data;
     }
 
     /**

@@ -7,13 +7,14 @@ use Illuminate\Support\Facades\Http;
 use Luigel\Paymongo\Exceptions\AuthenticationException;
 use Luigel\Paymongo\Exceptions\ConnectionException;
 use Luigel\Paymongo\Exceptions\InvalidRequestException;
+use Luigel\Paymongo\Exceptions\InvalidResponseException;
 use Luigel\Paymongo\Exceptions\PaymentDeclinedException;
 use Luigel\Paymongo\Exceptions\RateLimitException;
 use Luigel\Paymongo\Exceptions\ResourceNotFoundException;
 use Luigel\Paymongo\Exceptions\ServerException;
 
 beforeEach(function () {
-    config()->set('paymongo.http.retries', 1);
+    config()->set('paymongo.http.retries', 0);
     config()->set('paymongo.http.retry_delay', 0);
 });
 
@@ -71,6 +72,16 @@ it('parses the PayMongo error payload into ApiError objects', function () {
             ->and($exception->errors()[1]->attribute)->toBeNull();
     }
 });
+
+it('throws when a successful response body is not a JSON object', function (string $body) {
+    Http::fake(['api.paymongo.com/*' => Http::response($body, 200)]);
+
+    expect(fn () => app('paymongo')->client()->get('/payments'))
+        ->toThrow(InvalidResponseException::class);
+})->with([
+    'malformed JSON' => ['{not json'],
+    'JSON scalar' => ['"ok"'],
+]);
 
 it('exposes Retry-After on rate limited responses', function () {
     Http::fake([
@@ -151,7 +162,7 @@ it('wraps connection failures into the package ConnectionException', function ()
 });
 
 it('wraps connection failures thrown on the final retry attempt', function () {
-    config()->set('paymongo.http.retries', 2);
+    config()->set('paymongo.http.retries', 1);
 
     Http::fake(['api.paymongo.com/*' => Http::failedConnection('Connection refused')]);
 

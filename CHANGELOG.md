@@ -2,6 +2,23 @@
 
 All notable changes to `laravel-paymongo` will be documented in this file
 
+## Unreleased
+
+### Added
+- `http.max_retry_delay` (`PAYMONGO_MAX_RETRY_DELAY`, 5000 ms) caps any single wait between attempts.
+- Named webhook endpoints can override `paymongo.livemode` through `paymongo.webhooks.modes.{name}`.
+- Successful responses with malformed JSON or resource payloads throw `InvalidResponseException`.
+
+### Changed
+- `http.retries` (`PAYMONGO_RETRIES`) now counts retries after the first attempt, as its name says; it previously counted attempts in all. The default of `2` now allows three attempts, and `0` disables retrying.
+- Retries back off exponentially with jitter, starting at `http.retry_delay`, instead of waiting a fixed delay, and wait for a `Retry-After` header when a 429 or 5xx sends one. A `Retry-After` longer than `http.max_retry_delay` is not waited for; the `RateLimitException` is thrown at once.
+- Every request, `PUT`, `PATCH` and a `POST` without an idempotency key included, is now retried after a 429 or a connection that never opened, which prove PayMongo did not act.
+
+### Fixed
+- A `DELETE` retried after a 5xx or a timeout no longer throws `ResourceNotFoundException` when the lost attempt had already deleted the resource.
+- A failed webhook event dispatch remains available for PayMongo to retry; concurrent deliveries of an in-progress event receive `503`.
+- `withSecretKey()` no longer reuses the default account's public key. Pass the other account's key as `publicKey:` when using client-key retrieval.
+
 ## 3.0.0-beta.2 (2026-09-26)
 
 ### Added
